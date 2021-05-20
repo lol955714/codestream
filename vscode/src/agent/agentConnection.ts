@@ -103,7 +103,11 @@ import {
 	DidSetEnvironmentNotificationType,
 	DidChangeProcessBufferNotification,
 	DidChangeProcessBufferNotificationType,
-	AgentFileSearchRequestType
+	AgentFileSearchRequestType,
+	SaveProviderConfigRequest,
+	SaveProviderConfigRequestType,
+	GetProviderConfigRequest,
+	GetProviderConfigRequestType
 } from "@codestream/protocols/agent";
 import {
 	ChannelServiceType,
@@ -139,6 +143,7 @@ import {
 	ServerOptions,
 	TransportKind
 } from "vscode-languageclient";
+import { TokenManager } from "../api/tokenManager";
 import { SessionSignedOutReason } from "../api/session";
 import { Container } from "../container";
 import { Logger } from "../logger";
@@ -1159,6 +1164,26 @@ export class CodeStreamAgentConnection implements Disposable {
 					files: []
 				};
 			}
+		});
+
+		this._client.onRequest(GetProviderConfigRequestType, async (e: GetProviderConfigRequest) => {
+			try {
+				const value = await TokenManager.getGeneric(e.key);
+				return { value: value };
+			} catch (ex) {}
+			return undefined;
+		});
+		this._client.onRequest(SaveProviderConfigRequestType, async (e: SaveProviderConfigRequest) => {
+			try {
+				await TokenManager.setGeneric(e.key, e.value);
+
+				// TODO run a get to see if it worked
+
+				return {
+					success: true
+				};
+			} catch (ex) {}
+			return false;
 		});
 	}
 

@@ -318,6 +318,10 @@ export interface ThirdPartyProviderSetTokenRequest extends ThirdPartyProviderSet
 	providerId: string;
 }
 
+export interface ThirdPartyProviderUnsetTokenRequest extends ThirdPartyProviderSetTokenData {	
+	providerName: string;
+}
+
 export interface AddEnterpriseProviderHostRequest {
 	provider: string;
 	teamId: string;

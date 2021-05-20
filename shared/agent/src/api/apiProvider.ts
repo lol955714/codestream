@@ -149,6 +149,7 @@ import {
 	SetStreamPurposeRequest,
 	SetStreamPurposeResponse,
 	ThirdPartyProviderSetTokenRequest,
+	ThirdPartyProviderUnsetTokenRequest,
 	UnarchiveStreamRequest,
 	UnarchiveStreamResponse,
 	Unreads,
@@ -501,6 +502,7 @@ export interface ApiProvider {
 		sharing?: boolean;
 	}): Promise<{ code: string }>;
 	setThirdPartyProviderToken(request: ThirdPartyProviderSetTokenRequest): Promise<void>;
+	unsetThirdPartyProviderToken(request: ThirdPartyProviderUnsetTokenRequest): Promise<boolean>;
 	setThirdPartyProviderInfo(request: {
 		providerId: string;
 		host?: string;
