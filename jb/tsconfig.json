@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
-		"baseUrl": ".",
 		"esModuleInterop": true,
 		"experimentalDecorators": true,
 		"jsx": "react",
@@ -14,19 +13,19 @@
 		"noImplicitReturns": false,
 		"noImplicitAny": false,
 		"noUnusedLocals": false,
-		"outDir": "../build/ts",
+		"outDir": "./build/ts",
 		"paths": {
 			"@codestream/protocols/agent": [
-				"../../shared/ui/protocols/agent/agent.protocol.ts"
+				"../shared/ui/protocols/agent/agent.protocol.ts"
 			],
 			"@codestream/protocols/api": [
-				"../../shared/ui/protocols/agent/api.protocol.ts"
+				"../shared/ui/protocols/agent/api.protocol.ts"
 			],
 			"@codestream/protocols/webview": [
-				"../../shared/ui/ipc/webview.protocol.ts"
+				"../shared/ui/ipc/webview.protocol.ts"
 			],
-			"@codestream/webview/*": ["../../shared/ui/*"],
-			"vscode-jsonrpc": ["../../shared/ui/vscode-jsonrpc.shim.ts"]
+			"@codestream/webview/*": ["../shared/ui/*"],
+			"vscode-jsonrpc": ["../shared/ui/vscode-jsonrpc.shim.ts"]
 		},
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,

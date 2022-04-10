@@ -6,3 +6,5 @@ npm-debug.log
 .nyc_output
 src/protocol/*.js
 stats.json
+build
+esdist
