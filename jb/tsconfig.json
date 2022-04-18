@@ -24,14 +24,17 @@
 			"@codestream/protocols/webview": [
 				"../shared/ui/ipc/webview.protocol.ts"
 			],
+			"@codestream/util/*": ["../shared/util/*"],
 			"@codestream/webview/*": ["../shared/ui/*"],
 			"vscode-jsonrpc": ["../shared/ui/vscode-jsonrpc.shim.ts"]
 		},
+		"rootDir": "../",
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
 		"target": "es2017",
 		"useUnknownInCatchVariables": false
-	}
+	},
+	"include": ["**/*.ts", "../shared/util/**/*"]
 }

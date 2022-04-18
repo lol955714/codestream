@@ -12,8 +12,8 @@
 	"scripts": {
 		"analyze": "webpack --env analyze=true",
 		"build": "npm run agent:build && esno esbuild.ts",
-		"bundle": "npm install --no-save && npm run agent:bundle && esno esbuild.ts",
-		"bundle:mac": "npm run agent:bundle && npm run agent:pkg:mac && esno esbuild.ts",
+		"bundle": "npm install --no-save && npm run agent:bundle && npm run agent:pkg && esno esbuild.ts --prod",
+		"bundle:mac": "npm run agent:bundle && npm run agent:pkg:mac && esno esbuild.ts --prod",
 		"bundle:ci": "npm run clean:ci && npm run bundle",
 		"clean:ci": "git clean -xdf -e licenses/**/* && npm run webview:clean:ci && npm run agent:clean:ci",
 		"rebuild": "npm install --no-save && npm run agent:rebuild && npm run build",
@@ -28,7 +28,7 @@
 		"agent:watch": "pushd \"../shared/agent\" && npm run watch && popd",
 		"webview:analyze": "webpack --env analyzeWebview=true",
 		"webview:clean:ci": "pushd \"../shared/ui\" && npm run clean:ci && popd",
-		"preinstall": "pushd \"../shared/ui\" && npm install --no-save && popd"
+		"preinstall": "pushd \"../shared/ui\" && npm install --no-save && popd && pushd \"../shared/util\" && npm install --no-save && popd"
 	},
 	"dependencies": {
 		"core-js": "2.6.9"
