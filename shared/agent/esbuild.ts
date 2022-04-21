@@ -4,6 +4,7 @@ import { build, BuildOptions } from "esbuild";
 import * as path from "path";
 import { commonEsbuildOptions, processArgs } from "../util/src/esbuildCommon";
 import { nativeNodeModulesPlugin } from "../util/src/nativeNodeModulesPlugin";
+import { statsPlugin } from "../util/src/statsPlugin";
 
 const outputDir = path.resolve(__dirname, "dist");
 
@@ -62,7 +63,7 @@ const postBuildCopy: CopyStuff[] = [
 			"agent-pkg": "./src/main-vs.ts"
 		},
 		external: ["vm2"],
-		plugins: [graphqlLoaderPlugin(), nativeNodeModulesPlugin],
+		plugins: [graphqlLoaderPlugin(), nativeNodeModulesPlugin, statsPlugin],
 		format: "iife",
 		platform: "node",
 		target: "node16",

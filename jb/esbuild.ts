@@ -8,22 +8,19 @@ const context = path.resolve(__dirname, "webview");
 const target = path.resolve(__dirname, "src/main/resources/webview");
 
 (async function() {
-    const start = Date.now()
-    const args = processArgs();
-    createSymlinks(__dirname, args);
-    const buildOptions: BuildOptions = {
-        ...commonEsbuildOptions(true, args),
-        entryPoints: [
-            path.resolve(context, "webview.ts"),
-            path.resolve(context, "styles", "webview.less")
-        ],
-        outdir: target,
-    };
-    await build(buildOptions);
-    fs.copyFileSync(
-        path.resolve(context, "index.html"),
-        path.resolve(target, "webview-template.html")
-    );
-    const elapsed = Date.now() - start;
-    console.info(`Build complete in ${elapsed}ms`);
+	const args = processArgs();
+	createSymlinks(__dirname, args);
+	const buildOptions: BuildOptions = {
+		...commonEsbuildOptions(true, args),
+		entryPoints: [
+			path.resolve(context, "webview.ts"),
+			path.resolve(context, "styles", "webview.less")
+		],
+		outdir: target
+	};
+	await build(buildOptions);
+	fs.copyFileSync(
+		path.resolve(context, "index.html"),
+		path.resolve(target, "webview-template.html")
+	);
 })();
