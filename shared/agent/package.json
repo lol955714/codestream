@@ -20,7 +20,7 @@
 	"main": "./dist/agent",
 	"scripts": {
 		"build": "esno esbuild.ts",
-		"bundle": "npm install --no-save && esno esbuild.ts",
+		"bundle": "npm install --no-save && esno esbuild.ts --prod",
 		"bundle:ci": "npm run clean:ci && npm run bundle",
 		"clean": "rimraf src/protocol/*.js",
 		"clean:ci": "git clean -xdf",

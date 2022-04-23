@@ -18,7 +18,7 @@ export const statsPlugin = {
       total += elapsed;
       const sinceStr = new Date(since).toLocaleString();
       console.info(
-        `⌛ compileTime: ${elapsed}ms, compilCount: ${count}, totalCompileTime: ${total}, since: ${sinceStr}`
+        `⌛ compileTime: ${elapsed}ms, compileCount: ${count}, totalCompileTime: ${total}, since: ${sinceStr}`
       );
     });
   }

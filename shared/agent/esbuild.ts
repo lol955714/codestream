@@ -2,17 +2,11 @@ import graphqlLoaderPlugin from "@luckycatfactory/esbuild-graphql-loader";
 import cpy, { Options } from "cpy";
 import { build, BuildOptions } from "esbuild";
 import * as path from "path";
-import { commonEsbuildOptions, processArgs } from "../util/src/esbuildCommon";
+import { commonEsbuildOptions, processArgs, CopyStuff } from "../util/src/esbuildCommon";
 import { nativeNodeModulesPlugin } from "../util/src/nativeNodeModulesPlugin";
 import { statsPlugin } from "../util/src/statsPlugin";
 
 const outputDir = path.resolve(__dirname, "dist");
-
-interface CopyStuff {
-	from: string;
-	to: string;
-	options?: Options;
-}
 
 const postBuildCopy: CopyStuff[] = [
 	{
@@ -54,7 +48,6 @@ const postBuildCopy: CopyStuff[] = [
 ];
 
 (async function() {
-	const start = Date.now();
 	const args = processArgs();
 	const buildOption: BuildOptions = {
 		...commonEsbuildOptions(false, args),
@@ -75,6 +68,4 @@ const postBuildCopy: CopyStuff[] = [
 	for (const entry of postBuildCopy) {
 		await cpy(entry.from, entry.to, entry.options);
 	}
-	const elapsed = Date.now() - start;
-	console.info(`Build complete in ${elapsed}ms`);
 })();

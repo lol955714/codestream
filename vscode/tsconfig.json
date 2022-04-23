@@ -18,10 +18,12 @@
 			"@codestream/protocols/webview": ["protocols/webview/webview.protocol.ts"]
 		},
 		"preserveSymlinks": true,
+		"rootDir": "../",
 		"sourceMap": true,
 		"strict": true,
 		"target": "ES2020",
 		"useUnknownInCatchVariables": false
 	},
-	"exclude": ["node_modules", "src/webviews/app", ".vscode-test"]
+	"exclude": ["node_modules", "src/webviews/app", ".vscode-test"],
+	"include": ["src/**/*.ts", "../shared/util/**/*"]
 }

@@ -3,6 +3,7 @@ import { statsPlugin } from "./statsPlugin";
 import { vscShimPlugin } from "./vscShim";
 import { lessLoader } from "esbuild-plugin-less";
 import * as path from "path";
+import cpy, { Options } from "cpy";
 
 export type Mode = "production" | "development";
 
@@ -10,6 +11,12 @@ export interface Args {
   watchMode: boolean;
   reset: boolean;
   mode: Mode;
+}
+
+export interface CopyStuff {
+	from: string;
+	to: string;
+	options?: Options;
 }
 
 export function processArgs(): Args {

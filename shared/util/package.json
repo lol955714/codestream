@@ -19,6 +19,7 @@
 	},
 	"devDependencies": {
 		"@luckycatfactory/esbuild-graphql-loader": "^3.7.0",
+		"cpy": "^9.0.1",
 		"esbuild": "^0.14.36",
 		"esbuild-plugin-less": "^1.1.6"
 	}
