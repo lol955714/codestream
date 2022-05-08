@@ -31,7 +31,7 @@ SOFTWARE.
 
 import { createPatch, ParsedDiff, parsePatch } from "diff";
 import * as fs from "fs";
-import { memoize } from "lodash-es";
+import { memoize } from "lodash";
 import * as path from "path";
 import { Disposable, Event, Range } from "vscode-languageserver";
 import { URI } from "vscode-uri";

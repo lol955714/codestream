@@ -1,5 +1,4 @@
 "use strict";
-import { isEqual as _isEqual } from "lodash-es";
 import path from "path";
 import {
 	Connection,

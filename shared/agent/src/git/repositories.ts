@@ -5,7 +5,7 @@ import * as path from "path";
 import { Disposable, Emitter, Event, WorkspaceFoldersChangeEvent } from "vscode-languageserver";
 import { URI } from "vscode-uri";
 import { Container, SessionContainer } from "../container";
-import { Logger, TraceLevel } from "../logger";
+import { Logger } from "../logger";
 import {
 	CommitsChangedData,
 	ReportingMessageType,
@@ -16,6 +16,7 @@ import { CSRepository } from "../protocol/api.protocol";
 import { CodeStreamSession } from "../session";
 import { Iterables, Strings, TernarySearchTree } from "../system";
 import { Disposables } from "../system/disposable";
+import { TraceLevel } from "../types";
 import { GitRepository } from "./gitService";
 import { RepositoryLocator } from "./repositoryLocator";
 

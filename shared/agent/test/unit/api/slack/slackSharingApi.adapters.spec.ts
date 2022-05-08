@@ -1,13 +1,7 @@
-import { expect } from "chai";
-require("mocha").describe;
-require("mocha").it;
+import { describe, expect, it } from "@jest/globals";
 import { CSUser } from "protocol/api.protocol";
 import { stubInterface } from "ts-sinon";
-import {
-	toSlackPostBlocks,
-	toSlackTextSafe,
-	UserMaps
-} from "../../../../src/api/slack/slackSharingApi.adapters";
+import { toSlackPostBlocks, toSlackTextSafe, UserMaps } from "../../../../src/api/slack/slackSharingApi.adapters";
 
 describe("slackSharingApi.adapters.ts", () => {
 	const userMaps = stubInterface<UserMaps>();
@@ -24,13 +18,13 @@ describe("slackSharingApi.adapters.ts", () => {
 	describe("toSlackTextSafe", () => {
 		it("has a long text block", () => {
 			const text = toSlackTextSafe("x".repeat(3200), stubInterface<UserMaps>(), undefined, 3000);
-			expect(text.wasTruncated).to.eq(true);
-			expect(text.text.length).to.be.lessThan(3000);
+			expect(text.wasTruncated).toBe(true);
+			expect(text.text.length).toBeLessThan(3000);
 		});
 
 		it("has replaceable mentions", () => {
 			const text = toSlackTextSafe("@cheese what is this?", userMaps);
-			expect(text.text).to.eq("<@456> what is this?");
+			expect(text.text).toBe("<@456> what is this?");
 		});
 	});
 
@@ -50,7 +44,7 @@ describe("slackSharingApi.adapters.ts", () => {
 				},
 				""
 			);
-			expect(blocks.length).to.be.greaterThan(2);
+			expect(blocks.length).toBeGreaterThan(2);
 		});
 	});
 });

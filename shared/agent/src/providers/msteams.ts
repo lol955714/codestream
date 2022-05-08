@@ -1,5 +1,5 @@
 "use strict";
-import { sortBy } from "lodash-es";
+import { sortBy } from "lodash";
 import { SessionContainer } from "../container";
 import {
 	AgentOpenUrlRequestType,

@@ -1,8 +1,13 @@
 "use strict";
 import fs from "fs";
 import { GraphQLClient } from "graphql-request";
-import { Dictionary } from "lodash";
-import { flatten as _flatten, groupBy as _groupBy, memoize, uniq as _uniq } from "lodash-es";
+import {
+	Dictionary,
+	flatten as _flatten,
+	groupBy as _groupBy,
+	memoize,
+	uniq as _uniq
+} from "lodash";
 import { join, relative, sep } from "path";
 import { ResponseError } from "vscode-jsonrpc/lib/messages";
 import { URI } from "vscode-uri";
@@ -1982,7 +1987,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 			return undefined;
 		}
 
-		const remotes = await repoForFile.getWeightedRemotesByStrategy(undefined, "prioritizeUpstream");
+		const remotes = await repoForFile.getWeightedRemotesByStrategy("prioritizeUpstream", undefined);
 		const remote = remotes.map(_ => _.rawUrl)[0];
 
 		let relativeFilePath = relative(repoForFile.path, request.filePath);

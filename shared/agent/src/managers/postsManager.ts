@@ -2,7 +2,7 @@
 import { CodeStreamApiProvider } from "api/codestream/codestreamApi";
 import { ParsedDiff } from "diff";
 import * as fs from "fs";
-import { groupBy, last, orderBy } from "lodash-es";
+import { groupBy, last, orderBy } from "lodash";
 import { compressToBase64 } from "lz-string";
 import sizeof from "object-sizeof";
 import * as path from "path";

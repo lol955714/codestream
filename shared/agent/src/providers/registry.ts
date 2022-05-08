@@ -1,5 +1,5 @@
 "use strict";
-import { differenceWith } from "lodash-es";
+import { differenceWith } from "lodash";
 import semver from "semver";
 import { URI } from "vscode-uri";
 import { SessionContainer } from "../container";
@@ -171,7 +171,7 @@ export class ThirdPartyProviderRegistry {
 		return this;
 	}
 
-	private async pullRequestsStateHandler() {
+	async pullRequestsStateHandler() {
 		const user = await SessionContainer.instance().users.getMe();
 		if (!user) return;
 
@@ -293,7 +293,7 @@ export class ThirdPartyProviderRegistry {
 		return newProvidersPRs;
 	};
 
-	private fireNewPRsNotifications(providersPRs: ProviderPullRequests[]) {
+	fireNewPRsNotifications(providersPRs: ProviderPullRequests[]) {
 		const prNotificationMessages: PullRequestsChangedData[] = [];
 
 		providersPRs.map(_ =>
@@ -879,7 +879,7 @@ export class ThirdPartyProviderRegistry {
 		return response;
 	}
 
-	private getPullRequestProvider(
+	getPullRequestProvider(
 		provider: ThirdPartyProvider
 	): ThirdPartyIssueProvider & ThirdPartyProviderSupportsViewingPullRequests {
 		const pullRequestProvider = provider as ThirdPartyIssueProvider;
@@ -935,7 +935,9 @@ export class ThirdPartyProviderRegistry {
 	 *
 	 * @param user
 	 */
-	async getConnectedPullRequestProviders(user: CSMe) {
+	async getConnectedPullRequestProviders(
+		user: CSMe
+	): Promise<(ThirdPartyProvider & ThirdPartyProviderSupportsPullRequests)[]> {
 		const connectedProviders = this.getConnectedProviders(user, (p): p is ThirdPartyProvider &
 			ThirdPartyProviderSupportsPullRequests => {
 			const thirdPartyProvider = p as ThirdPartyProvider;

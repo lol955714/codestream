@@ -1,7 +1,6 @@
-import * as os from "os";
-import { ReportSuppressedMessages } from "./agentError";
-import { Team } from "./api/extensions";
-import { SessionContainer } from "./container";
+import * as NewRelic from "newrelic";
+import { CodeStreamAgent } from "./agent";
+import { Logger } from "./logger";
 import {
 	ReportBreadcrumbRequest,
 	ReportBreadcrumbRequestType,
@@ -10,12 +9,9 @@ import {
 	WebviewErrorRequest,
 	WebviewErrorRequestType
 } from "./protocol/agent.protocol";
-import { CodeStreamSession, SessionStatus } from "./session";
+import { CodeStreamSession } from "./session";
 import { lsp, lspHandler, Strings } from "./system";
-import { Logger } from "./logger";
-import * as NewRelic from "newrelic";
 import md5 = Strings.md5;
-import { CodeStreamAgent } from "./agent";
 
 interface IErrorReporterProvider {
 	reportMessage(request: ReportMessageRequest): void;

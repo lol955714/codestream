@@ -1,60 +1,14 @@
-"use strict";
-/**
-Portions adapted from https://github.com/eamodio/vscode-gitlens/blob/12a93fe5f609f0bb154dca1a8d09ac3e980b9b3b/src/logger.ts which carries this notice:
+import { LogCorrelationContext } from "../types";
 
-The MIT License (MIT)
-
-Copyright (c) 2016-2021 Eric Amodio
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
-/**
- * Modifications Copyright CodeStream Inc. under the Apache 2.0 License (Apache-2.0)
- */
-import { URI } from "vscode-uri";
-import { CodeStreamAgent } from "./agent";
-import { getCorrelationContext } from "./system";
-import { LogCorrelationContext, TraceLevel } from "./types";
-// import { Telemetry } from './telemetry';
-
-// const ConsolePrefix = `[CodeStreamAgent]`;
+const ConsolePrefix = `[CodeStreamAgent]`;
 
 export class Logger {
-	static level: TraceLevel = TraceLevel.Silent;
-	private static _agent: CodeStreamAgent | undefined;
-	static customLoggableFn: ((o: object) => string | undefined) | undefined;
-
-	static initialize(agent: CodeStreamAgent, loggableFn?: (o: any) => string | undefined) {
-		this.customLoggableFn = loggableFn;
-
-		this._agent = agent;
-	}
-
 	static debug(message: string, ...params: any[]): void;
 	static debug(context: LogCorrelationContext | undefined, message: string, ...params: any[]): void;
 	static debug(
 		contextOrMessage: LogCorrelationContext | string | undefined,
 		...params: any[]
 	): void {
-		if (this.level !== TraceLevel.Debug && !Logger.isDebugging) return;
-
 		let message;
 		if (typeof contextOrMessage === "string") {
 			message = contextOrMessage;
@@ -65,14 +19,7 @@ export class Logger {
 				message = `${contextOrMessage.prefix} ${message || ""}`;
 			}
 		}
-
-		// if (Logger.isDebugging) {
-		// 	console.log(this.timestamp, ConsolePrefix, message || "", ...params);
-		// }
-
-		if (this._agent !== undefined) {
-			this._agent.log(`${this.timestamp} ${message || ""}${this.toLoggableParams(true, params)}`);
-		}
+		console.debug(ConsolePrefix, message || "", ...params);
 	}
 
 	static error(ex: Error, message?: string, ...params: any[]): void;
@@ -87,8 +34,6 @@ export class Logger {
 		contextOrMessage: LogCorrelationContext | string | undefined,
 		...params: any[]
 	): void {
-		if (this.level === TraceLevel.Silent && !Logger.isDebugging) return;
-
 		let message;
 		if (contextOrMessage === undefined || typeof contextOrMessage === "string") {
 			message = contextOrMessage;
@@ -108,34 +53,16 @@ export class Logger {
 			}
 		}
 
-		// if (Logger.isDebugging) {
-		// 	console.error(this.timestamp, ConsolePrefix, message || "", ...params, ex);
-		// }
-
-		if (this._agent !== undefined) {
-			this._agent.error(
-				`${this.timestamp} ${message || ""}${this.toLoggableParams(false, params)}\n${ex}\n${stack}`
-			);
-		}
-
-		// Telemetry.trackException(ex);
+		console.error(ConsolePrefix, message || "", ...params, ex);
 	}
 
 	static getCorrelationContext() {
-		return getCorrelationContext();
+		return 0;
 	}
 
 	static log(message: string, ...params: any[]): void;
 	static log(context: LogCorrelationContext | undefined, message: string, ...params: any[]): void;
 	static log(contextOrMessage: LogCorrelationContext | string | undefined, ...params: any[]): void {
-		if (
-			this.level !== TraceLevel.Verbose &&
-			this.level !== TraceLevel.Debug &&
-			!Logger.isDebugging
-		) {
-			return;
-		}
-
 		let message;
 		if (typeof contextOrMessage === "string") {
 			message = contextOrMessage;
@@ -147,13 +74,7 @@ export class Logger {
 			}
 		}
 
-		// if (Logger.isDebugging) {
-		// 	console.log(this.timestamp, ConsolePrefix, message || "", ...params);
-		// }
-
-		if (this._agent !== undefined) {
-			this._agent.log(`${this.timestamp} ${message || ""}${this.toLoggableParams(false, params)}`);
-		}
+		console.info(ConsolePrefix, message || "", ...params);
 	}
 
 	static logWithDebugParams(message: string, ...params: any[]): void;
@@ -166,14 +87,6 @@ export class Logger {
 		contextOrMessage: LogCorrelationContext | string | undefined,
 		...params: any[]
 	): void {
-		if (
-			this.level !== TraceLevel.Verbose &&
-			this.level !== TraceLevel.Debug &&
-			!Logger.isDebugging
-		) {
-			return;
-		}
-
 		let message;
 		if (typeof contextOrMessage === "string") {
 			message = contextOrMessage;
@@ -185,13 +98,7 @@ export class Logger {
 			}
 		}
 
-		// if (Logger.isDebugging) {
-		// 	console.log(this.timestamp, ConsolePrefix, message || "", ...params);
-		// }
-
-		if (this._agent !== undefined) {
-			this._agent.log(`${this.timestamp} ${message || ""}${this.toLoggableParams(true, params)}`);
-		}
+		console.log(ConsolePrefix, message || "", ...params);
 	}
 
 	static warn(message: string, ...params: any[]): void;
@@ -200,8 +107,6 @@ export class Logger {
 		contextOrMessage: LogCorrelationContext | string | undefined,
 		...params: any[]
 	): void {
-		if (this.level === TraceLevel.Silent && !Logger.isDebugging) return;
-
 		let message;
 		if (typeof contextOrMessage === "string") {
 			message = contextOrMessage;
@@ -213,13 +118,7 @@ export class Logger {
 			}
 		}
 
-		// if (Logger.isDebugging) {
-		// 	console.warn(this.timestamp, ConsolePrefix, message || "", ...params);
-		// }
-
-		if (this._agent !== undefined) {
-			this._agent.warn(`${this.timestamp} ${message || ""}${this.toLoggableParams(false, params)}`);
-		}
+		console.warn(this.timestamp, ConsolePrefix, message || "", ...params);
 	}
 
 	static sanitize(key: string, value: any) {
@@ -230,11 +129,6 @@ export class Logger {
 
 	static toLoggable(p: any, sanitize: (key: string, value: any) => any = this.sanitize) {
 		if (typeof p !== "object") return String(p);
-		if (this.customLoggableFn !== undefined) {
-			const loggable = this.customLoggableFn(p);
-			if (loggable != null) return loggable;
-		}
-		if (p instanceof URI) return `Uri(${p.toString(true)})`;
 
 		try {
 			return JSON.stringify(p, sanitize);
@@ -263,13 +157,6 @@ export class Logger {
 	}
 
 	private static toLoggableParams(debugOnly: boolean, params: any[]) {
-		if (
-			params.length === 0 ||
-			(debugOnly && this.level !== TraceLevel.Debug && !Logger.isDebugging)
-		) {
-			return "";
-		}
-
 		const loggableParams = params.map(p => this.toLoggable(p)).join(", ");
 		return ` \u2014 ${loggableParams}` || "";
 	}

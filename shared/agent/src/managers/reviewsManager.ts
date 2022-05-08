@@ -1,14 +1,13 @@
 "use strict";
 import { ParsedDiff } from "diff";
 import * as fs from "fs";
-import { flatten } from "lodash-es";
+import { flatten } from "lodash";
 import { decompressFromBase64 } from "lz-string";
 import * as path from "path";
-import { CodeStreamSession } from "session";
 import { URI } from "vscode-uri";
 import { MessageType } from "../api/apiProvider";
 import { Container, SessionContainer, SessionServiceContainer } from "../container";
-import { EMPTY_TREE_SHA, GitCommit, GitRemote, GitRepository } from "../git/gitService";
+import { EMPTY_TREE_SHA, GitCommit, GitRepository } from "../git/gitService";
 import { Logger } from "../logger";
 import {
 	CheckPullRequestPreconditionsRequest,
@@ -68,12 +67,12 @@ import {
 	CSTransformedReviewChangeset,
 	FileStatus
 } from "../protocol/api.protocol";
+import { ThirdPartyProvider, ThirdPartyProviderSupportsPullRequests } from "../providers/provider";
 import { log, lsp, lspHandler, Strings } from "../system";
 import { gate } from "../system/decorators/gate";
 import { xfs } from "../xfs";
 import { CachedEntityManagerBase, Id } from "./entityManager";
 import { trackReviewPostCreation } from "./postsManager";
-import Timer = NodeJS.Timer;
 
 const uriRegexp = /codestream-diff:\/\/(\w+)\/(\w+)\/(\w+)\/(\w+)\/(.+)/;
 
@@ -150,7 +149,7 @@ export class ReviewsManager extends CachedEntityManagerBase<CSReview> {
 		string,
 		{ version: number; responses: FetchReviewCheckpointDiffsResponse }
 	>();
-	private diffsCacheTimeout: Timer | undefined;
+	private diffsCacheTimeout: NodeJS.Timer | undefined;
 
 	@gate()
 	async getAllDiffs(
@@ -666,7 +665,10 @@ export class ReviewsManager extends CachedEntityManagerBase<CSReview> {
 
 			// given a user, get all of their connected providers
 			const user = await users.getMe();
-			const connectedProviders = await providerRegistry.getConnectedPullRequestProviders(user);
+			const connectedProviders: (ThirdPartyProvider &
+				ThirdPartyProviderSupportsPullRequests)[] = await providerRegistry.getConnectedPullRequestProviders(
+				user
+			);
 			// given the repo we care about, try to map it to one of the code host providers
 			const providerRepo = await repo.getPullRequestProvider(user, connectedProviders);
 
@@ -680,8 +682,8 @@ export class ReviewsManager extends CachedEntityManagerBase<CSReview> {
 				// that will give the user the option to create a PR to its parent repo or
 				// to itself.
 				const weightedRemotes = await repo.getWeightedRemotesByStrategy(
-					providerRepo.remotes,
-					"prioritizeOrigin"
+					"prioritizeOrigin",
+					providerRepo.remotes
 				);
 				let lastError;
 				const remotesLength = weightedRemotes.length;

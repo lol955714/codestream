@@ -1,6 +1,6 @@
 "use strict";
 import { CodeStreamApiProvider } from "api/codestream/codestreamApi";
-import { flatten, sortBy } from "lodash-es";
+import { flatten, sortBy } from "lodash";
 import { SlackSharingApiProvider } from "../api/slack/slackSharingApi";
 import { SessionContainer } from "../container";
 import {

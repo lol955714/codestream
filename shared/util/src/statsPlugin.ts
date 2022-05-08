@@ -1,4 +1,4 @@
-import { BuildResult, PluginBuild } from "esbuild";
+import { PluginBuild } from "esbuild";
 
 export const statsPlugin = {
   name: "stats",

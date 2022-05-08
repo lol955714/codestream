@@ -1,5 +1,5 @@
 "use strict";
-import { sortBy } from "lodash-es";
+import { sortBy } from "lodash";
 import * as qs from "querystring";
 import { Container, SessionContainer } from "../container";
 import { Logger } from "../logger";
