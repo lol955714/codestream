@@ -55,9 +55,9 @@ const postBuildCopy: CopyStuff[] = [
 			agent: "./src/main.ts",
 			"agent-pkg": "./src/main-vs.ts"
 		},
-		external: ["vm2", "newrelic"],
+		external: ["vm2"],
 		plugins: [graphqlLoaderPlugin(), nativeNodeModulesPlugin, statsPlugin],
-		format: "iife",
+		format: "cjs",
 		platform: "node",
 		target: "node16",
 		outdir: outputDir

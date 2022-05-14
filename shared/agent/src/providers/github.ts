@@ -44,7 +44,7 @@ import {
 	ThirdPartyProviderConfig
 } from "../protocol/agent.protocol";
 import { CSGitHubProviderInfo, CSRepository } from "../protocol/api.protocol";
-import { Dates, Functions, lspProvider } from "../system";
+import { Dates, Functions, log, lspProvider } from "../system";
 import { TraceLevel } from "../types";
 import { Directive, Directives } from "./directives";
 import {
@@ -202,7 +202,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		this._knownRepos = new Map<string, GitHubRepo>();
 	}
 
-	// @log()
+	@log()
 	async onDisconnected(request?: ThirdPartyDisconnect) {
 		// delete the graphql client so it will be reconstructed if a new token is applied
 		delete this._client;
@@ -458,7 +458,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return true;
 	}
 
-	// @log()
+	@log()
 	async getBoards(request: FetchThirdPartyBoardsRequest): Promise<FetchThirdPartyBoardsResponse> {
 		void (await this.ensureConnected());
 
@@ -518,7 +518,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return { workflow: [] };
 	}
 
-	// @log()
+	@log()
 	async getCards(request: FetchThirdPartyCardsRequest): Promise<FetchThirdPartyCardsResponse> {
 		void (await this.ensureConnected());
 
@@ -587,7 +587,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return currentRepo;
 	}
 
-	// @log()
+	@log()
 	async getPullRequest(
 		request: FetchThirdPartyPullRequestRequest
 	): Promise<FetchThirdPartyPullRequestResponse> {
@@ -844,7 +844,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return response;
 	}
 
-	// @log()
+	@log()
 	async createCard(request: CreateThirdPartyCardRequest) {
 		void (await this.ensureConnected());
 
@@ -860,7 +860,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return { ...response.body, url: response.body.html_url };
 	}
 
-	// @log()
+	@log()
 	async moveCard(request: MoveThirdPartyCardRequest): Promise<MoveThirdPartyCardResponse> {
 		return { success: false };
 	}
@@ -881,7 +881,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return undefined;
 	}
 
-	// @log()
+	@log()
 	async getAssignableUsers(request: { boardId: string }) {
 		void (await this.ensureConnected());
 
@@ -904,7 +904,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		};
 	}
 
-	// @log()
+	@log()
 	async createPullRequest(
 		request: ProviderCreatePullRequestRequest
 	): Promise<ProviderCreatePullRequestResponse | undefined> {
@@ -998,7 +998,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		}
 	}
 
-	// @log()
+	@log()
 	async getRepoInfo(request: { remote: string }): Promise<ProviderGetRepoInfoResponse> {
 		try {
 			const { owner, name } = this.getOwnerFromRemote(request.remote);
@@ -3994,7 +3994,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		});
 	}
 
-	// @log()
+	@log()
 	async createCommitComment(request: {
 		pullRequestId: string;
 		sha: string;

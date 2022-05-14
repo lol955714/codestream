@@ -36,8 +36,7 @@ import {
 	UpdateThirdPartyStatusRequest,
 	UpdateThirdPartyStatusResponse
 } from "../protocol/agent.protocol";
-import { CSMe, CSProviderInfos } from "../protocol/api.protocol";
-import { ThirdPartyProviderBase } from "./thirdPartyProviderBase";
+import { CSMe } from "../protocol/api.protocol";
 
 export const providerDisplayNamesByNameKey = new Map<string, string>([
 	["asana", "Asana"],

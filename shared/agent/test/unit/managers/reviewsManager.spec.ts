@@ -228,7 +228,9 @@ describe("ReviewsManager.spec.ts", () => {
 						}
 					} as any
 				);
-				console.warn(response.error);
+				if (response?.error) {
+					console.warn(response.error);
+				}
 				expect(response.success).toEqual(true);
 			});
 		});
