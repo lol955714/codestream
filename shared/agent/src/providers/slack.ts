@@ -19,7 +19,8 @@ import {
 	StreamType
 } from "../protocol/api.protocol";
 import { log, lspProvider } from "../system";
-import { ThirdPartyPostProviderBase, ThirdPartyProviderSupportsStatus } from "./provider";
+import { ThirdPartyProviderSupportsStatus } from "./provider";
+import { ThirdPartyPostProviderBase } from "./thirdPartyPostProviderBase";
 
 @lspProvider("slack")
 export class SlackProvider extends ThirdPartyPostProviderBase<CSSlackProviderInfo>

@@ -9,7 +9,7 @@ import { GitLabProvider } from "../../../src/providers/gitlab";
 import { GitLabEnterpriseProvider } from "../../../src/providers/gitlabEnterprise";
 import { ThirdPartyIssueProvider } from "../../../src/providers/provider";
 
-describe("provider", async () => {
+describe("provider", () => {
 	it("supportsViewingPullRequests", async () => {
 		[GitHubProvider, GitHubEnterpriseProvider, GitLabProvider, GitLabEnterpriseProvider].forEach(
 			Provider => {
@@ -26,7 +26,7 @@ describe("provider", async () => {
 		});
 	});
 
-	it("supportsCreatingPullRequests", async () => {
+	it("supportsCreatingPullRequests", () => {
 		[
 			GitHubProvider,
 			GitHubEnterpriseProvider,

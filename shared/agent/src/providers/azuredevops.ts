@@ -22,7 +22,7 @@ import {
 } from "../protocol/agent.protocol";
 import { CSAzureDevOpsProviderInfo } from "../protocol/api.protocol";
 import { log, lspProvider } from "../system";
-import { ThirdPartyIssueProviderBase } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 interface AzureDevOpsProfile {
 	emailAddress: string;

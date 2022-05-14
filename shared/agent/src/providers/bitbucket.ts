@@ -38,10 +38,10 @@ import {
 	ProviderGetRepoInfoResponse,
 	ProviderPullRequestInfo,
 	PullRequestComment,
-	ThirdPartyIssueProviderBase,
 	ThirdPartyProviderSupportsIssues,
 	ThirdPartyProviderSupportsPullRequests
 } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 interface BitbucketRepo {
 	uuid: string;

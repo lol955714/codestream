@@ -1,13 +1,6 @@
 "use strict";
-import { GraphQLClient } from "graphql-request";
-import { Agent as HttpsAgent } from "https";
-import HttpsProxyAgent from "https-proxy-agent";
-import fetch, { RequestInit, Response } from "node-fetch";
-import * as url from "url";
-import { InternalError, ReportSuppressedMessages } from "../agentError";
-import { MessageType } from "../api/apiProvider";
-import { User } from "../api/extensions";
-import { Container, SessionContainer } from "../container";
+import { Response } from "node-fetch";
+import { SessionContainer } from "../container";
 import { GitRemote, GitRemoteLike, GitRepository } from "../git/gitService";
 import { Logger } from "../logger";
 import {
@@ -17,8 +10,6 @@ import {
 	CreateThirdPartyCardResponse,
 	CreateThirdPartyPostRequest,
 	CreateThirdPartyPostResponse,
-	DocumentMarker,
-	DocumentMarkerExternalContent,
 	FetchAssignableUsersAutocompleteRequest,
 	FetchAssignableUsersRequest,
 	FetchAssignableUsersResponse,
@@ -46,8 +37,7 @@ import {
 	UpdateThirdPartyStatusResponse
 } from "../protocol/agent.protocol";
 import { CSMe, CSProviderInfos } from "../protocol/api.protocol";
-import { CodeStreamSession } from "../session";
-import { Functions, log, Strings } from "../system";
+import { ThirdPartyProviderBase } from "./thirdPartyProviderBase";
 
 export const providerDisplayNamesByNameKey = new Map<string, string>([
 	["asana", "Asana"],
@@ -72,20 +62,27 @@ export const providerDisplayNamesByNameKey = new Map<string, string>([
 
 export interface ThirdPartyProviderSupportsIssues {
 	getBoards(request: FetchThirdPartyBoardsRequest): Promise<FetchThirdPartyBoardsResponse>;
+
 	getCards(request: FetchThirdPartyCardsRequest): Promise<FetchThirdPartyCardsResponse>;
+
 	getCardWorkflow(
 		request: FetchThirdPartyCardWorkflowRequest
 	): Promise<FetchThirdPartyCardWorkflowResponse>;
+
 	moveCard(request: MoveThirdPartyCardRequest): Promise<MoveThirdPartyCardResponse>;
+
 	getAssignableUsers(request: FetchAssignableUsersRequest): Promise<FetchAssignableUsersResponse>;
+
 	getAssignableUsersAutocomplete(
 		request: FetchAssignableUsersAutocompleteRequest
 	): Promise<FetchAssignableUsersResponse>;
+
 	createCard(request: CreateThirdPartyCardRequest): Promise<CreateThirdPartyCardResponse>;
 }
 
 export interface ThirdPartyProviderSupportsPosts {
 	createPost(request: CreateThirdPartyPostRequest): Promise<CreateThirdPartyPostResponse>;
+
 	getChannels(request: FetchThirdPartyChannelsRequest): Promise<FetchThirdPartyChannelsResponse>;
 }
 
@@ -95,7 +92,9 @@ export interface ThirdPartyProviderSupportsStatus {
 
 export interface ThirdPartyProviderSupportsPullRequests {
 	getRepoInfo(request: ProviderGetRepoInfoRequest): Promise<ProviderGetRepoInfoResponse>;
+
 	getIsMatchingRemotePredicate(): (remoteLike: GitRemoteLike) => boolean;
+
 	getRemotePaths(repo: GitRepository, _projectsByRemotePath: any): any;
 }
 
@@ -111,9 +110,11 @@ export interface ThirdPartyProviderSupportsViewingPullRequests
 	getPullRequest(
 		request: FetchThirdPartyPullRequestRequest
 	): Promise<FetchThirdPartyPullRequestResponse>;
+
 	getPullRequestCommits(
 		request: FetchThirdPartyPullRequestCommitsRequest
 	): Promise<FetchThirdPartyPullRequestCommitsResponse>;
+
 	getMyPullRequests(
 		request: GetMyPullRequestsRequest
 	): Promise<GetMyPullRequestsResponse[][] | undefined>;
@@ -149,6 +150,7 @@ export namespace ThirdPartyPostProvider {
 	): provider is ThirdPartyPostProvider & ThirdPartyProviderSupportsPosts {
 		return (provider as any).createPost !== undefined;
 	}
+
 	export function supportsStatus(
 		provider: ThirdPartyProvider
 	): provider is ThirdPartyProvider & ThirdPartyProviderSupportsStatus {
@@ -161,15 +163,25 @@ export interface ThirdPartyProvider {
 	readonly displayName: string;
 	readonly icon: string;
 	hasTokenError?: boolean;
+
 	connect(): Promise<void>;
+
 	canConfigure(): boolean;
+
 	configure(data: ProviderConfigurationData, verify?: boolean): Promise<boolean>;
+
 	disconnect(request: ThirdPartyDisconnect): Promise<void>;
+
 	addEnterpriseHost(request: AddEnterpriseProviderRequest): Promise<AddEnterpriseProviderResponse>;
+
 	removeEnterpriseHost(request: RemoveEnterpriseProviderRequest): Promise<void>;
+
 	getConfig(): ThirdPartyProviderConfig;
+
 	isConnected(me: CSMe): boolean;
+
 	ensureConnected(request?: { providerTeamId?: string }): Promise<void>;
+
 	verifyConnection(config: ProviderConfigurationData): Promise<void>;
 
 	/**
@@ -183,14 +195,17 @@ export interface ThirdPartyProvider {
 
 export interface ThirdPartyIssueProvider extends ThirdPartyProvider {
 	supportsIssues(): this is ThirdPartyIssueProvider & ThirdPartyProviderSupportsIssues;
+
 	supportsViewingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsViewingPullRequests;
+
 	supportsCreatingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsCreatingPullRequests;
 }
 
 export interface ThirdPartyPostProvider extends ThirdPartyProvider {
 	supportsSharing(): this is ThirdPartyPostProvider & ThirdPartyProviderSupportsPosts;
+
 	supportsStatus(): this is ThirdPartyPostProvider & ThirdPartyProviderSupportsStatus;
 }
 

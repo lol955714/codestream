@@ -19,7 +19,7 @@ import {
 } from "../protocol/agent.protocol";
 import { CSYouTrackProviderInfo } from "../protocol/api.protocol";
 import { log, lspProvider } from "../system";
-import { ThirdPartyIssueProviderBase } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 @lspProvider("youtrack")
 export class YouTrackProvider extends ThirdPartyIssueProviderBase<CSYouTrackProviderInfo> {

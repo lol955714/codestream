@@ -20,7 +20,7 @@ import {
 } from "../protocol/agent.protocol";
 import { CSLinearProviderInfo } from "../protocol/api.protocol";
 import { log, lspProvider } from "../system";
-import { ThirdPartyIssueProviderBase } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 @lspProvider("linear")
 export class LinearProvider extends ThirdPartyIssueProviderBase<CSLinearProviderInfo> {

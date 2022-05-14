@@ -412,7 +412,7 @@ describe("NewRelicProvider", () => {
 				metricTimesliceNames,
 				"ruby"
 			);
-			expect(results).to.deep.eq([
+			expect(results).toEqual([
 				{
 					className: "NotifierJob",
 					facet: "MessageBroker/ActiveJob::Async/Queue/Produce/Named/default",

@@ -81,26 +81,6 @@ import {
 	ThirdPartyProviderSupportsViewingPullRequests
 } from "./provider";
 
-// NOTE: You must include all new providers here, otherwise the webpack build will exclude them
-export * from "./trello";
-export * from "./jira";
-export * from "./jiraserver";
-export * from "./github";
-export * from "./githubEnterprise";
-export * from "./gitlab";
-export * from "./gitlabEnterprise";
-export * from "./asana";
-export * from "./bitbucket";
-export * from "./bitbucketServer";
-export * from "./youtrack";
-export * from "./azuredevops";
-export * from "./slack";
-export * from "./msteams";
-export * from "./okta";
-export * from "./shortcut";
-export * from "./linear";
-export * from "./newrelic";
-
 const PR_QUERIES: {
 	[Identifier: string]: {
 		name: string;

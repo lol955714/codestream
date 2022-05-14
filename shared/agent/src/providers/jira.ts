@@ -22,7 +22,7 @@ import {
 } from "../protocol/agent.protocol";
 import { CSJiraProviderInfo } from "../protocol/api.protocol";
 import { Iterables, log, lspProvider } from "../system";
-import { ThirdPartyIssueProviderBase } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 type AccessibleResourcesResponse = { id: string; name: string; url: string }[];
 

@@ -24,6 +24,6 @@
 		"useUnknownInCatchVariables": false,
 		"resolveJsonModule": true
 	},
-	"exclude": ["node_modules"],
+	"exclude": ["node_modules", "dist"],
 	"include": ["src/**/*.ts", "test/unit/**/*.ts", "../shared/util/**/*"]
 }

@@ -59,11 +59,11 @@ import {
 	ProviderCreatePullRequestRequest,
 	ProviderCreatePullRequestResponse,
 	ProviderGetRepoInfoResponse,
-	ProviderVersion,
 	PullRequestComment,
-	ThirdPartyIssueProviderBase,
 	ThirdPartyProviderSupportsIssues
 } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
+import { ProviderVersion } from "./types";
 
 interface GitLabProject {
 	path_with_namespace: any;
