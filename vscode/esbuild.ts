@@ -17,6 +17,7 @@ async function webBuild(args: Args) {
 			path.resolve(context, "./index.ts"),
 			path.resolve(context, "styles", "webview.less")
 		],
+		sourcemap: "inline",
 		outdir: target
 	};
 
