@@ -43,6 +43,10 @@ async function extensionBuild(args: Args) {
 			// TODO: Use environment variable if exists
 			to: dist
 		},
+		{
+			from: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"),
+			to: dist
+		}
 		
 	];
 
