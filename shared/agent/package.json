@@ -114,6 +114,7 @@
 		"cpy": "^9.0.1",
 		"cross-env": "5.2.0",
 		"esbuild": "^0.14.39",
+		"esbuild-plugin-ignore": "^1.1.1",
 		"esm": "3.2.25",
 		"esno": "^0.14.1",
 		"graphql-tag": "2.12.6",

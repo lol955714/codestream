@@ -1,12 +1,19 @@
 import graphqlLoaderPlugin from "@luckycatfactory/esbuild-graphql-loader";
-import cpy, { Options } from "cpy";
+import cpy from "cpy";
 import { build, BuildOptions } from "esbuild";
+import ignorePlugin from "esbuild-plugin-ignore";
 import * as path from "path";
-import { commonEsbuildOptions, processArgs, CopyStuff } from "../util/src/esbuildCommon";
+import { commonEsbuildOptions, CopyStuff, processArgs } from "../util/src/esbuildCommon";
 import { nativeNodeModulesPlugin } from "../util/src/nativeNodeModulesPlugin";
 import { statsPlugin } from "../util/src/statsPlugin";
 
 const outputDir = path.resolve(__dirname, "dist");
+
+const ignore = ignorePlugin([
+	{
+		resourceRegExp: /vm2$/
+	}
+]);
 
 const postBuildCopy: CopyStuff[] = [
 	{
@@ -55,11 +62,10 @@ const postBuildCopy: CopyStuff[] = [
 			agent: "./src/main.ts",
 			"agent-pkg": "./src/main-vs.ts"
 		},
-		external: ["vm2"],
-		plugins: [graphqlLoaderPlugin(), nativeNodeModulesPlugin, statsPlugin],
+		plugins: [graphqlLoaderPlugin(), nativeNodeModulesPlugin, statsPlugin, ignore],
 		format: "cjs",
 		platform: "node",
-		target: "node16",
+		target: "node16.13",
 		outdir: outputDir
 	};
 

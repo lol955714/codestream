@@ -8,9 +8,9 @@ import cpy, { Options } from "cpy";
 export type Mode = "production" | "development";
 
 export interface Args {
-  watchMode: boolean;
-  reset: boolean;
-  mode: Mode;
+	watchMode: boolean;
+	reset: boolean;
+	mode: Mode;
 }
 
 export interface CopyStuff {
@@ -20,35 +20,32 @@ export interface CopyStuff {
 }
 
 export function processArgs(): Args {
-  const watchMode = process.argv.findIndex(arg => arg === "--watch") !== -1;
-  const reset = process.argv.findIndex(arg => arg === "--reset") !== -1;
-  const mode =
-    process.argv.findIndex(arg => arg === "--prod") !== -1
-      ? "production"
-      : "development";
-  const args: Args = {
-    watchMode,
-    reset,
-    mode
-  };
-  console.info(JSON.stringify(args));
-  return args;
+	const watchMode = process.argv.findIndex(arg => arg === "--watch") !== -1;
+	const reset = process.argv.findIndex(arg => arg === "--reset") !== -1;
+	const mode =
+		process.argv.findIndex(arg => arg === "--prod") !== -1 ? "production" : "development";
+	const args: Args = {
+		watchMode,
+		reset,
+		mode
+	};
+	console.info(JSON.stringify(args));
+	return args;
 }
 
 export function commonEsbuildOptions(isWeb: boolean, args: Args): BuildOptions {
-  const plugins = isWeb
-    ? [lessLoader(), vscShimPlugin, statsPlugin]
-    : undefined;
+	const plugins = isWeb ? [lessLoader(), vscShimPlugin, statsPlugin] : undefined;
 
-  return {
-    watch: args.watchMode,
-    bundle: true,
-    plugins,
-    inject: isWeb
-      ? [path.resolve(__dirname, "../../ui/vscode-jsonrpc.shim.ts")]
-      : undefined,
-    sourcemap: "linked",
-    minify: args.mode === "production",
-    loader: isWeb ? { ".js": "jsx" } : undefined
-  };
+	return {
+		bundle: true,
+		define: { "process.env.NODE_ENV": '"production"' },
+		loader: isWeb ? { ".js": "jsx" } : undefined,
+		inject: isWeb ? [path.resolve(__dirname, "../../ui/vscode-jsonrpc.shim.ts")] : undefined,
+		minify: args.mode === "production",
+		// To support @log
+		keepNames: true,
+		plugins,
+		sourcemap: "linked",
+		watch: args.watchMode
+	};
 }
