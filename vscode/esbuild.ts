@@ -1,18 +1,27 @@
 import { build, BuildOptions } from "esbuild";
-import * as fs from "fs";
 import * as path from "path";
-import cpy from "cpy";
-import { commonEsbuildOptions, processArgs, CopyStuff } from "../shared/util/src/esbuildCommon";
+import { commonEsbuildOptions, processArgs } from "../shared/util/src/esbuildCommon";
+import { CopyStuff, copyPlugin } from "../shared/util/src/copyPlugin";
 import { createSymlinks } from "../shared/util/src/symlinks";
 import { Args } from "../shared/util/src/esbuildCommon";
 import { statsPlugin } from "../shared/util/src/statsPlugin";
- 
+
 async function webBuild(args: Args) {
 	const context = path.resolve(__dirname, "src/webviews/app");
 	const target = path.resolve(__dirname, "dist/webview");
 
+	const webCopy = copyPlugin({
+		onEnd: [
+			{
+				from: path.resolve(context, "index.html"),
+				to: __dirname,
+				options: { rename: "webview.html" }
+			}
+		]
+	});
+
 	const buildOptions: BuildOptions = {
-		...commonEsbuildOptions(true, args),
+		...commonEsbuildOptions(true, args, [webCopy]),
 		entryPoints: [
 			path.resolve(context, "./index.ts"),
 			path.resolve(context, "styles", "webview.less")
@@ -22,11 +31,6 @@ async function webBuild(args: Args) {
 	};
 
 	await build(buildOptions);
-	
-	fs.copyFileSync(
-		path.resolve(context, "index.html"),
-		path.resolve(__dirname, "webview.html")
-	);
 }
 
 async function extensionBuild(args: Args) {
@@ -47,27 +51,22 @@ async function extensionBuild(args: Args) {
 			from: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"),
 			to: dist
 		}
-		
 	];
+
+	const extensionCopy = copyPlugin({ onEnd: postBuildCopy });
 
 	const buildOptions: BuildOptions = {
 		...commonEsbuildOptions(false, args),
-		entryPoints: [
-			path.resolve(context, "./src/extension.ts"),
-		],
+		entryPoints: [path.resolve(context, "./src/extension.ts")],
 		external: ["vscode"],
 		outfile: path.resolve(dist, "extension.js"),
-		plugins: [statsPlugin],
+		plugins: [statsPlugin, extensionCopy],
 		format: "cjs",
 		platform: "node",
-		target: "node16",
+		target: "node16"
 	};
 
 	await build(buildOptions);
-	for (const entry of postBuildCopy) {
-		await cpy(entry.from, entry.to, entry.options);
-	}
-
 }
 
 (async function() {

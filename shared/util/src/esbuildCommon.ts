@@ -1,4 +1,4 @@
-import { BuildOptions } from "esbuild";
+import { BuildOptions, Plugin } from "esbuild";
 import { statsPlugin } from "./statsPlugin";
 import { vscShimPlugin } from "./vscShim";
 import { lessLoader } from "esbuild-plugin-less";
@@ -11,12 +11,6 @@ export interface Args {
 	watchMode: boolean;
 	reset: boolean;
 	mode: Mode;
-}
-
-export interface CopyStuff {
-	from: string;
-	to: string;
-	options?: Options;
 }
 
 export function processArgs(): Args {
@@ -33,8 +27,12 @@ export function processArgs(): Args {
 	return args;
 }
 
-export function commonEsbuildOptions(isWeb: boolean, args: Args): BuildOptions {
-	const plugins = isWeb ? [lessLoader(), vscShimPlugin, statsPlugin] : undefined;
+export function commonEsbuildOptions(
+	isWeb: boolean,
+	args: Args,
+	extraPlugins: Plugin[] = []
+): BuildOptions {
+	const plugins = isWeb ? [lessLoader(), vscShimPlugin, statsPlugin, ...extraPlugins] : undefined;
 
 	return {
 		bundle: true,
