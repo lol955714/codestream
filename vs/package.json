@@ -24,7 +24,7 @@
 		"agent:test": "pushd \"../shared/agent\" && npm run test && popd",
 		"agent:watch": "pushd \"../shared/agent\" && npm run watch && popd",
 		"webview:clean:ci": "pushd \"../shared/ui\" && npm run clean:ci && popd",
-		"preinstall": "pushd \"../shared/ui\" && npm install --no-save && popd"
+		"preinstall": "pushd \"../shared/ui\" && npm install --no-save && popd && pushd \"../shared/util\" && npm install --no-save && popd"
 	},
 	"dependencies": {
 		"core-js": "2.6.9"
