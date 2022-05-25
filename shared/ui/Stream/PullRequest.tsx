@@ -138,9 +138,13 @@ export const PullRequest = () => {
 			currentPullRequestSource: state.context.currentPullRequest
 				? state.context.currentPullRequest.source
 				: undefined,
+			previousPullRequestView: state.context.currentPullRequest
+				? state.context.currentPullRequest.previousView
+				: undefined,
 			currentPullRequest: currentPullRequest,
 			currentPullRequestLastUpdated: providerPullRequestLastUpdated,
 			composeCodemarkActive: state.context.composeCodemarkActive,
+			isVsIde: state.ide.name === "VS",
 			team,
 			textEditorUri: state.editorContext.textEditorUri,
 			reposState: state.repos,
@@ -175,6 +179,7 @@ export const PullRequest = () => {
 	const [title, setTitle] = useState("");
 	const [currentRepoChanged, setCurrentRepoChanged] = useState(false);
 	const [finishReviewOpen, setFinishReviewOpen] = useState(false);
+	const [oneLayerModal, setOneLayerModal] = useState(false);
 	const [autoCheckedMergeability, setAutoCheckedMergeability] = useState<
 		autoCheckedMergeabilityStatus
 	>("UNCHECKED");
@@ -434,7 +439,13 @@ export const PullRequest = () => {
 	const closeFileComments = () => {
 		// note we're passing no value for the 3rd argument, which clears
 		// the commentId
-		if (pr) dispatch(setCurrentPullRequest(pr.providerId, pr.id));
+		if (oneLayerModal && pr) {
+			dispatch(setCurrentPullRequest(pr.providerId, pr.id, "", "", "sidebar-diffs"));
+		}
+
+		if (!oneLayerModal && pr) {
+			dispatch(setCurrentPullRequest(pr.providerId, pr.id, "", "", "details"));
+		}
 	};
 
 	const linkHijacker = (e: any) => {
@@ -484,6 +495,14 @@ export const PullRequest = () => {
 		if (!derivedState.reviewsStateBootstrapped) {
 			dispatch(bootstrapReviews());
 		}
+		if (
+			derivedState.currentPullRequestCommentId &&
+			!derivedState.composeCodemarkActive &&
+			derivedState.previousPullRequestView === "sidebar-diffs"
+		) {
+			setOneLayerModal(true);
+		}
+
 		getOpenRepos();
 		initialFetch().then((_: any) => {
 			HostApi.instance.track("PR Details Viewed", {
@@ -649,6 +668,24 @@ export const PullRequest = () => {
 		const statusIcon = pr.state === "OPEN" || pr.state === "CLOSED" ? "pull-request" : "git-merge";
 		const action = pr.merged ? "merged " : "wants to merge ";
 
+		if (oneLayerModal) {
+			return (
+				<ThemeProvider theme={addViewPreferencesToTheme}>
+					<Root className="panel full-height">
+						<CreateCodemarkIcons narrow onebutton />
+						<PullRequestFileComments
+							pr={pr}
+							setIsLoadingMessage={setIsLoadingMessage}
+							commentId={derivedState.currentPullRequestCommentId}
+							quote={() => {}}
+							onClose={closeFileComments}
+							prCommitsRange={prCommitsRange}
+						/>
+					</Root>
+				</ThemeProvider>
+			);
+		}
+
 		return (
 			<ThemeProvider theme={addViewPreferencesToTheme}>
 				<Root className="panel full-height">
@@ -702,7 +739,7 @@ export const PullRequest = () => {
 							) : (
 								<>
 									{title || pr.title}{" "}
-									<Tooltip title="Open on GitHub" placement="top">
+									<Tooltip title="Open on GitHub" placement="top" delay={1}>
 										<span>
 											<Link href={pr.url}>
 												#{pr.number}
@@ -875,17 +912,19 @@ export const PullRequest = () => {
 								<PRBadge>{pr.commits.totalCount}</PRBadge>
 							</Tab>
 							{/*
-		<Tab onClick={e => switchActiveTab(3)} active={activeTab == 3}>
-			<Icon name="check" />
-			<span className="wide-text">Checks</span>
-			<PRBadge>{pr.numChecks}</PRBadge>
-		</Tab>
-		 */}
-							<Tab onClick={e => switchActiveTab(4)} active={activeTab == 4}>
-								<Icon name="plus-minus" />
-								<span className="wide-text">Files Changed</span>
-								<PRBadge>{pr.files.totalCount}</PRBadge>
+							<Tab onClick={e => switchActiveTab(3)} active={activeTab == 3}>
+								<Icon name="check" />
+								<span className="wide-text">Checks</span>
+								<PRBadge>{pr.numChecks}</PRBadge>
 							</Tab>
+							*/}
+							{derivedState.isVsIde && (
+								<Tab onClick={e => switchActiveTab(4)} active={activeTab == 4}>
+									<Icon name="plus-minus" />
+									<span className="wide-text">Files Changed</span>
+									<PRBadge>{pr.files.totalCount}</PRBadge>
+								</Tab>
+							)}
 
 							{pr.pendingReview ? (
 								<PRSubmitReviewButton>
@@ -967,6 +1006,7 @@ export const PullRequest = () => {
 							</div>
 						</ScrollBox>
 					)}
+
 					{!derivedState.composeCodemarkActive && derivedState.currentPullRequestCommentId && (
 						<PullRequestFileComments
 							pr={pr}
@@ -974,6 +1014,7 @@ export const PullRequest = () => {
 							commentId={derivedState.currentPullRequestCommentId}
 							quote={() => {}}
 							onClose={closeFileComments}
+							prCommitsRange={prCommitsRange}
 						/>
 					)}
 				</Root>

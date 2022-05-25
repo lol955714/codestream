@@ -1,4 +1,4 @@
-package com.codestream.mlt
+package com.codestream.clm
 
 import com.codestream.agentService
 import com.codestream.codeStream
@@ -13,74 +13,35 @@ import com.codestream.protocols.agent.MethodLevelTelemetrySymbolIdentifier
 import com.codestream.protocols.agent.MethodLevelTelemetryThroughput
 import com.codestream.protocols.agent.TelemetryParams
 import com.codestream.protocols.webview.MethodLevelTelemetryNotifications
-import com.codestream.sessionService
 import com.codestream.settings.ApplicationSettingsService
 import com.codestream.settings.GoldenSignalListener
 import com.codestream.webViewService
-import com.intellij.codeInsight.hints.InlayPresentationFactory.ClickListener
+import com.intellij.codeInsight.hints.InlayPresentationFactory
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.codeInsight.hints.presentation.PresentationRenderer
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
-import com.intellij.openapi.editor.event.EditorFactoryEvent
-import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.project.Project
+import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
-import com.jetbrains.python.psi.PyFile
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.Range
 import java.awt.Point
 import java.awt.event.MouseEvent
 
-private const val LANGUAGE_ID = "python"
 private val OPTIONS = FileLevelTelemetryOptions(true, true, true)
 
-class MLTPythonComponent(val project: Project) : EditorFactoryListener, Disposable {
-
-    private val logger = Logger.getInstance(MLTPythonComponent::class.java)
-    private val managersByEditor = mutableMapOf<Editor, MLTPythonEditorManager>()
-
-    init {
-        logger.info("Initializing method-level telemetry for Python")
-        if (!project.isDisposed) {
-            EditorFactory.getInstance().addEditorFactoryListener(
-                this, this
-            )
-            project.sessionService?.onCodelensChanged {
-                managersByEditor.values.forEach { it.loadInlays(true) }
-            }
-        }
-    }
-
-    override fun editorCreated(event: EditorFactoryEvent) {
-        if (event.editor.project != project) return
-        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(event.editor.document)
-        if (psiFile !is PyFile) return
-        managersByEditor[event.editor] = MLTPythonEditorManager(event.editor)
-    }
-
-    override fun editorReleased(event: EditorFactoryEvent) {
-        if (event.editor.project != project) return
-        managersByEditor.remove(event.editor).also { it?.dispose() }
-    }
-
-    override fun dispose() {
-        managersByEditor.values.forEach { it.dispose() }
-        managersByEditor.clear()
-    }
-}
-
-class MLTMetrics {
+class Metrics {
     var errorRate: MethodLevelTelemetryErrorRate? = null
     var averageDuration: MethodLevelTelemetryAverageDuration? = null
     var throughput: MethodLevelTelemetryThroughput? = null
@@ -101,18 +62,34 @@ class MLTMetrics {
         )
 }
 
-class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSignalListener, Disposable {
+abstract class CLMEditorManager(
+    val editor: Editor,
+    private val languageId: String,
+    private val lookupByClassName: Boolean
+) : DocumentListener, GoldenSignalListener, Disposable {
     private val path = editor.document.file?.path
     private val project = editor.project
-    private val metricsBySymbol = mutableMapOf<MethodLevelTelemetrySymbolIdentifier, MLTMetrics>()
+    private val metricsBySymbol = mutableMapOf<MethodLevelTelemetrySymbolIdentifier, Metrics>()
     private val inlays = mutableSetOf<Inlay<PresentationRenderer>>()
     private var lastResult: FileLevelTelemetryResult? = null
     private var analyticsTracked = false
     private val appSettings = ServiceManager.getService(ApplicationSettingsService::class.java)
+    private var doPoll = true;
 
     init {
-        loadInlays(false)
+        pollLoadInlays()
         editor.document.addDocumentListener(this)
+    }
+
+    abstract fun getLookupClassName(psiFile: PsiFile): String?
+
+    fun pollLoadInlays() {
+        GlobalScope.launch {
+            while (doPoll) {
+                loadInlays(false)
+                delay(60000)
+            }
+        }
     }
 
     fun loadInlays(resetCache: Boolean?) {
@@ -123,27 +100,34 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
 
         project?.agentService?.onDidStart {
             ApplicationManager.getApplication().invokeLater {
-                val docListener = this
+
+                val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) ?: return@invokeLater
+
+                val className = if (lookupByClassName) {
+                    getLookupClassName(psiFile) ?: return@invokeLater
+                } else {
+                    null
+                }
 
                 GlobalScope.launch {
                     try {
                         lastResult = project.agentService?.fileLevelTelemetry(
                             FileLevelTelemetryParams(
-                                path, LANGUAGE_ID, null, null, null, resetCache, OPTIONS
+                                path, languageId, className, null, null, resetCache, OPTIONS
                             )
                         )
                         metricsBySymbol.clear()
 
                         lastResult?.errorRate?.forEach { errorRate ->
-                            val metrics = metricsBySymbol.getOrPut(errorRate.symbolIdentifier) { MLTMetrics() }
+                            val metrics = metricsBySymbol.getOrPut(errorRate.symbolIdentifier) { Metrics() }
                             metrics.errorRate = errorRate
                         }
                         lastResult?.averageDuration?.forEach { averageDuration ->
-                            val metrics = metricsBySymbol.getOrPut(averageDuration.symbolIdentifier) { MLTMetrics() }
+                            val metrics = metricsBySymbol.getOrPut(averageDuration.symbolIdentifier) { Metrics() }
                             metrics.averageDuration = averageDuration
                         }
                         lastResult?.throughput?.forEach { throughput ->
-                            val metrics = metricsBySymbol.getOrPut(throughput.symbolIdentifier) { MLTMetrics() }
+                            val metrics = metricsBySymbol.getOrPut(throughput.symbolIdentifier) { Metrics() }
                             metrics.throughput = throughput
                         }
 
@@ -193,25 +177,34 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
         return DisplayDeps(result, project, path, editor)
     }
 
+    abstract fun findClassFunctionFromFile(
+        psiFile: PsiFile,
+        namespace: String?,
+        className: String,
+        functionName: String
+    ): NavigatablePsiElement?
+
+    abstract fun findTopLevelFunction(psiFile: PsiFile, functionName: String): NavigatablePsiElement?
+
     private fun updateInlaysCore() {
         val (result, project, path, editor) = displayDeps() ?: return
         val presentationFactory = PresentationFactory(editor)
-        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
-        val pyFile = psiFile as? PyFile ?: return
+        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) ?: return
         val since = result.sinceDateFormatted ?: "30 minutes ago"
         metricsBySymbol.forEach { (symbolIdentifier, metrics) ->
             val symbol = if (symbolIdentifier.className != null) {
-                val clazz = pyFile.findTopLevelClass(symbolIdentifier.className)
-                clazz?.findMethodByName(symbolIdentifier.functionName, false, null)
+                findClassFunctionFromFile(psiFile, symbolIdentifier.namespace, symbolIdentifier.className, symbolIdentifier.functionName) ?:
+                // Metrics can have custom name in which case we don't get Module or Class names - just best effort match function name
+                findTopLevelFunction(psiFile, symbolIdentifier.functionName)
             } else {
-                pyFile.findTopLevelFunction(symbolIdentifier.functionName)
+                findTopLevelFunction(psiFile, symbolIdentifier.functionName)
             }
             if (symbol == null) return@forEach
 
             val text = metrics.format(appSettings.goldenSignalsInEditorFormat, since)
-            val textPresentation = presentationFactory.text(text)
+            val textPresentation = presentationFactory.text("\t\t$text")
             val referenceOnHoverPresentation =
-                presentationFactory.referenceOnHover(textPresentation, object : ClickListener {
+                presentationFactory.referenceOnHover(textPresentation, object : InlayPresentationFactory.ClickListener {
                     override fun onClick(event: MouseEvent, translated: Point) {
                         val start = editor.document.lspPosition(symbol.textRange.startOffset)
                         val end = editor.document.lspPosition(symbol.textRange.endOffset)
@@ -224,7 +217,7 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
                                     result.codeNamespace,
                                     path,
                                     result.relativeFilePath,
-                                    LANGUAGE_ID,
+                                    languageId,
                                     range,
                                     symbolIdentifier.functionName,
                                     result.newRelicAccountId,
@@ -242,7 +235,10 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
                 inlays.add(it)
                 if (!analyticsTracked) {
                     val params = TelemetryParams(
-                        "MLT Codelenses Rendered", mapOf("NR Account ID" to (result.newRelicAccountId ?: 0))
+                        "MLT Codelenses Rendered", mapOf(
+                            "NR Account ID" to (result.newRelicAccountId ?: 0),
+                            "Language" to languageId
+                        )
                     )
                     project.agentService?.agent?.telemetry(params)
                     analyticsTracked = true
@@ -257,7 +253,7 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
         val text = "Click to configure golden signals from New Relic"
         val textPresentation = presentationFactory.text(text)
         val referenceOnHoverPresentation =
-            presentationFactory.referenceOnHover(textPresentation, object : ClickListener {
+            presentationFactory.referenceOnHover(textPresentation, object : InlayPresentationFactory.ClickListener {
                 override fun onClick(event: MouseEvent, translated: Point) {
                     project.codeStream?.show {
                         project.webViewService?.postNotification(
@@ -267,7 +263,7 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
                                 result.codeNamespace,
                                 path,
                                 result.relativeFilePath,
-                                LANGUAGE_ID,
+                                languageId,
                                 null,
                                 null,
                                 result.newRelicAccountId,
@@ -297,6 +293,7 @@ class MLTPythonEditorManager(val editor: Editor) : DocumentListener, GoldenSigna
     }
 
     override fun dispose() {
+        doPoll = false
         appSettings.removeGoldenSignalsListener(this)
     }
 }

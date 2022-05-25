@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../gore"
+		},
+		{
+			"path": "../test-project-1"
 		}
 	],
 	"launch": {

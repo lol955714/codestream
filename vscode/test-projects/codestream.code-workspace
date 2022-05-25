@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "python"
+		},
+		{
+			"path": "ruby"
 		}
 	],
 	"settings": {

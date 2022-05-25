@@ -13,6 +13,9 @@ import { HostApi } from "../../webview-api";
 // HostApi is now a mock constructor
 jest.mock("../../webview-api");
 
+// None of the typescript jest magic types type this correctly
+const MockedHostApi = HostApi as any;
+
 setupCommunication({
 	postMessage: function() {}
 });
@@ -23,8 +26,8 @@ beforeEach(() => {
 	container = document.createElement("div");
 	document.body.appendChild(container);
 
-	HostApi.instance = {};
-	HostApi.mockClear();
+	MockedHostApi.instance = {};
+	MockedHostApi.mockClear();
 });
 
 afterEach(() => {
@@ -193,11 +196,11 @@ it("renders default state 2", async () => {
 		},
 		on: () => {}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockFoo;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockFoo;
+	MockedHostApi.instance = mockFoo;
 
 	const mockStore = configureStore();
 

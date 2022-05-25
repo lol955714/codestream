@@ -1,6 +1,8 @@
 package com.codestream.review
 
 import com.codestream.extensions.file
+import com.codestream.protocols.agent.Review
+import com.codestream.protocols.agent.ScmSha1RangesResultLinesChanged
 import com.intellij.codeInsight.daemon.OutsidersPsiFileSupport
 import com.intellij.diff.contents.DocumentContent
 import com.intellij.diff.contents.DocumentContentImpl
@@ -20,7 +22,7 @@ import java.io.File
 fun createReviewDiffContent(
     project: Project,
     repoRoot: String?,
-    reviewId: String,
+    review: Review?,
     checkpoint: Int?,
     repoId: String,
     side: ReviewDiffSide,
@@ -28,9 +30,10 @@ fun createReviewDiffContent(
     text: String
 ): DocumentContent {
     val checkpointStr = checkpoint?.toString() ?: "undefined"
+    val reviewId = review?.id ?: "local"
     val fullPath = "$reviewId/$checkpointStr/$repoId/${side.path}/$path"
 
-    return createDiffContent(project, repoRoot, fullPath, side, path, text, reviewId != "local")
+    return createDiffContent(project, repoRoot, review?.postId, null, fullPath, side, path, text, reviewId != "local", null)
 }
 
 fun createRevisionDiffContent(
@@ -38,19 +41,23 @@ fun createRevisionDiffContent(
     repoRoot: String,
     data: CodeStreamDiffUriData,
     side: ReviewDiffSide,
-    text: String
+    text: String,
+    diffRanges: List<ScmSha1RangesResultLinesChanged>
 ): DocumentContent {
-    return createDiffContent(project, repoRoot, data.toEncodedPath(), side, data.path, text, true)
+    return createDiffContent(project, repoRoot, null, data.context, data.toEncodedPath(), side, data.path, text, true, diffRanges)
 }
 
 fun createDiffContent(
     project: Project,
     repoRoot: String?,
+    parentPostId: String?,
+    context: CodeStreamDiffUriContext?,
     fullPath: String,
     side: ReviewDiffSide,
     path: String,
     text: String,
-    canCreateMarker: Boolean
+    canCreateMarker: Boolean,
+    diffRanges: List<ScmSha1RangesResultLinesChanged>?
 ): DocumentContent {
     val filePath = RemoteFilePath(fullPath, false)
 
@@ -70,6 +77,10 @@ fun createDiffContent(
         PsiDocumentManager.getInstance(project).getPsiFile(document)
         document
     } ?: EditorFactory.getInstance().createDocument(correctedText).also { it.setReadOnly(true) }
+    document.putUserData(PARENT_POST_ID, parentPostId)
+    document.putUserData(PULL_REQUEST, context?.pullRequest)
+    document.putUserData(DIFF_RANGES, diffRanges)
+    document.putUserData(DiffUserDataKeysEx.FILE_NAME, filePath.name)
 
     val content: DocumentContent =
         DocumentContentImpl(project, document, fileType, document.file, separator, null, null)

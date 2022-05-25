@@ -65,10 +65,6 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
                 tooltip += marker.summary
             }
             tooltip += "\n\n<a href='#codemark/show/${marker.codemark.id}'>View Comment</a>"
-            tooltip += "<hr style='margin-top: 3px; margin-bottom: 3px;'>"
-            tooltip += "<a href='#codemark/link/${CodemarkType.COMMENT},${rangeString}'>Add Comment</a> &#183; " +
-                "<a href='#codemark/link/${CodemarkType.ISSUE},${rangeString}'>Create Issue</a> &#183; " +
-                "<a href='#codemark/link/${CodemarkType.LINK},${rangeString}'>Get Permalink</a>"
         } else if (marker.externalContent != null) {
             tooltip += "${marker.summary} \n\n"
             tooltip += when(marker.externalContent.provider?.id) {
@@ -100,8 +96,6 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
                 tooltip += "\n\n<a href='#pr/show/${providerId}" +
                     "/${externalId}/${externalChildId}'>View Comment</a>"
             }
-            tooltip += "<hr style='margin-top: 3px; margin-bottom: 3px;'>"
-            tooltip += "<a href='#codemark/link/${CodemarkType.COMMENT},${rangeString}'>Add Comment</a>"
         }
 
         return tooltip

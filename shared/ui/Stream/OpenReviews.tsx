@@ -133,7 +133,7 @@ export const OpenReviews = React.memo(function OpenReviews(props: Props) {
 				/>
 			</PaneHeader>
 			{props.paneState !== PaneState.Collapsed && (
-				<PaneBody>
+				<PaneBody key={'openreviews'}>
 					{!bootstrapped && (
 						<Row>
 							<Icon name="sync" className="spin margin-right" />

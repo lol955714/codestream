@@ -14,6 +14,9 @@ import { CheckPullRequestPreconditionsResponse } from "@codestream/protocols/age
 // HostApi is now a mock constructor
 jest.mock("../../webview-api");
 
+// None of the typescript jest magic types type this correctly
+const MockedHostApi = HostApi as any;
+
 setupCommunication({
 	postMessage: function() {}
 });
@@ -24,8 +27,8 @@ beforeEach(() => {
 	container = document.createElement("div");
 	document.body.appendChild(container);
 
-	HostApi.instance = {};
-	HostApi.mockClear();
+	MockedHostApi.instance = {};
+	MockedHostApi.mockClear();
 });
 
 afterEach(() => {
@@ -106,11 +109,11 @@ it("renders default state", async () => {
 			};
 		}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -200,11 +203,11 @@ it("renders default state 2", async () => {
 		},
 		on: () => {}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -251,11 +254,11 @@ it("ALREADY_HAS_PULL_REQUEST", async () => {
 			};
 		}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -297,11 +300,11 @@ it("REQUIRES_PROVIDER", async () => {
 		},
 		on: () => {}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -345,11 +348,11 @@ it("REPO_NOT_FOUND", async () => {
 		},
 		on: () => {}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -393,11 +396,11 @@ it("HAS_LOCAL_MODIFICATIONS", async () => {
 		},
 		on: () => {}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 

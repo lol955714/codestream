@@ -94,7 +94,7 @@ export interface OpenStreamCommandArgs {
 }
 
 export interface ViewMethodLevelTelemetryBaseCommandArgs {
-	repo: {
+	repo?: {
 		id: string;
 		name: string;
 		remote: string;
@@ -105,6 +105,7 @@ export interface ViewMethodLevelTelemetryBaseCommandArgs {
 		message?: string;
 		type?: string;
 	};
+	languageId: string;
 }
 
 export interface ViewMethodLevelTelemetryErrorCommandArgs
@@ -115,7 +116,6 @@ export interface ViewMethodLevelTelemetryCommandArgs
 	codeNamespace: string;
 	filePath: string;
 	relativeFilePath: string;
-	languageId: string;
 	range: Range;
 	functionName: string;
 	methodLevelTelemetryRequestOptions?: FileLevelTelemetryRequestOptions;
@@ -625,12 +625,17 @@ export class Commands implements Disposable {
 	}
 
 	@command("viewMethodLevelTelemetry", {
-		showErrorMessage: "Unable to view method level telemetry"
+		showErrorMessage: "Unable to view code-level metrics"
 	})
 	async viewMethodLevelTelemetry(args: string) {
 		let parsedArgs;
 		try {
 			parsedArgs = JSON.parse(args) as ViewMethodLevelTelemetryCommandArgs;
+			if (parsedArgs.error?.type === "NO_RUBY_VSCODE_EXTENSION") {
+				Container.agent.telemetry.track("MLT Language Extension Prompt", {
+					Language: parsedArgs.languageId
+				});
+			}
 			await Container.webview.viewMethodLevelTelemetry(parsedArgs);
 		} catch (ex) {
 			Logger.error(ex);

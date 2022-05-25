@@ -6,6 +6,7 @@ import {
 	SetCodemarkPinnedRequestType
 } from "@codestream/protocols/agent";
 import { CodemarkType, CSMe, CSUser } from "@codestream/protocols/api";
+import { PresentPrereleaseTOS } from "@codestream/webview/Authentication/PresentPrereleaseTOS";
 import { CodeStreamState } from "@codestream/webview/store";
 import { PostsState } from "@codestream/webview/store/posts/types";
 import {
@@ -22,6 +23,7 @@ import React, { PureComponent } from "react";
 import { connect } from "react-redux";
 import { DelayedRender } from "../Container/DelayedRender";
 import { Loading } from "../Container/Loading";
+import { FinishReview } from "./FinishReview";
 import {
 	EditorSelectRangeRequestType,
 	NewCodemarkNotificationType,
@@ -101,15 +103,6 @@ import { Team } from "./Team";
 import { TeamSetup } from "./TeamSetup";
 import { Tester } from "./Tester";
 
-const EMAIL_MATCH_REGEX = new RegExp(
-	"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*",
-	"g"
-);
-
-// interface InheritedProps {
-//     paneState: PaneState;
-// }
-
 interface DispatchProps {
 	clearDynamicLogging: Function;
 	closeModal: Function;
@@ -139,15 +132,20 @@ interface ConnectedProps {
 	currentCodeErrorId?: string;
 	currentCodemarkId?: string;
 	currentPullRequestId?: string;
+	currentPullRequestView?: string;
 	currentReviewId?: string;
 	currentUser: CSUser;
 	currentUserId: string;
+	// even though we don't use hasFocus, leave this in here because of a re-render
+	// call from Modal.tsx -Pez
+	hasFocus: boolean;
 	isFirstPageview?: boolean;
 	postStreamId: string;
 	skipGitEmailCheck: boolean;
 	posts: PostsState;
 	pendingProtocolHandlerUrl?: string;
 	showHeadshots: boolean;
+	showPreReleaseTos: boolean;
 	teamId: string;
 	threadId?: string;
 }
@@ -322,7 +320,7 @@ export class SimpleStream extends PureComponent<Props> {
 
 		if (!this.emailHasBeenCheckedForMismatch) {
 			const response = await HostApi.instance.send(GetUserInfoRequestType, {});
-			if (response.email === currentUser.email) {
+			if (response?.email === currentUser?.email) {
 				setUserPreference(["skipGitEmailCheck"], true);
 				this.emailHasBeenCheckedForMismatch = true;
 			} else {
@@ -351,13 +349,13 @@ export class SimpleStream extends PureComponent<Props> {
 
 	render() {
 		const { showHeadshots, isFirstPageview } = this.props;
-		let { activePanel, activeModal, acceptedPrereleaseTOS } = this.props;
+		let { activePanel, activeModal, acceptedPrereleaseTOS, showPreReleaseTos } = this.props;
 
 		// this will show for any old, lingering users that have not accepted as part of a new registration
 		// if (!acceptedTOS) return <PresentTOS />;
 
 		// use with beta users
-		//if (!acceptedPrereleaseTOS) return <PresentPrereleaseTOS />;
+		if (showPreReleaseTos && !acceptedPrereleaseTOS) return <PresentPrereleaseTOS />;
 
 		if (activePanel === WebviewPanels.LandingRedirect) activePanel = WebviewPanels.Sidebar;
 
@@ -374,7 +372,9 @@ export class SimpleStream extends PureComponent<Props> {
 		if (this.props.currentReviewId || this.props.currentCodeErrorId) {
 			activePanel = WebviewPanels.CodemarksForFile;
 		}
-		if (this.props.currentPullRequestId) activePanel = WebviewPanels.CodemarksForFile;
+		if (this.props.currentPullRequestId && this.props.currentPullRequestView !== "sidebar-diffs")
+			activePanel = WebviewPanels.CodemarksForFile;
+
 		if (!isConfigurationPanel && this.props.composeCodemarkActive) {
 			// don't override the activePanel if user is trying to configure a provider
 			// from the codemark (issue) form
@@ -470,6 +470,7 @@ export class SimpleStream extends PureComponent<Props> {
 						{activeModal === WebviewModals.ChangePassword && <ChangePassword />}
 						{activeModal === WebviewModals.ChangeTeamName && <ChangeTeamName />}
 						{activeModal === WebviewModals.ChangeCompanyName && <ChangeCompanyName />}
+						{activeModal === WebviewModals.FinishReview && <FinishReview />}
 						{activeModal === WebviewModals.Profile && <ProfilePanel />}
 						{activeModal === WebviewModals.BlameMap && <BlameMap />}
 						{activeModal === WebviewModals.Invite && <Invite />}
@@ -794,14 +795,21 @@ const mapStateToProps = (state: CodeStreamState): ConnectedProps => {
 		currentCodeErrorId: context.currentCodeErrorId,
 		currentCodemarkId: context.currentCodemarkId,
 		currentPullRequestId: context.currentPullRequest ? context.currentPullRequest.id : undefined,
+		currentPullRequestView: context.currentPullRequest
+			? context.currentPullRequest.view
+			: undefined,
 		currentReviewId: context.currentReviewId,
 		currentUser: users[session.userId!] as CSMe,
 		currentUserId: session.userId!,
 		isFirstPageview: context.isFirstPageview,
+		// even though we don't use hasFocus, leave this in here because of a re-render
+		// call from Modal.tsx -Pez
+		hasFocus: context.hasFocus,
 		pendingProtocolHandlerUrl: context.pendingProtocolHandlerUrl,
 		posts: state.posts,
 		postStreamId: postStream!.id,
 		showHeadshots: configs.showHeadshots,
+		showPreReleaseTos: isFeatureEnabled(state, "showPreReleaseTos"),
 		skipGitEmailCheck: preferences.skipGitEmailCheck === true,
 		teamId: team.id,
 		threadId: context.threadId

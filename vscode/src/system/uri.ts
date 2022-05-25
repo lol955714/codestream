@@ -41,5 +41,4 @@ export namespace Uris {
 			return { fileUri: uri };
 		}
 	}
-
 }

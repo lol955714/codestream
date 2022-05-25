@@ -176,7 +176,7 @@ export const getPullRequestConversationsFromProvider = (
 
 		return responses.conversations as FetchThirdPartyPullRequestResponse;
 	} catch (error) {
-		logError(`failed to refresh pullRequest: ${error}`, { providerId, id });
+		logError(`failed to refresh pullRequest: ${error?.message}`, { providerId, id });
 	}
 	return undefined;
 };
@@ -411,6 +411,7 @@ export const openPullRequestByUrl = (
 		source?: string;
 		checkoutBranch?: any;
 		providerId?: string;
+		groupIndex?: string;
 	}
 ) => async (dispatch, getState: () => CodeStreamState) => {
 	const prLabel = getPRLabelForProvider(options?.providerId || "");
@@ -439,7 +440,9 @@ export const openPullRequestByUrl = (
 						providerInfo.providerId,
 						id as string,
 						"",
-						options ? options.source : undefined
+						options ? options.source : undefined,
+						"sidebar-diffs",
+						options?.groupIndex ? options.groupIndex : undefined
 					)
 				);
 				handled = true;
@@ -519,6 +522,7 @@ export const api = <T = any, R = any>(
 		| "getReviewers"
 		| "lockPullRequest"
 		| "markPullRequestReadyForReview"
+		| "markFileAsViewed"
 		| "markToDoDone"
 		| "mergePullRequest"
 		| "remoteBranches"

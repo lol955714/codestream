@@ -877,11 +877,26 @@ export class CodeStreamSession {
 		});
 	}
 
+	async tryResolveCurrentTeam(): Promise<CSTeam | undefined> {
+		if (!SessionContainer.isInitialized()) {
+			return undefined;
+		}
+		try {
+			return await SessionContainer.instance().teams.getByIdFromCache(this.teamId);
+		} catch (e) {
+			// ignore
+			return undefined;
+		}
+	}
+
 	@log({ singleLine: true })
 	async verifyConnectivity(): Promise<VerifyConnectivityResponse> {
 		if (!this._api) throw new Error("cannot verify connectivity, no API connection established");
 		const response = await this._api.verifyConnectivity();
-		this.registerApiCapabilities(response.capabilities as CSApiCapabilities);
+		const currentTeam = await this.tryResolveCurrentTeam();
+		this.registerApiCapabilities(response.capabilities as CSApiCapabilities, currentTeam);
+		// response.capabilities is unfiltered - doesn't account for restricted / team / org flags
+		response.capabilities = this._apiCapabilities;
 		this._environmentInfo = {
 			environment: response.environment || "",
 			isOnPrem: response.isOnPrem || false,

@@ -3,7 +3,7 @@ package com.codestream.review
 import com.codestream.agentService
 import com.codestream.codeStream
 import com.codestream.protocols.agent.GetLocalReviewContentsParams
-import com.codestream.protocols.agent.GetReviewContentsResult
+import com.codestream.protocols.agent.ScmSha1RangesResultLinesChanged
 import com.codestream.protocols.webview.ReviewNotifications
 import com.codestream.sessionService
 import com.codestream.webViewService
@@ -32,6 +32,9 @@ enum class ReviewDiffSide(val path: String) {
 
 val REVIEW_DIFF = KeyWithDefaultValue.create("REVIEW_DIFF", false)
 val REPO_ID = Key<String>("REPO_ID")
+val PARENT_POST_ID = Key<String>("PARENT_POST_ID")
+val PULL_REQUEST = Key<CodeStreamDiffUriPullRequest?>("PULL_REQUEST")
+val DIFF_RANGES = Key<List<ScmSha1RangesResultLinesChanged>?>("DIFF_RANGES")
 val PATH = Key<String>("PATH")
 
 class ReviewService(private val project: Project) {
@@ -117,24 +120,26 @@ class ReviewService(private val project: Project) {
                 rightVersion
             )
         )
-        showDiffContent("local", null, repoId, path, oldPath, contents, "New Review")
-    }
+        // showDiffContent("local", null, repoId, path, oldPath, contents, "New Review")
+    // }
+    //
+    // private fun showDiffContent(
+    //     reviewId: String,
+    //     checkpoint: Int?,
+    //     repoId: String,
+    //     path: String,
+    //     oldPath: String?,
+    //     contents: GetReviewContentsResult,
+    //     title: String
+    // ) {
+        val title = "New Review"
 
-    private fun showDiffContent(
-        reviewId: String,
-        checkpoint: Int?,
-        repoId: String,
-        path: String,
-        oldPath: String?,
-        contents: GetReviewContentsResult,
-        title: String
-    ) {
         val leftContent =
             createReviewDiffContent(
                 project,
                 contents.repoRoot,
-                reviewId,
-                checkpoint,
+                null,
+                null,
                 repoId,
                 ReviewDiffSide.LEFT,
                 oldPath ?: path,
@@ -144,8 +149,8 @@ class ReviewService(private val project: Project) {
             createReviewDiffContent(
                 project,
                 contents.repoRoot,
-                reviewId,
-                checkpoint,
+                null,
+                null,
                 repoId,
                 ReviewDiffSide.RIGHT,
                 path,
@@ -173,17 +178,21 @@ class ReviewService(private val project: Project) {
         context: CodeStreamDiffUriContext?
     ) {
         val agent = project.agentService ?: return
-        val key = "$filePath|$repoId"
+
+        val key = if (context?.pullRequest != null) {
+            context.pullRequest.id
+        } else {
+            "$filePath|$repoId"
+        }
 
         if (reviewDiffEditor == null || diffChain == null || key != currentKey) {
             closeDiff()
-            val filesPath: List<Pair<String, String?>> // filename / previous filename (optional)
-            if (context?.pullRequest != null) {
+            val filesPath: List<Pair<String, String?>> = if (context?.pullRequest != null) {
                 val prFiles = agent.getPullRequestFiles(context.pullRequest.id, context.pullRequest.providerId)
-                filesPath = prFiles.map { Pair(it.filename, it.previousFilename) }
+                prFiles.map { Pair(it.filename, it.previousFilename) }
             } else {
-                filesPath = listOf(Pair(filePath, previousFilePath))
-            }
+                listOf(Pair(filePath, previousFilePath))
+            } // filename / previous filename (optional)
 
             currentKey = key
 

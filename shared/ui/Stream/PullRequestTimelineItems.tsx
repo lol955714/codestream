@@ -1,5 +1,8 @@
 import { CompareLocalFilesRequestType } from "@codestream/protocols/webview";
-import { getProviderPullRequestRepo } from "@codestream/webview/store/providerPullRequests/reducer";
+import {
+	getProviderPullRequestCollaborators,
+	getProviderPullRequestRepo
+} from "@codestream/webview/store/providerPullRequests/reducer";
 import {
 	PRComment,
 	PRCommentCard,
@@ -110,7 +113,8 @@ export const PullRequestTimelineItems = (props: PropsWithChildren<Props>) => {
 		const currentUser = state.users[state.session.userId!] as CSMe;
 		return {
 			currentUser,
-			currentRepo: getProviderPullRequestRepo(state)
+			currentRepo: getProviderPullRequestRepo(state),
+			collaborators: getProviderPullRequestCollaborators(state)
 		};
 	});
 
@@ -410,7 +414,8 @@ export const PullRequestTimelineItems = (props: PropsWithChildren<Props>) => {
 														? {
 																pullRequest: {
 																	providerId: props.pr.providerId,
-																	id: props.pr.id
+																	id: props.pr.id,
+																	collaborators: derivedState.collaborators
 																}
 														  }
 														: undefined

@@ -605,8 +605,9 @@ export class CodemarkDecorationProvider implements HoverProvider, Disposable {
 	private isApplicableEditor(editor: TextEditor | undefined) {
 		if (!editor || !editor.document) return false;
 
-		if (editor.document.uri.scheme === "file" || editor.document.uri.scheme === "codestream-git")
-			{return true;}
+		if (editor.document.uri.scheme === "file" || editor.document.uri.scheme === "codestream-git") {
+			return true;
+		}
 
 		// check for review diff
 		const parsedUri = Strings.parseCSReviewDiffUrl(editor.document.uri.toString());

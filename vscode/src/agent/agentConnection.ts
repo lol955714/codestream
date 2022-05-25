@@ -1,4 +1,8 @@
 "use strict";
+import { Agent as HttpsAgent } from "https";
+
+import * as url from "url";
+import HttpsProxyAgent from "https-proxy-agent";
 import {
 	Event,
 	EventEmitter,
@@ -17,6 +21,7 @@ import {
 	LanguageClient,
 	LanguageClientOptions,
 	Message,
+	NodeModule,
 	NotificationType,
 	Range,
 	RequestType,
@@ -147,12 +152,19 @@ import { SessionSignedOutReason } from "../api/session";
 import { Container } from "../container";
 import { Logger } from "../logger";
 import { Functions, log } from "../system";
+import { getInitializationOptions } from "../extension";
 
 export { BaseAgentOptions };
 
 type NotificationParamsOf<NT> = NT extends NotificationType<infer N, any> ? N : never;
 type RequestParamsOf<RT> = RT extends RequestType<infer R, any, any, any> ? R : never;
 type RequestResponseOf<RT> = RT extends RequestType<any, infer R, any, any> ? R : never;
+
+// ServerOptions is a union type of 3 completely different types - pick the one we're using
+interface CSServerOptions {
+	run: NodeModule;
+	debug: NodeModule;
+}
 
 export class CodeStreamAgentConnection implements Disposable {
 	private _onDidLogin = new EventEmitter<DidLoginNotification>();
@@ -255,7 +267,7 @@ export class CodeStreamAgentConnection implements Disposable {
 	private _disposable: Disposable | undefined;
 	private _clientOptions: LanguageClientOptions;
 	private _clientReadyCancellation: CancellationTokenSource | undefined;
-	private _serverOptions: ServerOptions;
+	private _serverOptions: CSServerOptions;
 	private _restartCount = 0;
 	private _outputChannel: OutputChannel | undefined;
 
@@ -264,6 +276,7 @@ export class CodeStreamAgentConnection implements Disposable {
 		const breakOnStart = (env && env.CODESTREAM_AGENT_BREAK_ON_START) === "true";
 
 		const agentEnv = {
+			...process.env,
 			NODE_TLS_REJECT_UNAUTHORIZED: options.disableStrictSSL ? 0 : 1,
 			NODE_EXTRA_CA_CERTS: options.extraCerts
 		};
@@ -1104,11 +1117,57 @@ export class CodeStreamAgentConnection implements Disposable {
 			"CodeStream (Agent)"
 		);
 		this._clientOptions.revealOutputChannelOn = RevealOutputChannelOn.Never;
+
+		const initializationOptions = getInitializationOptions({
+			...this._clientOptions.initializationOptions
+		});
+
+		try {
+			const telemetryOptions = Container.telemetryOptions;
+			if (telemetryOptions) {
+				if (telemetryOptions.error) {
+					Logger.warn("no NewRelic telemetry", { error: telemetryOptions.error });
+				} else if (telemetryOptions.telemetryEndpoint && telemetryOptions.licenseIngestKey) {
+					const newRelicEnvironmentVariables = {
+						NEW_RELIC_HOST: telemetryOptions.telemetryEndpoint,
+						// do not want to release with NEW_RELIC_LOG_ENABLED=true
+						NEW_RELIC_LOG_ENABLED: false,
+						// NEW_RELIC_LOG_LEVEL: "info",
+						NEW_RELIC_APP_NAME: "lsp-agent",
+						NEW_RELIC_LICENSE_KEY: telemetryOptions.licenseIngestKey
+					} as NewRelicEnvironmentVariables;
+
+					this._serverOptions.run.options = this._serverOptions.run.options || process.env;
+					this._serverOptions.run.options.env = {
+						...this._serverOptions.run.options.env,
+						...newRelicEnvironmentVariables
+					};
+
+					this._serverOptions.debug.options = this._serverOptions.debug.options || process.env;
+					this._serverOptions.debug.options.env = {
+						...this._serverOptions.debug.options.env,
+						...newRelicEnvironmentVariables
+					};
+
+					initializationOptions.newRelicTelemetryEnabled = true;
+					Logger.log(
+						`NewRelic telemetry enabled=${initializationOptions.newRelicTelemetryEnabled}`
+					);
+				} else {
+					Logger.warn("no NewRelic telemetry");
+				}
+			} else {
+				Logger.warn("no NewRelic telemetry");
+			}
+		} catch (ex) {
+			Logger.warn(`no NewRelic telemetry - ${ex.message}`);
+		}
+
 		this._client = new LanguageClient(
 			"codestream",
 			"CodeStream",
 			{ ...this._serverOptions } as ServerOptions,
-			{ ...this._clientOptions, initializationOptions: this.getInitializationOptions() }
+			{ ...this._clientOptions, initializationOptions: initializationOptions }
 		);
 
 		this._disposable = this._client.start();
@@ -1227,6 +1286,58 @@ export class CodeStreamAgentConnection implements Disposable {
 		this._client = undefined;
 	}
 
+	private getHttpsProxyAgent(options: {
+		proxySupport?: string;
+		proxy?: {
+			url: string;
+			strictSSL?: boolean;
+		};
+	}) {
+		let _httpsAgent: HttpsAgent | HttpsProxyAgent | undefined = undefined;
+		const redactProxyPasswdRegex = /(http:\/\/.*:)(.*)(@.*)/gi;
+		if (
+			options.proxySupport === "override" ||
+			(options.proxySupport == null && options.proxy != null)
+		) {
+			if (options.proxy != null) {
+				const redactedUrl = options.proxy.url.replace(redactProxyPasswdRegex, "$1*****$3");
+				Logger.log(
+					`Proxy support is in override with url=${redactedUrl}, strictSSL=${options.proxy.strictSSL}`
+				);
+				_httpsAgent = new HttpsProxyAgent({
+					...url.parse(options.proxy.url),
+					rejectUnauthorized: options.proxy.strictSSL
+				} as any);
+			} else {
+				Logger.log("Proxy support is in override, but no proxy settings were provided");
+			}
+		} else if (options.proxySupport === "on") {
+			const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+			if (proxyUrl) {
+				const strictSSL = options.proxy ? options.proxy.strictSSL : true;
+				const redactedUrl = proxyUrl.replace(redactProxyPasswdRegex, "$1*****$3");
+				Logger.log(`Proxy support is on with url=${redactedUrl}, strictSSL=${strictSSL}`);
+
+				let proxyUri;
+				try {
+					proxyUri = url.parse(proxyUrl);
+				} catch {}
+
+				if (proxyUri) {
+					_httpsAgent = new HttpsProxyAgent({
+						...proxyUri,
+						rejectUnauthorized: options.proxy ? options.proxy.strictSSL : true
+					} as any);
+				}
+			} else {
+				Logger.log("Proxy support is on, but no proxy url was found");
+			}
+		} else {
+			Logger.log("Proxy support is off");
+		}
+		return _httpsAgent;
+	}
+
 	public setServerUrl(url: string) {
 		if (this._clientOptions.initializationOptions) {
 			this._clientOptions.initializationOptions.serverUrl = url;
@@ -1248,4 +1359,12 @@ function started(target: CodeStreamAgentConnection, propertyName: string, descri
 			return get!.apply(this, args);
 		};
 	}
+}
+
+interface NewRelicEnvironmentVariables {
+	NEW_RELIC_HOST: string;
+	NEW_RELIC_LOG_ENABLED?: boolean;
+	NEW_RELIC_LOG_LEVEL?: "info";
+	NEW_RELIC_APP_NAME: "lsp-agent";
+	NEW_RELIC_LICENSE_KEY: string;
 }

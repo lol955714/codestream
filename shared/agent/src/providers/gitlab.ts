@@ -2395,8 +2395,8 @@ export class GitLabProvider extends ThirdPartyIssueProviderBase<CSGitLabProvider
 			});
 		} else {
 			const query = `
-				mutation DestroyNote($id:ID!) {
-					destroyNote(input:{id:$id}) {
+				mutation DestroyNote($id: NoteID!) {
+					destroyNote(input:{id: $id}) {
 			  			clientMutationId
 			  				note {
 								id

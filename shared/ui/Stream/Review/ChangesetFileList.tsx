@@ -178,7 +178,7 @@ export const ChangesetFileList = (props: {
 		return (
 			<Directory
 				key={hideKey}
-				style={{ paddingLeft: `${depth * 12}px` }}
+				style={{ paddingLeft: `${depth * 10}px` }}
 				onClick={() => {
 					toggleDirectory(hideKey);
 				}}
@@ -393,7 +393,17 @@ export const ChangesetFileList = (props: {
 		// console.warn("RETURNING: ", filesInOrder);
 		setFilesInOrder(filesInOrder);
 		return [lines];
-	}, [review, loading, noOnClick, derivedState.matchFile, latest, checkpoint, visitedFiles, mode, hasLoaded]);
+	}, [
+		review,
+		loading,
+		noOnClick,
+		derivedState.matchFile,
+		latest,
+		checkpoint,
+		visitedFiles,
+		mode,
+		hasLoaded
+	]);
 
 	const goDiff = React.useCallback(
 		async index => {

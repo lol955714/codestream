@@ -66,7 +66,7 @@ import MessageInput, { AttachmentField } from "./MessageInput";
 import { getCurrentTeamProvider } from "../store/teams/reducer";
 import { getCodemark } from "../store/codemarks/reducer";
 import { CodemarksState } from "../store/codemarks/types";
-import { setCurrentStream } from "../store/context/actions";
+import { setCurrentStream, setCurrentPullRequestNeedsRefresh } from "../store/context/actions";
 import ContainerAtEditorLine from "./SpatialView/ContainerAtEditorLine";
 import ContainerAtEditorSelection from "./SpatialView/ContainerAtEditorSelection";
 import { prettyPrintOne } from "code-prettify";
@@ -93,6 +93,7 @@ import { getDocumentFromMarker } from "./api-functions";
 import { getPRLabel, LabelHash } from "../store/providers/reducer";
 import { contextType } from "react-gravatar";
 import { CodeErrorsState } from "../store/codeErrors/types";
+import { getPullRequestConversationsFromProvider } from "../store/providerPullRequests/actions";
 
 export interface ICrossPostIssueContext {
 	setSelectedAssignees(any: any): void;
@@ -128,6 +129,8 @@ interface Props extends ConnectedProps {
 	error?: string;
 	openPanel: Function;
 	openModal: Function;
+	getPullRequestConversationsFromProvider: Function;
+	setCurrentPullRequestNeedsRefresh: Function;
 	setUserPreference: Function;
 	markItemRead(
 		...args: Parameters<typeof markItemRead>
@@ -2681,7 +2684,9 @@ const ConnectedCodemarkForm = connect(mapStateToProps, {
 	markItemRead,
 	setUserPreference,
 	fetchCodeError,
-	upgradePendingCodeError
+	upgradePendingCodeError,
+	getPullRequestConversationsFromProvider,
+	setCurrentPullRequestNeedsRefresh
 })(CodemarkForm);
 
 export { ConnectedCodemarkForm as CodemarkForm };

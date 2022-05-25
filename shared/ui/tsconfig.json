@@ -25,5 +25,5 @@
 		"types": ["styled-components", "jest"],
 		"useUnknownInCatchVariables": false,
 	},
-	"exclude": ["src/__tests__/**/*.test.ts"]
+	"exclude": ["dist", "node_modules", "coverage"]
 }

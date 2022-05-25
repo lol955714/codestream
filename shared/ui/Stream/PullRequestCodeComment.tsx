@@ -164,7 +164,12 @@ export const PullRequestCodeComment = (props: PropsWithChildren<Props>) => {
 							<b>{author.login}</b>
 							<Timestamp time={comment.createdAt} relative />
 							<PRActionIcons>
-								<PRAuthorBadges pr={pr} node={comment} isPending={item.state === "PENDING"} />
+								<PRAuthorBadges
+									key={`badge_${comment.id}`}
+									pr={pr}
+									node={comment}
+									isPending={item.state === "PENDING"}
+								/>
 								<PullRequestReactButton
 									pr={pr}
 									targetId={comment.id}
@@ -236,7 +241,7 @@ export const PullRequestCodeComment = (props: PropsWithChildren<Props>) => {
 									<Timestamp time={c.createdAt} relative />
 									{c.includesCreatedEdit ? <> • edited</> : ""}
 									<PRActionIcons>
-										<PRAuthorBadges pr={pr} node={c} />
+										<PRAuthorBadges key={`badge_${c.id + i}`} pr={pr} node={c} />
 										<PullRequestReactButton
 											pr={pr}
 											targetId={c.id}

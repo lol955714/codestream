@@ -43,6 +43,7 @@ export enum ContextActionsType {
 	SetCurrentRepo = "@context/SetCurrentRepo",
 	SetCreatePullRequest = "@context/SetCreatePullRequest",
 	SetCurrentPullRequest = "@context/SetCurrentPullRequest",
+	SetCurrentPullRequestNeedsRefresh = "@context/SetCurrentPullRequestNeedsRefresh",
 	SetCurrentErrorsInboxOptions = "@context/SetCurrentErrorsInboxOptions",
 	SetCurrentInstrumentationOptions = "@context/SetCurrentInstrumentationOptions",
 	SetCurrentPixieDynamicLoggingOptions = "@context/SetCurrentPixieDynamicLoggingOptions",
@@ -84,6 +85,12 @@ export interface ContextState extends WebviewContext {
 	codemarksWrapComments: boolean;
 
 	spatialViewShowPRComments: boolean;
+
+	currentPullRequestNeedsRefresh: {
+		needsRefresh: boolean;
+		providerId: string;
+		pullRequestId: string;
+	};
 
 	issueProvider?: string;
 	shareTargetTeamId?: string;
@@ -142,6 +149,7 @@ export interface RouteState {
 export interface CurrentMethodLevelTelemetry {
 	newRelicEntityGuid?: string;
 	newRelicAccountId?: string;
+	languageId: string;
 	codeNamespace?: string;
 	functionName?: string;
 	filePath?: string;
@@ -151,7 +159,7 @@ export interface CurrentMethodLevelTelemetry {
 		message?: string;
 		type?: string;
 	};
-	repo: {
+	repo?: {
 		id: string;
 		name: string;
 		remote: string;

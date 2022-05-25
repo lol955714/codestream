@@ -12,6 +12,9 @@ import { setupCommunication } from "../../index";
 import { MethodLevelTelemetryPanel } from "../../Stream/MethodLevelTelemetry/MethodLevelTelemetryPanel";
 import { HostApi } from "../../webview-api";
 
+// None of the typescript jest magic types type this correctly
+const MockedHostApi = HostApi as any;
+
 // HostApi is now a mock constructor
 jest.mock("../../webview-api");
 
@@ -25,8 +28,8 @@ beforeEach(() => {
 	container = document.createElement("div");
 	document.body.appendChild(container);
 
-	HostApi.instance = {};
-	HostApi.mockClear();
+	MockedHostApi.instance = {};
+	MockedHostApi.mockClear();
 });
 
 afterEach(() => {
@@ -91,11 +94,11 @@ it("renders default state", async () => {
 			};
 		}
 	};
-	HostApi.mockImplementation(() => {
+	MockedHostApi.mockImplementation(() => {
 		return mockHostApi;
 	});
 	// YUCK yuck yuck, static singletons are bad bad bad for testing
-	HostApi.instance = mockHostApi;
+	MockedHostApi.instance = mockHostApi;
 
 	const mockStore = configureStore();
 
@@ -109,7 +112,7 @@ it("renders default state", async () => {
 	});
 	await waitFor(() => {
 		expect((container as any).textContent).toBe(
-			"entityName hello_world telemetryEntity: entityNameRepo: repoNameFile: /foo/bar.py "
+			"hello_world telemetryEntity: entityName Repo: repoNameFile: /foo/bar.py "
 		);
 	});
 });

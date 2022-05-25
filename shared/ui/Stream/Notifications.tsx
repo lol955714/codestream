@@ -13,7 +13,12 @@ import {
 import Icon from "./Icon";
 import { Dialog } from "../src/components/Dialog";
 
-const prNotificationProviders = new Set(["github*com", "gitlab/enterprise", "gitlab*com", "gitlab/enterprise"]);
+const prNotificationProviders = new Set([
+	"github*com",
+	"github/enterprise",
+	"gitlab*com",
+	"gitlab/enterprise"
+]);
 
 export const Notifications = props => {
 	const dispatch = useDispatch();
@@ -21,7 +26,9 @@ export const Notifications = props => {
 		const hasDesktopNotifications = state.ide.name === "VSC" || state.ide.name === "JETBRAINS";
 		const notificationDeliverySupported = isFeatureEnabled(state, "notificationDeliveryPreference");
 		const emailSupported = isFeatureEnabled(state, "emailSupport");
-		const showPRNotificationSetting = Object.keys(state.activeIntegrations).some(p => prNotificationProviders.has(p));
+		const showPRNotificationSetting = Object.keys(state.activeIntegrations.integrations).some(p =>
+			prNotificationProviders.has(p)
+		);
 
 		// disable FROP for new users by default
 		const me = state.users[state.session.userId!];
@@ -55,10 +62,7 @@ export const Notifications = props => {
 		loadingCreateReviewOnDetectUnreviewedCommits,
 		setLoadingCreateReviewOnDetectUnreviewedCommits
 	] = useState(false);
-	const [
-		loadingToastPrNotify,
-		setLoadingToastPrNotify
-	] = useState(false);
+	const [loadingToastPrNotify, setLoadingToastPrNotify] = useState(false);
 	const [loadingWeeklyEmailDelivery, setLoadingWeeklyEmailDelivery] = useState(false);
 
 	const handleChange = async (value: string) => {
@@ -183,7 +187,7 @@ export const Notifications = props => {
 						{derivedState.hasDesktopNotifications && derivedState.notificationDeliverySupported && (
 							<div>
 								<h3>Desktop Notifications</h3>
-								<div style={{marginTop: "20px"}}>
+								<div style={{ marginTop: "20px" }}>
 									<Checkbox
 										name="createReviewOnDetectUnreviewedCommits"
 										checked={derivedState.createReviewOnDetectUnreviewedCommits}
@@ -194,7 +198,7 @@ export const Notifications = props => {
 									</Checkbox>
 								</div>
 								{derivedState.showPRNotificationSetting && (
-									<div style={{marginTop: "20px"}}>
+									<div style={{ marginTop: "20px" }}>
 										<Checkbox
 											name="toastPrNotify"
 											checked={derivedState.toastPrNotify}
@@ -205,7 +209,8 @@ export const Notifications = props => {
 										</Checkbox>
 									</div>
 								)}
-							</div>)}
+							</div>
+						)}
 						<p>&nbsp;</p>
 					</div>
 				</fieldset>

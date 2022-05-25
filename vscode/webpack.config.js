@@ -16,9 +16,9 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 class CompileStatsPlugin {
 	constructor(name, env) {
-		this.name = name
+		this.name = name;
 		this.enabled = !env.production;
-		this.filename = `./stats-webpack-${this.name}.json`
+		this.filename = `./stats-webpack-${this.name}.json`;
 	}
 	total = 0;
 	count = 0;
@@ -155,6 +155,10 @@ function getExtensionConfig(mode, env) {
 							},
 							{
 								source: path.resolve(__dirname, "codestream-*.info"),
+								destination: "dist/"
+							},
+							{
+								source: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"),
 								destination: "dist/"
 							}
 						]

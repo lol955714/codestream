@@ -172,3 +172,18 @@ export interface ShowProgressIndicator {
 export const ShowProgressIndicatorType = new NotificationType<ShowProgressIndicator, void>(
 	`${IpcRoutes.Webview}/system/progressIndicator`
 );
+
+export interface HandlePullRequestDirectivesNotification {
+	pullRequest: {
+		providerId: string;
+		id: string;
+	};
+	directives: {
+		directives: any;
+	};
+}
+
+export const HandlePullRequestDirectivesNotificationType = new NotificationType<
+	HandlePullRequestDirectivesNotification,
+	void
+>(`${IpcRoutes.Webview}/pullRequest/handleDirectives`);

@@ -1,17 +1,16 @@
 import React, { PropsWithChildren, useCallback, useEffect, useState } from "react";
 import Icon from "./Icon";
 import { FetchThirdPartyPullRequestPullRequest } from "@codestream/protocols/agent";
-import { api, getPullRequestFiles } from "../store/providerPullRequests/actions";
+import { getPullRequestFiles } from "../store/providerPullRequests/actions";
 import { useDispatch, useSelector } from "react-redux";
-import { PRDiffHunk } from "./PullRequestFilesChangedList";
-import { PullRequestPatch } from "./PullRequestPatch";
-import { Link } from "./Link";
 import copy from "copy-to-clipboard";
 import { FileStatus } from "@codestream/protocols/api";
 import { CodeStreamState } from "../store";
 import styled from "styled-components";
 import { Modal } from "./Modal";
+import { PullRequestFileCommentCard } from "./PullRequestFileCommentCard";
 import { useDidMount } from "../utilities/hooks";
+import { orderBy } from "lodash-es";
 
 const Root = styled.div`
 	background: var(--app-background-color);
@@ -21,21 +20,68 @@ const Root = styled.div`
 	}
 `;
 
+const CommentsContainer = styled.div`
+	margin: 0 0 20px 0;
+	padding: 0 0 1px 0;
+	h1 {
+		display: flex;
+		align-items: center;
+		border-radius: 5px 5px 0 0;
+		font-size: 12px;
+		font-weight: normal;
+		margin: 0;
+		padding: 10px;
+		background: var(--app-background-color);
+		border: 1px solid var(--base-border-color);
+		width: 100%;
+		overflow: hidden;
+		position: sticky;
+		top: -14px;
+		z-index: 5;
+		.filename-container {
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		&.hidden {
+			border-radius: 5px;
+		}
+		.toggle {
+			display: inline-block;
+			margin-right: 5px;
+			margin-top: -2px;
+		}
+		.viewed {
+			flex-shrink: 0;
+			margin-left: auto;
+		}
+		a .icon {
+			color: var(--text-color);
+		}
+	}
+`;
+
+const CardContainer = styled.div`
+	margin: 10px 10px 15px 10px;
+	padding: 10px;
+	background: var(--base-background-color);
+	border-radius: 6px;
+`;
+
 const STATUS_MAP = {
 	modified: FileStatus.modified
 };
 
 interface Props {
-	pr: FetchThirdPartyPullRequestPullRequest;
-
+	pr: any;
 	setIsLoadingMessage: Function;
-	commentId: string;
+	commentId: string | undefined;
 	quote: Function;
 	onClose: Function;
+	prCommitsRange?: string[];
 }
 
 export const PullRequestFileComments = (props: PropsWithChildren<Props>) => {
-	const { quote, pr } = props;
+	const { quote, pr, prCommitsRange } = props;
 	const dispatch = useDispatch();
 
 	const derivedState = useSelector((state: CodeStreamState) => {
@@ -54,6 +100,7 @@ export const PullRequestFileComments = (props: PropsWithChildren<Props>) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [fileInfo, setFileInfo] = useState<any>({});
 	const [filename, setFilename] = useState("");
+	const [sortedComments, setSortedComments] = useState<any[]>([]);
 
 	const _mapData = data => {
 		const fileInfo = data
@@ -79,7 +126,33 @@ export const PullRequestFileComments = (props: PropsWithChildren<Props>) => {
 			);
 			_mapData(data);
 		})();
+
+		let commentsArray = commentMap[filename];
+		let sortedComments = orderBy(
+			commentsArray,
+			["asc", "comment.position"],
+			//@ts-ignore
+			["asc", "comment.bodyText"]
+		);
+		let sortedCommentsWithRefs = sortedComments.map(c => ({
+			//@ts-ignore
+			...c,
+			ref: React.createRef()
+		}));
+
+		setSortedComments(sortedCommentsWithRefs);
 	});
+
+	useEffect(() => {
+		if (sortedComments) {
+			sortedComments.map(c => {
+				let el = c.ref.current;
+				if (c.comment.id === props.commentId && el) {
+					el.scrollIntoView();
+				}
+			});
+		}
+	}, [sortedComments]);
 
 	const commentMap = React.useMemo(() => {
 		const map = {} as any;
@@ -126,48 +199,70 @@ export const PullRequestFileComments = (props: PropsWithChildren<Props>) => {
 		return map;
 	}, [pr, pr?.updatedAt]);
 
+	useEffect(() => {
+		let commentsArray = commentMap[filename];
+		let sortedComments = orderBy(
+			commentsArray,
+			["asc", "comment.position"],
+			//@ts-ignore
+			["asc", "comment.bodyText"]
+		);
+		let sortedCommentsWithRefs = sortedComments.map(c => ({
+			//@ts-ignore
+			...c,
+			ref: React.createRef()
+		}));
+
+		setSortedComments(sortedCommentsWithRefs);
+	}, [commentMap]);
+
 	if (!filename) return null;
 
 	return (
 		<Modal translucent onClose={() => props.onClose()}>
 			<Root>
-				<PRDiffHunk>
-					<h1>
-						<span className="filename-container">
-							<span className="filename">{filename}</span>{" "}
-							<Icon
-								title="Copy File Path"
-								placement="bottom"
-								name="copy"
-								className="clickable"
-								onClick={e => copy(filename)}
-							/>{" "}
-							{pr && pr.url && (
-								<Link href={pr.url.replace(/\/pull\/\d+$/, `/blob/${pr.headRefOid}/${filename}`)}>
-									<Icon
-										title="Open File on Remote"
-										placement="bottom"
-										name="link-external"
-										className="clickable"
-									/>
-								</Link>
-							)}
-						</span>
-					</h1>
-					{fileInfo && (
-						<PullRequestPatch
-							pr={pr}
-							patch={fileInfo.patch}
-							hunks={fileInfo.hunks}
-							filename={filename}
-							canComment
-							comments={commentMap[filename]}
-							commentId={props.commentId}
-							setIsLoadingMessage={props.setIsLoadingMessage}
-							quote={quote}
-						/>
-					)}
-				</PRDiffHunk>
+				<CommentsContainer>
+					<>
+						<h1>
+							<span className="filename-container">
+								<span className="filename">{filename}</span>{" "}
+								<Icon
+									title="Copy File Path"
+									placement="bottom"
+									name="copy"
+									className="clickable"
+									onClick={e => copy(filename)}
+								/>{" "}
+							</span>
+						</h1>
+
+						{sortedComments && !isLoading && (
+							<>
+								{sortedComments.map((c, index) => {
+									const isFirst = index === 0;
+
+									return (
+										<CardContainer key={`${c.comment.id}_${index}`}>
+											<PullRequestFileCommentCard
+												pr={pr}
+												comment={c.comment}
+												review={c.review}
+												setIsLoadingMessage={props.setIsLoadingMessage}
+												author={c?.author?.login || ""}
+												isFirst={isFirst}
+												fileInfo={fileInfo}
+												prCommitsRange={prCommitsRange}
+												cardIndex={index}
+												commentRef={c.ref}
+												clickedComment={props.commentId === c.comment.id}
+											/>
+										</CardContainer>
+									);
+								})}
+							</>
+						)}
+					</>
+				</CommentsContainer>
 			</Root>
 		</Modal>
 	);

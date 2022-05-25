@@ -1,17 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { isEqual } from "lodash-es";
+import { isEmpty, isEqual } from "lodash-es";
 import * as providerSelectors from "../store/providers/reducer";
 import { CodeStreamState } from "../store";
 import { Row } from "./CrossPostIssueControls/IssuesPane";
 import Icon from "./Icon";
 import { PRHeadshot } from "../src/components/Headshot";
 import {
+	clearCurrentPullRequest,
 	setCreatePullRequest,
 	setCurrentPullRequest,
 	setNewPostEntry
 } from "../store/context/actions";
-import Tooltip from "./Tooltip";
+import { setPaneMaximized } from "@codestream/webview/Stream/actions";
 import Timestamp from "./Timestamp";
 import { HostApi } from "../webview-api";
 import {
@@ -21,15 +22,23 @@ import {
 	ChangeDataType,
 	FetchProviderDefaultPullRequestsType,
 	ThirdPartyProviderConfig,
-	UpdateTeamSettingsRequestType
+	UpdateTeamSettingsRequestType,
+	FetchThirdPartyPullRequestPullRequest,
+	SwitchBranchRequestType,
+	GetReposScmRequestType
 } from "@codestream/protocols/agent";
 import {
 	NewPullRequestNotificationType,
 	OpenUrlRequestType,
-	WebviewPanels
+	WebviewPanels,
+	EditorRevealRangeRequestType
 } from "@codestream/protocols/webview";
 import { Button } from "../src/components/Button";
-import { getMyPullRequests, openPullRequestByUrl } from "../store/providerPullRequests/actions";
+import {
+	getMyPullRequests,
+	getPullRequestConversationsFromProvider,
+	openPullRequestByUrl
+} from "../store/providerPullRequests/actions";
 import { PRBranch } from "./PullRequestComponents";
 import { PRHeadshotName } from "../src/components/HeadshotName";
 import styled from "styled-components";
@@ -38,6 +47,9 @@ import { setUserPreference, openPanel } from "./actions";
 import { PROVIDER_MAPPINGS } from "./CrossPostIssueControls/types";
 import { confirmPopup } from "./Confirm";
 import { ConfigurePullRequestQuery } from "./ConfigurePullRequestQuery";
+
+import { PullRequestExpandedSidebar } from "./PullRequestExpandedSidebar";
+
 import { PullRequestQuery } from "@codestream/protocols/api";
 import { configureAndConnectProvider } from "../store/providers/actions";
 import {
@@ -50,27 +62,42 @@ import {
 } from "../src/components/Pane";
 import { Provider, IntegrationButtons } from "./IntegrationsPanel";
 import { useDidMount, usePrevious } from "../utilities/hooks";
-import { getMyPullRequests as getMyPullRequestsSelector } from "../store/providerPullRequests/reducer";
+import {
+	getCurrentProviderPullRequest,
+	getMyPullRequests as getMyPullRequestsSelector,
+	getPullRequestExactId,
+	getPullRequestId,
+	getProviderPullRequestRepoObject,
+	getProviderPullRequestRepo
+} from "../store/providerPullRequests/reducer";
 import { InlineMenu } from "../src/components/controls/InlineMenu";
 import { getPRLabel } from "../store/providers/reducer";
+import copy from "copy-to-clipboard";
+import { logError } from "../logger";
 
 const Root = styled.div`
 	height: 100%;
 	.pr-row {
-		padding-left: 40px;
+		padding-left: 30px;
 		.selected-icon {
 			left: 20px;
 		}
 	}
 	${PaneNode} ${PaneNode} {
 		${PaneNodeName} {
-			padding-left: 40px;
+			padding-left: 30px;
 		}
 		.pr-row {
-			padding-left: 60px;
+			padding-left: 35px;
 			.selected-icon {
 				left: 40px;
 			}
+		}
+		.files-changed-list-dropdown {
+			padding-left: 45px;
+		}
+		.files-changed-list .row-with-icon-actions {
+			padding-left: 100px;
 		}
 	}
 	#pr-search-input-wrapper .pr-search-input {
@@ -95,7 +122,7 @@ const Root = styled.div`
 		}
 	}
 	${PaneNode} .pr-search {
-		padding-left: 40px;
+		padding-left: 30px;
 	}
 	div.go-pr {
 		padding: 0;
@@ -104,12 +131,22 @@ const Root = styled.div`
 			margin-top: 0px;
 		}
 	}
+	.files-changed-list-dropdown {
+		padding-left: 45px;
+	}
+	.files-changed-list .row-with-icon-actions {
+		padding-left: 80px;
+	}
 `;
 
 const PrErrorText = styled.small`
 	text-align: right;
 	display: block;
 `;
+
+interface ReposScmPlusName extends ReposScm {
+	name: string;
+}
 
 export const PullRequestTooltip = (props: { pr: GetMyPullRequestsResponse }) => {
 	const { pr } = props;
@@ -194,6 +231,7 @@ interface Props {
 	paneState: PaneState;
 }
 
+const EMPTY_ARRAY = [] as any;
 const EMPTY_HASH = {} as any;
 const EMPTY_HASH_2 = {} as any;
 
@@ -203,8 +241,9 @@ const e: ThirdPartyProviderConfig[] = [];
 export const OpenPullRequests = React.memo((props: Props) => {
 	const dispatch = useDispatch();
 	const mountedRef = useRef(false);
+	const prFromUrlInput = useRef<HTMLInputElement>(null);
 	const derivedState = useSelector((state: CodeStreamState) => {
-		const { preferences, repos } = state;
+		const { preferences, repos, context } = state;
 
 		const team = state.teams[state.context.currentTeamId];
 		const teamSettings = team.settings ? team.settings : EMPTY_HASH;
@@ -220,12 +259,21 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		const prConnectedProvidersWithErrors = prConnectedProviders.filter(_ => _.hasAccessTokenError);
 		const prConnectedProvidersLength = prConnectedProviders.length;
 		const myPullRequests = getMyPullRequestsSelector(state);
+		const expandedPullRequestId =
+			context.currentPullRequest &&
+			context.currentPullRequest.view === "sidebar-diffs" &&
+			context.currentPullRequest.id;
+		const currentPullRequest = getCurrentProviderPullRequest(state);
+		const expandedPullRequestGroupIndex = context.currentPullRequest?.groupIndex;
+		const panePreferences = preferences.sidebarPanes || EMPTY_HASH;
+		const settings = panePreferences["open-pull-requests"] || EMPTY_HASH;
 		return {
 			repos,
 			teamSettings,
 			teamId: team.id,
 			isCurrentUserAdmin,
 			pullRequestQueries: state.preferences.pullRequestQueries,
+			reviewsStateBootstrapped: state.reviews.bootstrapped,
 			myPullRequests,
 			// Currently always showing, regardless of provider, might be reverted in future
 			isPRSupportedCodeHostConnected: prConnectedProvidersLength > 0,
@@ -241,9 +289,29 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					? true
 					: preferences.pullRequestQueryShowAllRepos,
 			hideLabels: preferences.pullRequestQueryHideLabels,
+			hideDiffs: preferences.pullRequestQueryHideDiffs,
 			hideDescriptions: preferences.pullRequestQueryHideDescriptions,
 			prLabel: getPRLabel(state),
-			pullRequestProviderHidden: preferences.pullRequestProviderHidden || EMPTY_HASH_2
+			pullRequestProviderHidden: preferences.pullRequestProviderHidden || EMPTY_HASH_2,
+			expandedPullRequestId,
+			currentPullRequestProviderId: state.context.currentPullRequest
+				? state.context.currentPullRequest.providerId
+				: undefined,
+			currentPullRequestCommentId: state.context.currentPullRequest
+				? state.context.currentPullRequest.commentId
+				: undefined,
+			currentPullRequestSource: state.context.currentPullRequest
+				? state.context.currentPullRequest.source
+				: undefined,
+			currentPullRequest: currentPullRequest,
+			expandedPullRequestGroupIndex,
+			currentPullRequestFromContext: context.currentPullRequest,
+			providerPullRequests: state.providerPullRequests.pullRequests,
+			currentPullRequestId: getPullRequestId(state),
+			currentPullRequestIdExact: getPullRequestExactId(state),
+			currentRepoObject: getProviderPullRequestRepoObject(state),
+			reposState: state.repos,
+			maximized: settings.maximized
 		};
 	}, shallowEqual);
 
@@ -263,6 +331,12 @@ export const OpenPullRequests = React.memo((props: Props) => {
 	const [loadFromUrlQuery, setLoadFromUrlQuery] = React.useState({});
 	const [loadFromUrlOpen, setLoadFromUrlOpen] = React.useState("");
 	const [prError, setPrError] = React.useState("");
+	const [prCommitsRange, setPrCommitsRange] = React.useState<string[]>([]);
+	const [openRepos, setOpenRepos] = React.useState<ReposScmPlusName[]>(EMPTY_ARRAY);
+	const [currentGroupIndex, setCurrentGroupIndex] = React.useState();
+	const [prFromUrlLoading, setPrFromUrlLoading] = React.useState(false);
+	const [prFromUrl, setPrFromUrl] = React.useState<any>({});
+	const [prFromUrlProviderId, setPrFromUrlProviderId] = React.useState<any>(null);
 
 	const [pullRequestGroups, setPullRequestGroups] = React.useState<{
 		[providerId: string]: GetMyPullRequestsResponse[][];
@@ -270,6 +344,8 @@ export const OpenPullRequests = React.memo((props: Props) => {
 
 	const [isLoadingPRs, setIsLoadingPRs] = React.useState(false);
 	const [isLoadingPRGroup, setIsLoadingPRGroup] = React.useState<number | undefined>(undefined);
+	const [individualLoadingPR, setIndividualLoadingPR] = React.useState("");
+
 	const [editingQuery, setEditingQuery] = React.useState<
 		{ providerId: string; index: number } | undefined
 	>(undefined);
@@ -366,6 +442,13 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		},
 		[defaultQueries, editingQuery, PRConnectedProviders, derivedState.allRepos]
 	);
+
+	useEffect(() => {
+		if (props.paneState === PaneState.Open) {
+			setIsLoadingPRs(true);
+			fetchPRs(queries, { force: true, alreadyLoading: true }, "panelOpened");
+		}
+	}, [props.paneState]);
 
 	useEffect(() => {
 		const disposable = HostApi.instance.on(DidChangeDataNotificationType, (e: any) => {
@@ -467,7 +550,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					});
 				}
 
-				const queries = {
+				const queriesObject = {
 					...defaultQueriesResponse,
 					...(derivedState.pullRequestQueries || {})
 				};
@@ -479,11 +562,12 @@ export const OpenPullRequests = React.memo((props: Props) => {
 				// 		results[p].push(_);
 				// 	});
 				// });
-				setQueries(queries);
+				setQueries(queriesObject);
 				setDefaultQueries(defaultQueriesResponse);
-				fetchPRs(queries, undefined, "useDidMount").then(_ => {
+				fetchPRs(queriesObject, undefined, "useDidMount").then(_ => {
 					mountedRef.current = true;
 				});
+				getOpenRepos();
 			}
 		})();
 	});
@@ -611,19 +695,38 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		fetchPRs({ ...queries, [providerId]: newQueries }, { force: true }, "save");
 	};
 
+	// user loads PR/MR from URL
 	const goPR = async (url: string, providerId: string) => {
 		setPrError("");
-		const response = (await dispatch(openPullRequestByUrl(url, { providerId }))) as {
+		setPrFromUrlProviderId(providerId);
+		setPrFromUrlLoading(true);
+		const response = (await dispatch(
+			openPullRequestByUrl(url, { providerId, groupIndex: "-1" })
+		)) as {
 			error?: string;
 		};
-
 		// fix https://trello.com/c/Gp0lsDub/4874-loading-pr-from-url-leaves-the-url-populated
 		setLoadFromUrlQuery({ ...loadFromUrlQuery, [providerId]: "" });
+
+		prFromUrlInput?.current?.blur();
 
 		if (response && response.error) {
 			setPrError(response.error);
 		}
 	};
+
+	useEffect(() => {
+		if (
+			derivedState.expandedPullRequestGroupIndex === "-1" &&
+			derivedState.currentPullRequestFromContext?.providerId &&
+			derivedState.currentPullRequestFromContext?.id
+		) {
+			fetchOnePR(
+				derivedState.currentPullRequestFromContext?.providerId,
+				derivedState.currentPullRequestFromContext?.id
+			);
+		}
+	}, [derivedState.expandedPullRequestGroupIndex, derivedState.currentPullRequestFromContext]);
 
 	useEffect(() => {
 		if (!loadFromUrlOpen) {
@@ -638,6 +741,486 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		);
 		return total;
 	}, [pullRequestGroups]);
+
+	const clickPR = (pr, groupIndex) => {
+		if (!derivedState.maximized) {
+			dispatch(setPaneMaximized("open-pull-requests", !derivedState.maximized));
+		}
+		// if we have an expanded PR diffs in the sidebar, collapse it
+		if (pr.id === derivedState.expandedPullRequestId) {
+			dispatch(clearCurrentPullRequest());
+		} else {
+			// otherwise, either open the PR details or show the diffs,
+			// depending on the user's preference
+			if (pr?.providerId && pr?.id) {
+				const view = derivedState.hideDiffs ? "details" : "sidebar-diffs";
+				let prId;
+				if (pr?.providerId === "gitlab*com" || pr?.providerId === "gitlab/enterprise") {
+					prId = pr.idComputed || pr?.id;
+				} else {
+					prId = pr?.id;
+				}
+
+				dispatch(setCurrentPullRequest(pr.providerId, prId, "", "", view, groupIndex));
+				setCurrentGroupIndex(groupIndex);
+				fetchOnePR(pr.providerId, prId);
+
+				HostApi.instance.track("PR Clicked", {
+					Host: pr.providerId
+				});
+			}
+		}
+	};
+
+	const fetchOnePR = async (providerId: string, pullRequestId: string, message?: string) => {
+		//GL ids can be a stringified object, order of parameters can fluctuate.  So a
+		//simple string comparison is not sufficent, we have to convert to an object if possible
+		//and extract the id param.  For everything else that is not GL, we just use the standard pr.id
+		let prId = expandedPrIdObject(pullRequestId);
+		setIndividualLoadingPR(prId);
+		(await dispatch(getPullRequestConversationsFromProvider(providerId, pullRequestId))) as any;
+		setIndividualLoadingPR("");
+	};
+
+	const checkout = async (event, prToCheckout, cantCheckoutReason) => {
+		event.preventDefault();
+		event.stopPropagation();
+		if (!prToCheckout || cantCheckoutReason) return;
+
+		const currentRepo = openRepos.find(
+			_ =>
+				_?.name?.toLowerCase() === prToCheckout.headRepository?.name?.toLowerCase() ||
+				_?.folder?.name?.toLowerCase() === prToCheckout.headRepository?.name?.toLowerCase()
+		);
+
+		const repoId = currentRepo?.id || "";
+		const result = await HostApi.instance.send(SwitchBranchRequestType, {
+			branch: prToCheckout!.headRefName,
+			repoId: repoId
+		});
+		if (result.error) {
+			logError(result.error, {
+				...(derivedState.currentRepoObject || {}),
+				branch: prToCheckout.headRefName,
+				repoId: repoId,
+				prRepository: prToCheckout!.repository
+			});
+
+			confirmPopup({
+				title: "Git Error",
+				className: "wide",
+				message: (
+					<div className="monospace" style={{ fontSize: "11px" }}>
+						{result.error}
+					</div>
+				),
+				centered: false,
+				buttons: [{ label: "OK", className: "control-button" }]
+			});
+		} else {
+			getOpenRepos();
+		}
+	};
+
+	const expandedPrIdObject = str => {
+		try {
+			return JSON.parse(str).id;
+		} catch (e) {
+			return str;
+		}
+	};
+
+	const cantCheckoutReason = prToCheckout => {
+		if (prToCheckout) {
+			const currentRepo = openRepos.find(
+				_ =>
+					_?.name?.toLowerCase() === prToCheckout.headRepository?.name?.toLowerCase() ||
+					_?.folder?.name?.toLowerCase() === prToCheckout.headRepository?.name?.toLowerCase()
+			);
+
+			if (!currentRepo) {
+				return `You don't have the ${prToCheckout.headRepository?.name} repo open in your IDE`;
+			}
+			if (currentRepo.currentBranch == prToCheckout.headRefName) {
+				return `You are on the ${prToCheckout.headRefName} branch`;
+			}
+			return "";
+		} else {
+			return "PR not loaded";
+		}
+
+		// if (pr) {
+		// 	const currentRepo = openRepos.find(
+		// 		_ => _?.name?.toLowerCase() === pr.repository?.name?.toLowerCase()
+		// 	);
+		// 	if (!currentRepo) {
+		// 		return `You don't have the ${pr.repository?.name} repo open in your IDE`;
+		// 	}
+		// 	if (currentRepo.currentBranch == pr.headRefName) {
+		// 		return `You are on the ${pr.headRefName} branch`;
+		// 	}
+		// 	return "";
+		// } else {
+		// 	return "PR not loaded";
+		// }
+	};
+
+	/**
+	 * This is called when a user clicks the "reload" button.
+	 * with a "hard-reload" we need to refresh the conversation and file data
+	 * @param event
+	 * @param message
+	 */
+	const reload = async (e, pr) => {
+		e.stopPropagation();
+		fetchOnePR(pr.providerId!, pr.id);
+	};
+
+	const handleClickCopy = (e, prUrl) => {
+		e.stopPropagation();
+		e.preventDefault();
+		copy(prUrl);
+	};
+
+	const getOpenRepos = async () => {
+		const { reposState } = derivedState;
+		const response = await HostApi.instance.send(GetReposScmRequestType, {
+			inEditorOnly: true,
+			includeCurrentBranches: true
+		});
+		if (response && response.repositories) {
+			const repos = response.repositories.map(repo => {
+				const id = repo.id || "";
+				return { ...repo, name: reposState[id] ? reposState[id].name : "" };
+			});
+			setOpenRepos(repos);
+		}
+	};
+
+	const renderPrGroup = (providerId, pr, index, groupIndex) => {
+		let prId, expandedPrId;
+
+		if ((pr?.base_id || pr?.idComputed) && derivedState.expandedPullRequestId) {
+			if (pr?.base_id) {
+				prId = pr.base_id;
+			}
+			if (pr?.idComputed) {
+				prId = expandedPrIdObject(pr?.idComputed);
+			}
+			expandedPrId = expandedPrIdObject(derivedState.expandedPullRequestId);
+		} else {
+			prId = pr.id;
+			expandedPrId = derivedState.expandedPullRequestId;
+		}
+
+		const expanded =
+			prId == expandedPrId &&
+			(derivedState.expandedPullRequestGroupIndex === groupIndex ||
+				currentGroupIndex === groupIndex);
+		const isLoadingPR = prId === individualLoadingPR;
+		const chevronIcon = derivedState.hideDiffs ? null : expanded ? (
+			<Icon name="chevron-down-thin" />
+		) : (
+			<Icon name="chevron-right-thin" />
+		);
+
+		if (providerId === "github*com" || providerId === "github/enterprise") {
+			const selected = openRepos.find(repo => {
+				return (
+					repo.currentBranch === pr.headRefName &&
+					pr.headRepository &&
+					repo?.name === pr.headRepository?.name
+				);
+			});
+			return (
+				<>
+					<Row
+						key={`pr_${prId}_${groupIndex}_${providerId}`}
+						className={selected ? "pr-row selected" : "pr-row"}
+						onClick={() => clickPR(pr, groupIndex)}
+					>
+						<div style={{ display: "flex" }}>
+							{chevronIcon}
+							{pr.author && <PRHeadshot person={pr.author} />}
+						</div>
+						<div>
+							<span>
+								#{pr.number} {pr.title}
+							</span>
+							{pr.labels &&
+								pr.labels.nodes &&
+								pr.labels.nodes.length > 0 &&
+								!derivedState.hideLabels && (
+									<span className="cs-tag-container">
+										{pr.labels.nodes.map((_, index) => (
+											<Tag key={index} tag={{ label: _?.name, color: `#${_?.color}` }} />
+										))}
+									</span>
+								)}
+							{!derivedState.hideDescriptions && (
+								<span className="subtle">{pr.bodyText || pr.body}</span>
+							)}
+						</div>
+						<div className="icons">
+							<span
+								onClick={e => {
+									e.preventDefault();
+									e.stopPropagation();
+									HostApi.instance.send(OpenUrlRequestType, {
+										url: pr.url
+									});
+								}}
+							>
+								<Icon
+									name="link-external"
+									className="clickable"
+									title="View on GitHub"
+									placement="bottomLeft"
+									delay={1}
+								/>
+							</span>
+							<Icon
+								title="Copy"
+								placement="bottom"
+								name="copy"
+								className="clickable"
+								onClick={e => handleClickCopy(e, pr.url)}
+								delay={1}
+							/>
+
+							<span className={cantCheckoutReason(pr) ? "disabled" : ""}>
+								<Icon
+									title={
+										<>
+											Checkout Branch
+											{cantCheckoutReason(pr) && (
+												<div className="subtle smaller" style={{ maxWidth: "200px" }}>
+													Disabled: {cantCheckoutReason(pr)}
+												</div>
+											)}
+										</>
+									}
+									trigger={["hover"]}
+									onClick={e => checkout(e, pr, cantCheckoutReason(pr))}
+									placement="bottom"
+									name="git-branch"
+									delay={1}
+									className="clickable"
+								/>
+							</span>
+							<span>
+								<Icon
+									title="Reload"
+									trigger={["hover"]}
+									delay={1}
+									onClick={e => {
+										if (isLoadingPR) {
+											console.warn("reloading pr, cancelling...");
+											return;
+										}
+										reload(e, pr);
+									}}
+									placement="bottom"
+									className={`${isLoadingPR ? "spin" : ""}`}
+									name="refresh"
+								/>
+							</span>
+							{groupIndex === "-1" && (
+								<Icon
+									title="Remove"
+									placement="bottom"
+									name="x"
+									className="clickable"
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										setPrFromUrl({});
+									}}
+									delay={1}
+								/>
+							)}
+							<Timestamp time={pr.createdAt} relative abbreviated />
+						</div>
+					</Row>
+					{expanded && (
+						<PullRequestExpandedSidebar
+							key={`pr_detail_row_${index}`}
+							pullRequest={pr}
+							thirdPartyPrObject={expandedPR}
+							loadingThirdPartyPrObject={isLoadingPR}
+							fetchOnePR={fetchOnePR}
+							prCommitsRange={prCommitsRange}
+							setPrCommitsRange={setPrCommitsRange}
+						/>
+					)}
+				</>
+			);
+		} else if (providerId === "gitlab*com" || providerId === "gitlab/enterprise") {
+			const selected = false;
+			// const selected = openReposWithName.find(repo => {
+			// 	return (
+			// 		repo.currentBranch === pr.headRefName &&
+			// 		pr.headRepository &&
+			// 		repo.name === pr.headRepository.name
+			// 	);
+			// });
+			return (
+				<>
+					<Row
+						key={`pr_${prId}_${groupIndex}_${providerId}`}
+						className={selected ? "pr-row selected" : "pr-row"}
+						onClick={() => clickPR(pr, groupIndex)}
+					>
+						<div style={{ display: "flex" }}>
+							{" "}
+							{chevronIcon}
+							<PRHeadshot
+								person={{
+									login: pr.author.login,
+									avatarUrl: pr.author.avatar_url || pr.author.avatarUrl
+								}}
+							/>
+						</div>
+						<div>
+							<span>
+								!{pr.number} {pr.title}
+							</span>
+							{pr.labels && pr.labels && pr.labels.length > 0 && !derivedState.hideLabels && (
+								<span className="cs-tag-container">
+									{pr.labels.map((_, index) => (
+										<Tag key={index} tag={{ label: _?.name, color: `${_?.color}` }} />
+									))}
+								</span>
+							)}
+							{!derivedState.hideDescriptions && <span className="subtle">{pr.description}</span>}
+						</div>
+						<div className="icons">
+							<span
+								onClick={e => {
+									e.preventDefault();
+									e.stopPropagation();
+									HostApi.instance.send(OpenUrlRequestType, {
+										url: pr.web_url
+									});
+								}}
+							>
+								<Icon
+									name="link-external"
+									className="clickable"
+									title="View on Gitlab"
+									placement="bottomLeft"
+									delay={1}
+								/>
+							</span>
+							<Icon
+								title="Copy"
+								placement="bottom"
+								name="copy"
+								className="clickable"
+								onClick={e => handleClickCopy(e, pr.web_url)}
+								delay={1}
+							/>
+							<span>
+								<Icon
+									title="Reload"
+									trigger={["hover"]}
+									delay={1}
+									onClick={e => {
+										if (isLoadingPR) {
+											console.warn("reloading pr, cancelling...");
+											return;
+										}
+										reload(e, pr);
+									}}
+									placement="bottom"
+									className={`${isLoadingPR ? "spin" : ""}`}
+									name="refresh"
+								/>
+							</span>
+							{groupIndex === "-1" && (
+								<Icon
+									title="Remove"
+									placement="bottom"
+									name="x"
+									className="clickable"
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										setPrFromUrl({});
+									}}
+									delay={1}
+								/>
+							)}
+							<Timestamp time={pr.created_at} relative abbreviated />
+							{pr.user_notes_count > 0 && (
+								<span
+									className="badge"
+									style={{ margin: "0 0 0 10px", flexGrow: 0, flexShrink: 0 }}
+								>
+									{pr.user_notes_count}
+								</span>
+							)}
+						</div>
+					</Row>
+					{expanded && (
+						<PullRequestExpandedSidebar
+							key={`pr_detail_row_${prId}_${groupIndex}_${providerId}`}
+							pullRequest={pr}
+							thirdPartyPrObject={expandedPR}
+							loadingThirdPartyPrObject={isLoadingPR}
+							fetchOnePR={fetchOnePR}
+							prCommitsRange={prCommitsRange}
+							setPrCommitsRange={setPrCommitsRange}
+						/>
+					)}
+				</>
+			);
+		} else return undefined;
+	};
+
+	useEffect(() => {
+		const providerPullRequests =
+			derivedState.providerPullRequests[derivedState.currentPullRequestProviderId!];
+		if (providerPullRequests) {
+			let data = providerPullRequests[derivedState.currentPullRequestIdExact!];
+			if (data) {
+				return;
+			}
+		} else {
+			fetchOnePR(derivedState.currentPullRequestProviderId!, derivedState.currentPullRequestId);
+			console.warn(`could not find match for idExact=${derivedState.currentPullRequestIdExact}`);
+		}
+	}, [
+		derivedState.currentPullRequestProviderId,
+		derivedState.currentPullRequestIdExact,
+		derivedState.providerPullRequests
+	]);
+
+	const expandedPR: any = useMemo(() => {
+		if (!derivedState.currentPullRequest || derivedState.hideDiffs) return undefined;
+		const conversations = derivedState.currentPullRequest.conversations;
+		if (!conversations) {
+			return undefined;
+		}
+		if (conversations.project && conversations.project.mergeRequest) {
+			if (derivedState.expandedPullRequestGroupIndex === "-1") {
+				setPrFromUrl(conversations.project.mergeRequest);
+				setPrFromUrlLoading(false);
+			}
+
+			return conversations.project.mergeRequest;
+		}
+
+		if (conversations.repository && conversations.repository.pullRequest) {
+			if (derivedState.expandedPullRequestGroupIndex === "-1") {
+				setPrFromUrl(conversations.repository.pullRequest);
+				setPrFromUrlLoading(false);
+			}
+			return conversations.repository.pullRequest;
+		}
+
+		return undefined;
+	}, [derivedState.currentPullRequest, derivedState.hideDiffs]);
 
 	const settingsMenuItems = [
 		{
@@ -663,6 +1246,14 @@ export const OpenPullRequests = React.memo((props: Props) => {
 			action: () =>
 				dispatch(setUserPreference(["pullRequestQueryHideLabels"], !derivedState.hideLabels))
 		}
+		// Not using this for now
+		// {
+		// 	label: "Show Diffs in Sidebar",
+		// 	key: "show-diffs",
+		// 	checked: !derivedState.hideDiffs,
+		// 	action: () =>
+		// 		dispatch(setUserPreference(["pullRequestQueryHideDiffs"], !derivedState.hideDiffs))
+		// }
 	] as any;
 	if (derivedState.isCurrentUserAdmin) {
 		if (derivedState.GitLabConnectedProviders.length > 0) {
@@ -707,6 +1298,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 							</div>
 							<div id="pr-search-input-wrapper">
 								<input
+									ref={prFromUrlInput}
 									id={`pr-search-input-${providerId}`}
 									className="pr-search-input"
 									placeholder={`Load ${prLabel.PR} from URL`}
@@ -721,6 +1313,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 											setLoadFromUrlQuery({ ...loadFromUrlQuery, [providerId]: "" });
 										}
 										if (e.key == "Enter") {
+											(e.target as HTMLInputElement).blur();
 											goPR(loadFromUrlQuery[providerId], providerId);
 										}
 									}}
@@ -732,7 +1325,10 @@ export const OpenPullRequests = React.memo((props: Props) => {
 									<Button
 										className="go-pr"
 										size="compact"
-										onClick={() => goPR(loadFromUrlQuery[providerId], providerId)}
+										onClick={e => {
+											prFromUrlInput?.current?.blur();
+											goPR(loadFromUrlQuery[providerId], providerId);
+										}}
 									>
 										Go
 									</Button>
@@ -752,14 +1348,23 @@ export const OpenPullRequests = React.memo((props: Props) => {
 								<PrErrorText title={prError}>{prError}</PrErrorText>
 							</Row>
 						)}
+						{prFromUrlLoading && prFromUrlProviderId === providerId && (
+							<div style={{ marginLeft: "30px" }}>
+								<Icon className={"spin"} name="refresh" /> Loading...
+							</div>
+						)}
+						{!isEmpty(prFromUrl) && !prFromUrlLoading && prFromUrlProviderId === providerId && (
+							<>{renderPrGroup(prFromUrl?.providerId, prFromUrl, "-1", "-1")}</>
+						)}
 					</>
 				)}
 				{Object.values(providerQueries).map((query: PullRequestQuery, index) => {
+					const groupIndex = index.toString();
 					const providerGroups = pullRequestGroups[providerId];
 					const prGroup = providerGroups && providerGroups[index];
 					const count = prGroup ? prGroup.length : 0;
 					return (
-						<PaneNode key={index}>
+						<PaneNode>
 							<PaneNodeName
 								onClick={e => toggleQueryHidden(e, providerId, index)}
 								title={query?.name || "Unnamed"}
@@ -795,173 +1400,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 							{!query.hidden &&
 								prGroup &&
 								prGroup.map((pr: any, index) => {
-									if (providerId === "github*com" || providerId === "github/enterprise") {
-										const selected = openReposWithName.find(repo => {
-											return (
-												repo.currentBranch === pr.headRefName &&
-												pr.headRepository &&
-												repo?.name === pr.headRepository?.name
-											);
-										});
-										return (
-											<Tooltip
-												key={"pr-tt-" + pr.id + index}
-												title={<PullRequestTooltip pr={pr} />}
-												delay={1}
-												placement="top"
-											>
-												<Row
-													key={"pr-" + pr.id}
-													className={selected ? "pr-row selected" : "pr-row"}
-													onClick={() => {
-														dispatch(setCurrentPullRequest(pr.providerId, pr.id));
-
-														HostApi.instance.track("PR Clicked", {
-															Host: pr.providerId
-														});
-													}}
-												>
-													<div>
-														{selected && <Icon name="arrow-right" className="selected-icon" />}
-														<PRHeadshot person={pr.author} />
-													</div>
-													<div>
-														<span>
-															#{pr.number} {pr.title}
-														</span>
-														{pr.labels &&
-															pr.labels.nodes &&
-															pr.labels.nodes.length > 0 &&
-															!derivedState.hideLabels && (
-																<span className="cs-tag-container">
-																	{pr.labels.nodes.map((_, index) => (
-																		<Tag
-																			key={index}
-																			tag={{ label: _?.name, color: `#${_?.color}` }}
-																		/>
-																	))}
-																</span>
-															)}
-														{!derivedState.hideDescriptions && (
-															<span className="subtle">{pr.bodyText || pr.body}</span>
-														)}
-													</div>
-													<div className="icons">
-														<span
-															onClick={e => {
-																e.preventDefault();
-																e.stopPropagation();
-																HostApi.instance.send(OpenUrlRequestType, {
-																	url: pr.url
-																});
-															}}
-														>
-															<Icon
-																name="globe"
-																className="clickable"
-																title="View on GitHub"
-																placement="bottomLeft"
-																delay={1}
-															/>
-														</span>
-														<Icon
-															name="review"
-															className="clickable"
-															title="Review Changes"
-															placement="bottomLeft"
-															delay={1}
-														/>
-														<Timestamp time={pr.createdAt} relative abbreviated />
-													</div>
-												</Row>
-											</Tooltip>
-										);
-									} else if (providerId === "gitlab*com" || providerId === "gitlab/enterprise") {
-										const selected = false;
-										// const selected = openReposWithName.find(repo => {
-										// 	return (
-										// 		repo.currentBranch === pr.headRefName &&
-										// 		pr.headRepository &&
-										// 		repo.name === pr.headRepository.name
-										// 	);
-										// });
-										return (
-											<Row
-												key={"pr-" + pr.base_id}
-												className={selected ? "pr-row selected" : "pr-row"}
-												onClick={() => {
-													dispatch(setCurrentPullRequest(pr.providerId, pr.id));
-
-													HostApi.instance.track("PR Clicked", {
-														Host: pr.providerId
-													});
-												}}
-											>
-												<div>
-													{selected && <Icon name="arrow-right" className="selected-icon" />}
-													<PRHeadshot
-														person={{
-															login: pr.author.login,
-															avatarUrl: pr.author.avatar_url
-														}}
-													/>
-												</div>
-												<div>
-													<span>
-														!{pr.number} {pr.title}
-													</span>
-													{pr.labels &&
-														pr.labels &&
-														pr.labels.length > 0 &&
-														!derivedState.hideLabels && (
-															<span className="cs-tag-container">
-																{pr.labels.map((_, index) => (
-																	<Tag key={index} tag={{ label: _?.name, color: `${_?.color}` }} />
-																))}
-															</span>
-														)}
-													{!derivedState.hideDescriptions && (
-														<span className="subtle">{pr.description}</span>
-													)}
-												</div>
-												<div className="icons">
-													<span
-														onClick={e => {
-															e.preventDefault();
-															e.stopPropagation();
-															HostApi.instance.send(OpenUrlRequestType, {
-																url: pr.web_url
-															});
-														}}
-													>
-														<Icon
-															name="globe"
-															className="clickable"
-															title="View on GitLab"
-															placement="bottomLeft"
-															delay={1}
-														/>
-													</span>
-													<Icon
-														name="review"
-														className="clickable"
-														title="Review Changes"
-														placement="bottomLeft"
-														delay={1}
-													/>
-													<Timestamp time={pr.created_at} relative abbreviated />
-													{pr.user_notes_count > 0 && (
-														<span
-															className="badge"
-															style={{ margin: "0 0 0 10px", flexGrow: 0, flexShrink: 0 }}
-														>
-															{pr.user_notes_count}
-														</span>
-													)}
-												</div>
-											</Row>
-										);
-									} else return undefined;
+									return renderPrGroup(providerId, pr, index, groupIndex);
 								})}
 						</PaneNode>
 					);
@@ -1037,7 +1476,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					</InlineMenu>
 				</PaneHeader>
 				{props.paneState !== PaneState.Collapsed && (
-					<PaneBody>
+					<PaneBody key={"openpullrequests"}>
 						{!derivedState.isPRSupportedCodeHostConnected && (
 							<>
 								<NoContent>Connect to GitHub or GitLab to see your PRs</NoContent>
@@ -1071,7 +1510,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 										: display.displayName;
 									const collapsed = pullRequestProviderHidden[providerId];
 									return (
-										<PaneNode key={index}>
+										<PaneNode key={`${providerId}_${index}`}>
 											<PaneNodeName
 												onClick={e => toggleProviderHidden(e, providerId)}
 												title={displayName}

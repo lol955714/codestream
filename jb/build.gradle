@@ -3,10 +3,11 @@ plugins {
     id "idea"
     id "org.jetbrains.intellij" version "1.1.6"
     id "org.jetbrains.kotlin.jvm" version "1.6.10"
+    id "de.undercouch.download" version "5.1.0"
 }
 
 group "com.codestream"
-version "12.16.1"
+version "12.18.1"
 
 sourceCompatibility = 1.8
 
@@ -79,7 +80,7 @@ intellij {
 
     // sandboxDir = "$System.env.HOME/ide-sandbox" // It is sometimes useful to not have IDE config inside source control
 
-    plugins = ['git4idea', 'org.jetbrains.plugins.go:211.7142.36', 'Pythonid:211.7142.45']
+    plugins = ['git4idea', 'org.jetbrains.plugins.go:211.7142.36', 'Pythonid:211.7142.45', 'org.jetbrains.plugins.ruby:211.7142.13']
 }
 
 runIde {
@@ -129,13 +130,35 @@ task copyProtobuf(type: Copy) {
     into "$projectDir/src/main/resources/protobuf"
 }
 
+def createDownloadNodeTask(String platform, String executableName) {
+    String taskName = "downloadNode-" + platform
+    String assetsRoot = 'http://assets.codestream.us/artifacts/node'
+    String nodeVersion = 'v16.13.2'
+    return tasks.create(taskName, Download) {
+        src([
+                "$assetsRoot/node-$nodeVersion-${platform}/${executableName}",
+                "$assetsRoot/node-$nodeVersion-${platform}/LICENSE",
+        ])
+        dest "$projectDir/src/main/resources/agent/node-${platform}"
+        onlyIfModified true
+    }
+}
+
+task downloadNode {}
+downloadNode.dependsOn (
+    createDownloadNodeTask("darwin-arm64", "node"),
+    createDownloadNodeTask("darwin-x64", "node"),
+    createDownloadNodeTask("linux-x64", "node"),
+    createDownloadNodeTask("win-x64", "node.exe")
+)
+
 task buildDependencies {}
 buildDependencies.dependsOn buildDeps, copyAgent, copyProtobuf
 
 task buildDependenciesMac {}
 buildDependenciesMac.dependsOn buildDepsMac, copyAgent, copyProtobuf
 
-buildPlugin.dependsOn buildDependencies
+buildPlugin.dependsOn downloadNode, buildDependencies
 
 task buildDebugDeps(type: Exec) {
     String npm = 'npm';
@@ -156,6 +179,8 @@ copyDebugAgent.dependsOn buildDebugDeps
 
 task buildDebugDependencies {}
 buildDebugDependencies.dependsOn buildDebugDeps, copyDebugAgent, copyProtobuf
+
+
 
 
 

@@ -11,8 +11,11 @@ import com.codestream.protocols.agent.CreatePermalinkParams
 import com.codestream.protocols.agent.CreatePermalinkResult
 import com.codestream.protocols.agent.CreateReviewsForUnreviewedCommitsParams
 import com.codestream.protocols.agent.CreateReviewsForUnreviewedCommitsResult
+import com.codestream.protocols.agent.CreateShareableCodemarkParams
+import com.codestream.protocols.agent.CreateShareableCodemarkResult
 import com.codestream.protocols.agent.DocumentMarkersParams
 import com.codestream.protocols.agent.DocumentMarkersResult
+import com.codestream.protocols.agent.ExecuteThirdPartyRequestParams
 import com.codestream.protocols.agent.FollowReviewParams
 import com.codestream.protocols.agent.FollowReviewResult
 import com.codestream.protocols.agent.GetAllReviewContentsParams
@@ -30,6 +33,8 @@ import com.codestream.protocols.agent.Ide
 import com.codestream.protocols.agent.InitializationOptions
 import com.codestream.protocols.agent.FileLevelTelemetryParams
 import com.codestream.protocols.agent.FileLevelTelemetryResult
+import com.codestream.protocols.agent.GetPullRequestReviewIdParams
+import com.codestream.protocols.agent.GetUsersParams
 import com.codestream.protocols.agent.PixieDynamicLoggingParams
 import com.codestream.protocols.agent.PixieDynamicLoggingResult
 import com.codestream.protocols.agent.Post
@@ -39,6 +44,10 @@ import com.codestream.protocols.agent.ResolveStackTraceLineResult
 import com.codestream.protocols.agent.Review
 import com.codestream.protocols.agent.ReviewCoverageParams
 import com.codestream.protocols.agent.ReviewCoverageResult
+import com.codestream.protocols.agent.ScmRangeInfoParams
+import com.codestream.protocols.agent.ScmRangeInfoResult
+import com.codestream.protocols.agent.ScmSha1RangesParams
+import com.codestream.protocols.agent.ScmSha1RangesResult
 import com.codestream.protocols.agent.SetServerUrlParams
 import com.codestream.protocols.agent.SetServerUrlResult
 import com.codestream.protocols.agent.Stream
@@ -50,6 +59,7 @@ import com.codestream.system.Platform
 import com.codestream.system.platform
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.Disposable
@@ -79,9 +89,16 @@ import org.eclipse.lsp4j.launch.LSPLauncher
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
+import java.util.Collections
 import java.util.Scanner
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
+
+private val posixPermissions = setOf(
+    PosixFilePermission.OWNER_READ,
+    PosixFilePermission.OWNER_WRITE,
+    PosixFilePermission.OWNER_EXECUTE
+)
 
 class AgentService(private val project: Project) : Disposable {
 
@@ -179,99 +196,132 @@ class AgentService(private val project: Project) : Disposable {
         if (initialization.isDone) {
             initialization = CompletableFuture()
         }
-        try { agent.shutdown().await() } catch (ex: Exception) { logger.warn(ex) }
-        try { agent.exit() } catch (ex: Exception) { logger.warn(ex) }
+        try {
+            agent.shutdown().await()
+        } catch (ex: Exception) {
+            logger.warn(ex)
+        }
+        try {
+            agent.exit()
+        } catch (ex: Exception) {
+            logger.warn(ex)
+        }
         initAgent(newServerUrl, autoSignIn)
         isRestarting = false
         _restartObservers.forEach { it() }
     }
 
+    private fun getAgentEnv(): Map<String, String> {
+        val settings = ServiceManager.getService(ApplicationSettingsService::class.java)
+        val agentEnv: MutableMap<String, String> = mutableMapOf("NODE_OPTIONS" to "")
+        agentEnv["NODE_TLS_REJECT_UNAUTHORIZED"] = if (settings.disableStrictSSL) "0" else "1"
+        settings.extraCerts?.let {
+            agentEnv["NODE_EXTRA_CA_CERTS"] = it
+        }
+        return Collections.unmodifiableMap(agentEnv)
+    }
+
     private fun createProcess(): Process {
+        val agentEnv = getAgentEnv()
         val process = if (DEBUG) {
-            val agentDir = if (AGENT_PATH != null) {
-                File(AGENT_PATH)
-            } else {
-                createTempDir("codestream").also {
-                    it.deleteOnExit()
-                }
-            }
-
-            val agentJs = File(agentDir, "agent.js")
-            val agentJsMap = File(agentDir, "agent.js.map")
-
-            if (AGENT_PATH == null) {
-                FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js"), agentJs)
-                try {
-                    FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js.map"), agentJsMap)
-                } catch (ex: Exception) {
-                    logger.warn("Could not extract agent.js.map", ex)
-                }
-                logger.info("CodeStream LSP agent extracted to ${agentJs.absolutePath}")
-            }
-
-            val port = if (AGENT_PATH == null) {
-                debugPort
-            } else {
-                debugPortSeed // fixed on 6010 so we can just keep "Attach to agent" running
-            }
-            GeneralCommandLine(
-                "node",
-                "--nolazy",
-                "--inspect=$port",
-                agentJs.absolutePath,
-                "--stdio"
-            ).withEnvironment("NODE_OPTIONS", "").createProcess()
+            createDebugProcess(agentEnv)
         } else {
-            val settings = ServiceManager.getService(ApplicationSettingsService::class.java)
-            val agentVersion = settings.environmentVersion
-            val userHomeDir = File(System.getProperty("user.home"))
-            val agentDir = userHomeDir.resolve(".codestream").resolve("agent")
-
-            if (!agentDir.exists()) {
-                Files.createDirectories(agentDir.toPath())
-            }
-
-            val perms = setOf(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE,
-                PosixFilePermission.OWNER_EXECUTE
-            )
-            val agentDestFile = getAgentDestFile(agentDir, agentVersion)
-            for (file in agentDir.listFiles()) {
-                if (file.name != agentDestFile.name) {
-                    try {
-                        file.delete()
-                    } catch (ex: Exception) {
-                        logger.warn("Could not delete " + file.name, ex)
-                    }
-                }
-            }
-
-            if (!agentDestFile.exists()) {
-                FileUtils.copyToFile(javaClass.getResourceAsStream(getAgentResourcePath()), agentDestFile)
-                if (platform == Platform.MAC || platform == Platform.LINUX) {
-                    Files.setPosixFilePermissions(agentDestFile.toPath(), perms)
-                }
-                logger.info("CodeStream LSP agent extracted to ${agentDestFile.absolutePath}")
-
-                if (platform == Platform.LINUX) {
-                    val xdgOpen = File(agentDir, "xdg-open")
-                    FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/xdg-open"), xdgOpen)
-                    Files.setPosixFilePermissions(xdgOpen.toPath(), perms)
-                    logger.info("xdg-open extracted to ${xdgOpen.absolutePath}")
-                }
-            }
-
-            GeneralCommandLine(
-                agentDestFile.absolutePath,
-                "--stdio"
-            ).withEnvironment("NODE_OPTIONS", "").createProcess()
+            createProductionProcess(agentEnv)
         }
 
         captureErrorStream(process)
         captureExitCode(process)
 
         return process
+    }
+
+    private fun deleteAllExcept(dir: File, prefix: String, except: String) {
+        for (file in dir.listFiles { _, name -> name.startsWith(prefix) }!!) {
+            if (file.name != except) {
+                try {
+                    file.delete()
+                } catch (ex: Exception) {
+                    logger.warn("Could not delete " + file.name, ex)
+                }
+            }
+        }
+    }
+
+    private fun createProductionProcess(agentEnv: Map<String, String>): Process {
+        val settings = ServiceManager.getService(ApplicationSettingsService::class.java)
+        val agentVersion = settings.environmentVersion
+        val userHomeDir = File(System.getProperty("user.home"))
+        val agentDir = userHomeDir.resolve(".codestream").resolve("agent")
+
+        if (!agentDir.exists()) {
+            Files.createDirectories(agentDir.toPath())
+        }
+
+        val agentJsDestFile = File(agentDir, "agent-$agentVersion.js")
+        deleteAllExcept(agentDir, "agent", agentJsDestFile.name)
+
+        FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js"), agentJsDestFile)
+
+        val nodeDestFile = getNodeDestFile(agentDir, agentVersion)
+        deleteAllExcept(agentDir, "node", nodeDestFile.name)
+
+        if (!nodeDestFile.exists()) {
+            FileUtils.copyToFile(javaClass.getResourceAsStream(getNodeResourcePath()), nodeDestFile)
+            if (platform.isPosix) {
+                Files.setPosixFilePermissions(nodeDestFile.toPath(), posixPermissions)
+            }
+            logger.info("Node.js for CodeStream LSP agent extracted to ${nodeDestFile.absolutePath}")
+
+            if (platform == Platform.LINUX_X64) {
+                val xdgOpen = File(agentDir, "xdg-open")
+                FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/xdg-open"), xdgOpen)
+                Files.setPosixFilePermissions(xdgOpen.toPath(), posixPermissions)
+                logger.info("xdg-open extracted to ${xdgOpen.absolutePath}")
+            }
+        }
+
+        return GeneralCommandLine(
+            nodeDestFile.absolutePath,
+            "--nolazy",
+            agentJsDestFile.absolutePath,
+            "--stdio"
+        ).withEnvironment(agentEnv).createProcess()
+    }
+
+    private fun createDebugProcess(agentEnv: Map<String, String>): Process {
+        val agentDir = if (AGENT_PATH != null) {
+            File(AGENT_PATH)
+        } else {
+            createTempDir("codestream").also {
+                it.deleteOnExit()
+            }
+        }
+
+        val agentJs = File(agentDir, "agent.js")
+        val agentJsMap = File(agentDir, "agent.js.map")
+
+        if (AGENT_PATH == null) {
+            FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js"), agentJs)
+            try {
+                FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js.map"), agentJsMap)
+            } catch (ex: Exception) {
+                logger.warn("Could not extract agent.js.map", ex)
+            }
+            logger.info("CodeStream LSP agent extracted to ${agentJs.absolutePath}")
+        }
+
+        val port = if (AGENT_PATH == null) {
+            debugPort
+        } else {
+            debugPortSeed // fixed on 6010 so we can just keep "Attach to agent" running
+        }
+        return GeneralCommandLine(
+            "node",
+            "--nolazy",
+            "--inspect=$port",
+            agentJs.absolutePath,
+            "--stdio"
+        ).withEnvironment(agentEnv).createProcess()
     }
 
     private fun captureErrorStream(process: Process) {
@@ -304,19 +354,22 @@ class AgentService(private val project: Project) : Disposable {
         }).start()
     }
 
-    private fun getAgentResourcePath(): String {
+    private fun getNodeResourcePath(): String {
         return when (platform) {
-            Platform.LINUX -> "/agent/agent-linux"
-            Platform.MAC -> "/agent/agent-macos"
-            Platform.WIN64 -> "/agent/agent-win.exe"
+            Platform.LINUX_X64 -> "/agent/node-linux-x64/node"
+            Platform.MAC_ARM64 -> "/agent/node-darwin-arm64/node"
+            Platform.MAC_X64 -> "/agent/node-darwin-x64/node"
+            Platform.WIN_X64 -> "/agent/node-win-x64/node.exe"
         }
     }
 
-    private fun getAgentDestFile(agentFolder: File, version: String): File {
+    private fun getNodeDestFile(agentFolder: File, version: String): File {
+        // By naming the Node.js executable after the CodeStream version,
+        // we don't need to update the AgentService code when the Node.js
+        // version changes. The Node.js version is defined in build.gradle.
         return when (platform) {
-            Platform.LINUX -> File(agentFolder, "codestream-agent.$version")
-            Platform.MAC -> File(agentFolder, "codestream-agent.$version")
-            Platform.WIN64 -> File(agentFolder, "codestream-agent.$version.exe")
+            Platform.WIN_X64 -> File(agentFolder, "node.$version.exe")
+            else -> File(agentFolder, "node.$version")
         }.also {
             it.setExecutable(true)
         }
@@ -397,6 +450,13 @@ class AgentService(private val project: Project) : Disposable {
         return gson.fromJson(json.get("stream"))
     }
 
+    suspend fun getUsers(): List<CSUser> {
+        val json = remoteEndpoint
+            .request("codestream/users", GetUsersParams())
+            .await() as JsonObject
+        return gson.fromJson(json.get("users"))
+    }
+
     suspend fun getUser(id: String): CSUser {
         val json = remoteEndpoint
             .request("codestream/user", GetUserParams(id))
@@ -455,6 +515,15 @@ class AgentService(private val project: Project) : Disposable {
         return gson.fromJson(json)
     }
 
+    suspend fun getPullRequestReviewId(prId: String, providerId: String): JsonElement? {
+        val json = remoteEndpoint
+            .request(
+                "codestream/provider/generic",
+                ExecuteThirdPartyRequestParams("getPullRequestReviewId", providerId, GetPullRequestReviewIdParams(prId)))
+            .await()
+        return json as JsonElement?
+    }
+
     suspend fun setServerUrl(params: SetServerUrlParams): SetServerUrlResult? {
         val json = remoteEndpoint
             .request("codestream/set-server", params)
@@ -500,6 +569,27 @@ class AgentService(private val project: Project) : Disposable {
     suspend fun fileLevelTelemetry(params: FileLevelTelemetryParams): FileLevelTelemetryResult {
         val json = remoteEndpoint
             .request("codestream/newrelic/fileLevelTelemetry", params)
+            .await() as JsonObject?
+        return gson.fromJson(json!!)
+    }
+
+    suspend fun scmRangeInfo(params: ScmRangeInfoParams): ScmRangeInfoResult {
+        val json = remoteEndpoint
+            .request("codestream/scm/range/info", params)
+            .await() as JsonObject?
+        return gson.fromJson(json!!)
+    }
+
+    suspend fun scmSha1Ranges(params: ScmSha1RangesParams): List<ScmSha1RangesResult> {
+        val json = remoteEndpoint
+            .request("codestream/scm/sha1/ranges", params)
+            .await() as JsonElement
+        return gson.fromJson(json)
+    }
+
+    suspend fun createShareableCodemark(params: CreateShareableCodemarkParams): CreateShareableCodemarkResult {
+        val json = remoteEndpoint
+            .request("codestream/codemarks/sharing/create", params)
             .await() as JsonObject?
         return gson.fromJson(json!!)
     }

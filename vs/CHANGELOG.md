@@ -1,5 +1,18 @@
 # Change Log
 
+## [12.18.0] - 2022-5-13
+
+### Fixed
+
+- Addresses [#967](https://github.com/TeamCodeStream/CodeStream/issues/967) &mdash; newrelic_agent.log file created
+
+## [12.17.0] - 2022-5-12
+
+### Fixed
+
+- Fixes an issue preventing you from connecting to Jira from Linux
+- Fixes an issue where a custom issue filter wouldn't get applied without a reload
+
 ## [12.16.0] - 2022-4-28
 
 ### Added

@@ -11,15 +11,20 @@ interface Props {
 	selected?: boolean;
 	noHover?: boolean;
 	icon?: any;
+	iconLast?: any;
 	actionIcons?: any;
 	tooltip?: any;
 	depth?: number;
 	viewMode?: "files" | "tree";
 	badge?: React.ReactNode;
+	chevron?: any;
+	pending?: any;
+	count?: any;
+	customFilenameColor?: string;
 }
 
 export const ChangesetFile = styled((props: ReviewChangesetFileInfo & Props) => {
-	const { linesAdded, linesRemoved, status } = props;
+	const { customFilenameColor, linesAdded, linesRemoved, status } = props;
 
 	const filename = props.viewMode === "tree" ? pathBasename(props.file) : props.file;
 	return (
@@ -31,12 +36,15 @@ export const ChangesetFile = styled((props: ReviewChangesetFileInfo & Props) => 
 				"with-action-icons": !!props.actionIcons
 			})}
 			onClick={props.onClick}
-			style={props.depth ? { paddingLeft: `${props.depth * 12}px` } : {}}
+			style={props.depth ? { paddingLeft: `${props.depth * 10}px` } : {}}
 		>
+			{props.chevron}
 			{props.icon}
 			<Tooltip title={props.tooltip} placement="bottom" delay={1}>
 				<span className="file-info ellipsis-left">
-					<bdi dir="ltr">{filename}</bdi>
+					<bdi dir="ltr" style={{ color: customFilenameColor ? customFilenameColor : "default" }}>
+						{filename}
+					</bdi>
 				</span>
 			</Tooltip>
 			{linesAdded > 0 && <span className="added">+{linesAdded} </span>}
@@ -46,8 +54,10 @@ export const ChangesetFile = styled((props: ReviewChangesetFileInfo & Props) => 
 			{status === FileStatus.copied && <span className="added">copied </span>}
 			{status === FileStatus.unmerged && <span className="deleted">conflict </span>}
 			{status === FileStatus.deleted && <span className="deleted">deleted </span>}
-			{props.badge}
 			{props.actionIcons}
+			{props.count}
+			{props.badge}
+			{props.iconLast}
 		</div>
 	);
 })`

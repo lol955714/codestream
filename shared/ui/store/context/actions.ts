@@ -42,6 +42,23 @@ export const closeModal = () => {
 	return action(ContextActionsType.CloseModal);
 };
 
+export const closePrDetailModal = (
+	providerId: string,
+	id: string,
+	groupIndex?: string | undefined
+) => dispatch => {
+	dispatch(closeModal());
+	dispatch(openPanel(WebviewPanels.Sidebar));
+	dispatch(setCurrentCodemark());
+	dispatch(setCurrentReview());
+	dispatch(setCurrentCodeError());
+	dispatch(setCurrentPullRequest(providerId, id, "", "", "sidebar-diffs", groupIndex));
+	dispatch(clearCurrentErrorsInboxOptions());
+	dispatch(clearCurrentInstrumentationOptions());
+	dispatch(clearWantNewRelicOptions());
+	dispatch(setCurrentMethodLevelTelemetry(undefined));
+};
+
 export const closeAllPanels = () => dispatch => {
 	dispatch(closeModal());
 	dispatch(openPanel(WebviewPanels.Sidebar));
@@ -185,14 +202,35 @@ export const setCurrentPullRequest = (
 	providerId: string,
 	id: string,
 	commentId?: string,
-	source?: string
-) => action(ContextActionsType.SetCurrentPullRequest, { providerId, id, commentId, source });
+	source?: string,
+	view?: "details" | "sidebar-diffs",
+	groupIndex?: string | undefined
+) =>
+	action(ContextActionsType.SetCurrentPullRequest, {
+		providerId,
+		id,
+		commentId,
+		source,
+		view,
+		groupIndex
+	});
 
 export const setCurrentErrorsInboxOptions = (
 	stack?: string,
 	customAttributes?: string,
 	url?: string
 ) => action(ContextActionsType.SetCurrentErrorsInboxOptions, { stack, customAttributes, url });
+
+export const setCurrentPullRequestNeedsRefresh = (
+	needsRefresh: boolean,
+	providerId: string,
+	pullRequestId: string
+) =>
+	action(ContextActionsType.SetCurrentPullRequestNeedsRefresh, {
+		needsRefresh,
+		providerId,
+		pullRequestId
+	});
 
 export const setCurrentInstrumentationOptions = (options?: any) =>
 	action(ContextActionsType.SetCurrentInstrumentationOptions, { options });
@@ -226,7 +264,8 @@ export const clearCurrentPullRequest = () =>
 		providerId: "",
 		id: "",
 		commentId: "",
-		source: ""
+		source: "",
+		view: undefined
 	});
 
 export const setOnboardStep = (step: number) => action(ContextActionsType.SetOnboardStep, { step });

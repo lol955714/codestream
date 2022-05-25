@@ -77,7 +77,9 @@ export const PullRequestCommentMenu = (props: CommentMenuProps) => {
 	}
 
 	if (
-		(node.viewerCanUpdate || node.state === "PENDING" || (node.userPermissions && node.userPermissions.adminNote)) &&
+		(node.viewerCanUpdate ||
+			node.state === "PENDING" ||
+			(node.userPermissions && node.userPermissions.adminNote)) &&
 		setEdit
 	) {
 		if (items.length > 0) items.push({ label: "-" });
@@ -103,7 +105,7 @@ export const PullRequestCommentMenu = (props: CommentMenuProps) => {
 	else
 		return (
 			<InlineMenu noChevronDown noFocusOnSelect items={items}>
-				<Icon name="kebab-horizontal" className="clickable" />
+				<Icon name="kebab-vertical" className="clickable" />
 			</InlineMenu>
 		);
 };

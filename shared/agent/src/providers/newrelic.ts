@@ -2,15 +2,7 @@
 import fs from "fs";
 import { GraphQLClient } from "graphql-request";
 import { Dictionary } from "lodash";
-import {
-	flatten as _flatten,
-	groupBy as _groupBy,
-	memoize,
-	result,
-	sortBy as _sortBy,
-	uniq as _uniq,
-	uniqBy as _uniqBy
-} from "lodash-es";
+import { flatten as _flatten, groupBy as _groupBy, memoize, uniq as _uniq } from "lodash-es";
 import { join, relative, sep } from "path";
 import { ResponseError } from "vscode-jsonrpc/lib/messages";
 import { URI } from "vscode-uri";
@@ -35,8 +27,6 @@ import {
 	ErrorGroupResponse,
 	ErrorGroupsResponse,
 	ErrorGroupStateType,
-	FetchAssignableUsersAutocompleteRequest,
-	FetchAssignableUsersResponse,
 	GetFileLevelTelemetryRequest,
 	GetFileLevelTelemetryRequestType,
 	GetFileLevelTelemetryResponse,
@@ -67,7 +57,6 @@ import {
 	GoldenMetricsQueryResult,
 	GoldenMetricsResult,
 	MetricTimesliceNameMapping,
-	NewRelicConfigurationData,
 	NewRelicErrorGroup,
 	ObservabilityError,
 	ObservabilityErrorCore,
@@ -84,30 +73,33 @@ import { CSMe, CSNewRelicProviderInfo } from "../protocol/api.protocol";
 import { CodeStreamSession } from "../session";
 import { log, lspHandler, lspProvider } from "../system";
 import { Strings } from "../system/string";
+import { generateMethodAverageDurationQuery } from "./newrelic/methodAverageDurationQuery";
+import { generateMethodErrorRateQuery } from "./newrelic/methodErrorRateQuery";
+import { generateMethodThroughputQuery } from "./newrelic/methodThroughputQuery";
+import {
+	AccessTokenError,
+	AdditionalMetadataInfo,
+	Directives,
+	EntitySearchResult,
+	FunctionInfo,
+	MetricQueryRequest,
+	MetricTimeslice,
+	NewRelicId,
+	Span,
+	SpanRequest
+} from "./newrelic/newrelic.types";
+import { generateSpanQuery } from "./newrelic/spanQuery";
 import { ThirdPartyIssueProviderBase } from "./provider";
 
 const Cache = require("timed-cache");
 
-export interface Directive {
-	type: "assignRepository" | "removeAssignee" | "setAssignee" | "setState";
-	data: any;
-}
+const supportedLanguages = ["python", "ruby"] as const;
+export type LanguageId = typeof supportedLanguages[number];
 
-interface Directives {
-	directives: Directive[];
-}
-
-interface NewRelicId {
-	accountId: number;
-	unknownAbbreviation: string;
-	entityType: string;
-	unknownGuid: string;
-}
-
-class AccessTokenError extends Error {
-	constructor(public text: string, public innerError: any, public isAccessTokenError: boolean) {
-		super(text);
-	}
+// Use type guard so that list of languages can be defined once and shared with union type LanguageId
+function isSupportedLanguage(value: string): value is LanguageId {
+	const language = supportedLanguages.find(validLanguage => validLanguage === value);
+	return !!language;
 }
 
 @lspProvider("newrelic")
@@ -1556,40 +1548,11 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	}
 
 	async getMethodThroughput(request: MetricQueryRequest) {
-		const innerQuery = `SELECT rate(count(newrelic.timeslice.value), 1 minute) AS 'requestsPerMinute' FROM Metric 
-		WHERE \`entity.guid\` = '${request.newRelicEntityGuid}' 
-		AND ${
-			request.metricTimesliceNames?.length
-				? `(metricTimesliceName in (
-					${request.metricTimesliceNames
-						.map(mtsn => `'${mtsn}'`)
-						.join(",")}) OR metricTimesliceName in (${request.metricTimesliceNames
-						.map(mtsn => `'OtherTransactions/${mtsn}'`)
-						.join(",")}))`
-				: `metricTimesliceName LIKE '${request.codeNamespace}%'`
-		} 
-		FACET metricTimesliceName 
-		SINCE 30 minutes AGO 
-		LIMIT 100`
-			.replace(/\n/g, "")
-			.replace(/\t/g, "");
-
-		const query = `query GetMethodThroughput($accountId:Int!) {
-	actor {
-		account(id: $accountId) {
-			nrql(query: "${innerQuery}") { 						
-				results
-				metadata {
-					timeWindow {
-						begin
-						end					   
-					}
-				}					
-			}
-		}
-	}
-}`;
-
+		const query = generateMethodThroughputQuery(
+			request.newRelicEntityGuid,
+			request.metricTimesliceNames,
+			request.codeNamespace
+		);
 		try {
 			return this.query(query, {
 				accountId: request.newRelicAccountId!
@@ -1602,44 +1565,17 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		return undefined;
 	}
 
-	async getMethodAverageDuration(request: MetricQueryRequest) {
-		const innerQuery = `SELECT average(apm.service.transaction.duration) AS 'averageDuration' FROM Metric WHERE \`entity.guid\` = '${
-			request.newRelicEntityGuid
-		}' AND ${
-			request.metricTimesliceNames?.length
-				? `metricTimesliceName in (${request.metricTimesliceNames
-						.map(z => "'WebTransaction/" + z + "'")
-						.join(",")})`
-				: `metricTimesliceName LIKE '${request.codeNamespace}%'`
-		} FACET metricTimesliceName SINCE 30 minutes AGO LIMIT 100`;
-		const query = `query GetMethodAverageDuration($accountId:Int!) {
-	actor {
-		account(id: $accountId) {
-			nrql(query: "${innerQuery}") { 						
-				results
-				metadata {
-					timeWindow {
-						begin
-						end					   
-					}
-				}					
-			}
-		}
-	}
-}`;
+	async getMethodAverageDuration(request: MetricQueryRequest, languageId: LanguageId) {
+		const query = generateMethodAverageDurationQuery(
+			languageId,
+			request.newRelicEntityGuid,
+			request.metricTimesliceNames,
+			request.codeNamespace
+		);
 		try {
-			const response = await this.query(query, {
+			return await this.query(query, {
 				accountId: request.newRelicAccountId!
 			});
-			const results = response?.actor?.account?.nrql?.results;
-			if (Array.isArray(results)) {
-				for (const item of results) {
-					if (item.averageDuration) {
-						item.averageDuration *= 1000;
-					}
-				}
-			}
-			return response;
 		} catch (ex) {
 			Logger.error(ex, "getMethodAverageDuration", {
 				request
@@ -1649,31 +1585,11 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	}
 
 	async getMethodErrorRate(request: MetricQueryRequest) {
-		const innerQuery = `SELECT rate(count(apm.service.transaction.error.count), 1 minute) AS \`errorsPerMinute\` FROM Metric WHERE \`entity.guid\` = '${
-			request.newRelicEntityGuid
-		}' AND ${
-			request.metricTimesliceNames?.length
-				? `metricTimesliceName in (${request.metricTimesliceNames
-						.map(z => "'Errors/WebTransaction/" + z + "'")
-						.join(",")})`
-				: `metricTimesliceName LIKE '${request.codeNamespace}%'`
-		} FACET metricTimesliceName SINCE 30 minutes AGO LIMIT 100`;
-
-		const query = `query GetMethodErrorRate($accountId:Int!) {
-			actor {
-				account(id: $accountId) {
-					nrql(query: "${innerQuery}") { 						
-						results
-						metadata {
-							timeWindow {
-								begin
-								end					   
-							}
-						}					
-					}
-				}
-			}
-	  }`;
+		const query = generateMethodErrorRateQuery(
+			request.newRelicEntityGuid,
+			request.metricTimesliceNames,
+			request.codeNamespace
+		);
 		try {
 			return this.query(query, {
 				accountId: request.newRelicAccountId!
@@ -1684,39 +1600,13 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		return undefined;
 	}
 
-	async getSpans(request: MetricQueryRequest): Promise<Span[] | undefined> {
-		const codeFilePath = request.codeFilePath
-			? request.codeFilePath.replace(/\\/g, "/")
-			: undefined;
-
-		const innerQueryEquals = `SELECT name,\`transaction.name\`,code.lineno,code.namespace,traceId,transactionId from Span WHERE \`entity.guid\` = '${
-			request.newRelicEntityGuid
-		}' AND ${
-			codeFilePath
-				? `code.filepath='${codeFilePath}'`
-				: `code.namespace like '${request.codeNamespace}%'`
-		}  SINCE 30 minutes AGO LIMIT 250`;
-
-		const innerQueryLike = `SELECT name,\`transaction.name\`,code.lineno,code.namespace,traceId,transactionId from Span WHERE \`entity.guid\` = '${
-			request.newRelicEntityGuid
-		}' AND ${
-			codeFilePath
-				? `code.filepath like '%${codeFilePath}'`
-				: `code.namespace like '${request.codeNamespace}%'`
-		}  SINCE 30 minutes AGO LIMIT 250`;
-
-		const query = `query GetSpans($accountId:Int!) {
-			actor {
-				account(id: $accountId) {
-					equals:nrql(query: "${innerQueryEquals}") { 						
-						results						 					
-					}
-					like:nrql(query: "${innerQueryLike}") { 						
-						results						 					
-					}
-				}
-			}
-	  }`;
+	async getSpans(request: SpanRequest): Promise<Span[] | undefined> {
+		if (!request.codeFilePath) return undefined;
+		const query = generateSpanQuery(
+			request.newRelicEntityGuid,
+			request.codeFilePath,
+			request.codeNamespace
+		);
 		try {
 			const response = await this.query(query, {
 				accountId: request.newRelicAccountId!
@@ -1732,6 +1622,13 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 					accountId: request.newRelicAccountId
 				});
 				return response.actor.account.like.results;
+			}
+			if (response?.actor?.account.fuzzy.results.length) {
+				Logger.warn("getSpans using fuzzy", {
+					query: query,
+					accountId: request.newRelicAccountId
+				});
+				return response.actor.account.fuzzy.results;
 			}
 		} catch (ex) {
 			Logger.error(ex, "getSpans", { request });
@@ -1761,8 +1658,6 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 			return undefined;
 		}
 	}
-
-	private _languageSupport = new Set<string>(["python"]);
 
 	getGoldenSignalsEntity(
 		codestreamUser: CSMe,
@@ -1843,51 +1738,138 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		return entity;
 	}
 
+	parsePythonFunctionCoordinates(coord: string): FunctionInfo {
+		const indexOfColon = coord.indexOf(":");
+		let functionName = indexOfColon > -1 ? coord.slice(indexOfColon + 1) : undefined;
+		let className: string | undefined = undefined;
+		if (functionName) {
+			const indexOfDot = functionName ? functionName.indexOf(".") : -1;
+			if (indexOfDot > -1) {
+				// account for a className here
+				const split = functionName.split(".");
+				functionName = split.pop();
+				if (split.length) {
+					className = split.pop();
+				}
+			}
+		} else if (coord.indexOf(".") > -1) {
+			functionName = coord.split(".").pop();
+		}
+		return {
+			functionName,
+			className,
+			namespace: undefined
+		};
+	}
+
+	parseRubyFunctionCoordinates(coord: string, namespace?: string): FunctionInfo {
+		if (coord.startsWith("Controller/")) {
+			const functionName = coord.split("/").pop();
+			const className = namespace;
+			return {
+				functionName,
+				className
+			};
+		}
+
+		if (coord.startsWith("MessageBroker/ActiveJob")) {
+			let myNamespace, className;
+			if (namespace?.includes("::")) {
+				[myNamespace, className] = namespace.split("::");
+			} else {
+				className = namespace;
+			}
+			return {
+				namespace: myNamespace,
+				className
+			};
+		}
+
+		if (!coord.includes("::")) {
+			if (namespace?.includes("::")) {
+				const [myNamespace, className] = namespace.split("::");
+				return {
+					namespace: myNamespace,
+					className,
+					functionName: coord
+				};
+			}
+			const parts = coord.split("/");
+			if (parts.length > 1) {
+				const functionName = parts.pop();
+				const className = parts.pop();
+				return {
+					className,
+					functionName
+				};
+			} else {
+				return {};
+			}
+		}
+
+		const match = /\/(\w+)::(\w+)\/(\w+)/.exec(coord);
+		if (!match) return {};
+		return {
+			namespace: match[1],
+			className: match[2],
+			functionName: match[3]
+		};
+	}
+
+	timesliceNameMap(languageId: LanguageId, timesliceName: string): string {
+		if (languageId === "python") {
+			return timesliceName
+				.replace("Errors/WebTransaction/", "")
+				.replace("WebTransaction/", "")
+				.replace("OtherTransaction/", "");
+		} else {
+			return timesliceName;
+		}
+	}
+
 	addMethodName(
 		groupedByTransactionName: Dictionary<Span[]>,
-		metricTimesliceNames: { metricTimesliceName: string }[]
+		metricTimesliceNames: MetricTimeslice[],
+		languageId: LanguageId
 	) {
 		return metricTimesliceNames.map((_: any) => {
-			const indexOfColon = _.metricTimesliceName ? _.metricTimesliceName.indexOf(":") : -1;
-
-			const additionalMetadata = {} as any;
+			const additionalMetadata: AdditionalMetadataInfo = {};
 			const metadata =
-				groupedByTransactionName[
-					_.metricTimesliceName
-						.replace("Errors/WebTransaction/", "")
-						.replace("WebTransaction/", "")
-						.replace("OtherTransaction/", "")
-				];
+				groupedByTransactionName[this.timesliceNameMap(languageId, _.metricTimesliceName)];
 			if (metadata) {
-				["code.lineno", "traceId", "transactionId", "code.namespace"].forEach(_ => {
-					// TODO this won't work for lambdas
-					additionalMetadata[_] = (metadata[0] as any)[_];
-				});
+				["code.lineno", "traceId", "transactionId", "code.namespace", "code.function"].forEach(
+					_ => {
+						// TODO this won't work for lambdas
+						if (_) {
+							additionalMetadata[_ as keyof AdditionalMetadataInfo] = (metadata[0] as any)[_];
+						}
+					}
+				);
 			}
 
-			let className = undefined;
-			let functionName =
-				indexOfColon > -1 ? _.metricTimesliceName.slice(indexOfColon + 1) : undefined;
-			if (functionName) {
-				const indexOfDot = functionName ? functionName.indexOf(".") : -1;
-				if (indexOfDot > -1) {
-					// account for a className here
-					const split = functionName.split(".");
-					const fn = split.pop();
-					functionName = fn;
-					if (split.length) {
-						className = split.pop();
-					}
-				}
-			} else if (_.metricTimesliceName) {
-				functionName = _.metricTimesliceName.split(".").pop();
+			let { className, functionName, namespace } =
+				languageId === "ruby"
+					? this.parseRubyFunctionCoordinates(
+							_.metricTimesliceName,
+							additionalMetadata["code.namespace"]
+					  )
+					: this.parsePythonFunctionCoordinates(_.metricTimesliceName);
+
+			// Use Agent provided function name if available
+			if (additionalMetadata["code.function"] && additionalMetadata["code.function"]?.length > 0) {
+				functionName = additionalMetadata["code.function"];
+			}
+
+			if (namespace) {
+				additionalMetadata["code.namespace"] = namespace;
 			}
 
 			return {
 				..._,
 				metadata: additionalMetadata,
-				className: className,
-				functionName: functionName
+				namespace: additionalMetadata["code.namespace"],
+				className,
+				functionName
 			};
 		});
 	}
@@ -1897,11 +1879,10 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	async getFileLevelTelemetry(
 		request: GetFileLevelTelemetryRequest
 	): Promise<GetFileLevelTelemetryResponse | undefined> {
-		if (
-			!request.filePath ||
-			!request.languageId ||
-			!this._languageSupport.has(request.languageId)
-		) {
+		const languageId: LanguageId | undefined = isSupportedLanguage(request.languageId)
+			? request.languageId
+			: undefined;
+		if (!request.filePath || !languageId) {
 			ContextLogger.warn(
 				"getFileLevelTelemetry: Missing filePath, languageId, or languageId not supported"
 			);
@@ -1995,38 +1976,35 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 		try {
 			// get a list of file-based method telemetry
-			const spans = await this.getSpans({
-				newRelicAccountId,
-				newRelicEntityGuid,
-				codeFilePath: relativeFilePath
-			});
+			const spanResponse =
+				(await this.getSpans({
+					newRelicAccountId,
+					newRelicEntityGuid,
+					codeFilePath: relativeFilePath
+				})) || [];
+
+			const spans = this.applyLanguageFilter(spanResponse, languageId);
 
 			const groupedByTransactionName = spans ? _groupBy(spans, _ => _.name) : {};
 			const metricTimesliceNames = Object.keys(groupedByTransactionName);
 
 			request.options = request.options || {};
-			let [averageDurationResponse, throughputResponse, errorRateResponse] = await Promise.all([
+
+			const queryArgs: MetricQueryRequest = {
+				newRelicAccountId,
+				newRelicEntityGuid,
+				metricTimesliceNames
+			};
+			const [averageDurationResponse, throughputResponse, errorRateResponse] = await Promise.all([
 				request.options.includeAverageDuration && metricTimesliceNames?.length
-					? this.getMethodAverageDuration({
-							newRelicAccountId,
-							newRelicEntityGuid,
-							metricTimesliceNames
-					  })
+					? this.getMethodAverageDuration(queryArgs, languageId)
 					: undefined,
 				request.options.includeThroughput && metricTimesliceNames?.length
-					? this.getMethodThroughput({
-							newRelicAccountId,
-							newRelicEntityGuid,
-							metricTimesliceNames
-					  })
+					? this.getMethodThroughput(queryArgs)
 					: undefined,
 
 				request.options.includeErrorRate && metricTimesliceNames?.length
-					? this.getMethodErrorRate({
-							newRelicAccountId,
-							newRelicEntityGuid,
-							metricTimesliceNames
-					  })
+					? this.getMethodErrorRate(queryArgs)
 					: undefined
 			]);
 
@@ -2034,8 +2012,9 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 				if (_) {
 					_.actor.account.nrql.results = this.addMethodName(
 						groupedByTransactionName,
-						_.actor.account.nrql.results
-					);
+						_.actor.account.nrql.results,
+						languageId
+					).filter(_ => _.functionName);
 
 					if (request.functionName) {
 						_.actor.account.nrql.results = _.actor.account.nrql.results.filter(
@@ -2119,6 +2098,23 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		return undefined;
 	}
 
+	private applyLanguageFilter(spans: Span[], languageId: LanguageId): Span[] {
+		switch (languageId) {
+			case "ruby":
+				// MessageBroker is a top level message broker for ruby - there is a separate function level span that we show
+				return spans
+					.filter(span => !span.name?.startsWith("MessageBroker/"))
+					.map(span => {
+						if (span.name?.startsWith("Nested/Controller")) {
+							span.name = span.name?.replace("Nested/", "");
+						}
+						return span;
+					});
+			default:
+				return spans;
+		}
+	}
+
 	@lspHandler(GetMethodLevelTelemetryRequestType)
 	@log()
 	async getMethodLevelTelemetry(
@@ -2161,6 +2157,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 		return undefined;
 	}
+
 	/**
 	 * Given a CodeStream repoId, get a list of NR entities that have this
 	 * git remote attached to it
@@ -2208,6 +2205,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		// }
 		return repo;
 	}
+
 	private async getGoldenMetricsQueries(
 		entityGuid: string,
 		metricTimesliceNameMapping: MetricTimesliceNameMapping
@@ -2247,7 +2245,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 							},
 							// error
 							{
-								query: `SELECT filter(count(newrelic.timeslice.value), where metricTimesliceName = 'Errors/all') / (filter(count(newrelic.timeslice.value), where metricTimesliceName='${metricTimesliceNameMapping["e"]}')) * 100 AS 'Error %' FROM Metric WHERE entity.guid IN ('${entityGuid}') TIMESERIES`,
+								query: `SELECT rate(count(apm.service.transaction.error.count), 1 minute) AS \`errorsPerMinute\` FROM Metric WHERE \`entity.guid\` = '${entityGuid}' AND metricTimesliceName='${metricTimesliceNameMapping["e"]}' FACET metricTimesliceName TIMESERIES`,
 								title: "Error rate"
 							}
 						]
@@ -2295,7 +2293,9 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 					// fix up the title for this one since the element title != the parent's title
 					_.title = "Error rate";
 					results[i].actor.account.nrql.results.forEach((element: any) => {
-						element["Error rate"] = element["Error %"] ? element["Error %"].toFixed(2) : null;
+						element["Error rate"] = element["errorsPerMinute"]
+							? element["errorsPerMinute"].toFixed(2)
+							: null;
 					});
 				}
 				return {
@@ -2741,6 +2741,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 		return Array.from(set);
 	}
+
 	/**
 	 * Finds any Repositories mapped to a remote[s]
 	 *
@@ -3359,6 +3360,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		}
 		return "repo";
 	}
+
 	/**
 	 * Generates a timestamp range from a given timestamp in ms
 	 *
@@ -3393,52 +3395,9 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	}
 }
 
-interface EntitySearchResult {
-	actor: {
-		entitySearch: {
-			count: number;
-			results: {
-				nextCursor: string;
-				entities: {
-					account: {
-						name: string;
-					};
-					guid: string;
-					name: string;
-				}[];
-			};
-		};
-	};
-}
-
-export interface Span {
-	"code.filepath"?: string | null;
-	"code.function"?: string | null;
-	"code.namespace"?: string | null;
-	"code.lineno"?: number | null;
-	"transaction.name"?: string | null;
-	name?: string;
-	traceId?: string;
-	transactionId?: string;
-	timestamp?: number;
-}
-
-export interface MetricQueryRequest {
-	newRelicAccountId: number;
-	newRelicEntityGuid: string;
-	codeFilePath?: string;
-	/**
-	 * Unused
-	 */
-	codeNamespace?: string;
-	/**
-	 * names of the metric timeslices
-	 */
-	metricTimesliceNames?: string[];
-}
-
 class ContextLogger {
 	private static data: any = {};
+
 	/**
 	 * pass additional, context data when logging
 	 *
@@ -3455,8 +3414,11 @@ class ContextLogger {
 	}
 
 	static warn(message: string, params?: any): void {
-		if (!message) Logger.warn("");
-		else Logger.warn(`NR: ${message}`, { ...(params || {}), zetails: ContextLogger.data });
+		if (!message) {
+			Logger.warn("");
+		} else {
+			Logger.warn(`NR: ${message}`, { ...(params || {}), zetails: ContextLogger.data });
+		}
 	}
 
 	static log(message: string, params?: any): void {

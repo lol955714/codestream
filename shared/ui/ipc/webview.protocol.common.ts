@@ -108,6 +108,7 @@ export enum WebviewModals {
 	ChangeCompanyName = "change-company-name",
 	CreateTeam = "create-team",
 	CreateCompany = "create-company",
+	FinishReview = "finish-review",
 	TeamSetup = "team-setup",
 	Keybindings = "keybindings",
 	Notifications = "notifications",
@@ -174,7 +175,11 @@ export interface WebviewContext {
 				commentId?: string;
 				/* defined if this was triggered by an external means (like an IDE button, etc.) */
 				source?: string;
+				/* details means show the full PR as the only view. sidebar-diffs means to show it as an expanded tree node */
+				view?: "details" | "sidebar-diffs";
+				previousView?: "details" | "sidebar-diffs" | undefined;
 				metadata?: any;
+				groupIndex?: string | undefined;
 		  }
 		| undefined;
 	profileUserId?: string;

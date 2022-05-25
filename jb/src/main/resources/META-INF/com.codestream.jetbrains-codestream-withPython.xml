@@ -1,7 +1,7 @@
 <idea-plugin>
     <project-components>
         <component>
-            <implementation-class>com.codestream.mlt.MLTPythonComponent</implementation-class>
+            <implementation-class>com.codestream.clm.CLMPythonComponent</implementation-class>
         </component>
     </project-components>
 </idea-plugin>

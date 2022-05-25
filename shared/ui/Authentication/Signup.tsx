@@ -499,7 +499,6 @@ export const Signup = (props: Props) => {
 									</>
 								)}
 								{forceRegionName && <>Region: {forceRegionName}</>}
-								{/* eric bookmark */}
 								<SignupButtonsContainer>
 									{!limitAuthentication && (
 										<SignupButtonContainer>

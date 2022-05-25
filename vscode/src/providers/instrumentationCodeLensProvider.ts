@@ -1,6 +1,6 @@
 "use strict";
 
-import { EventEmitter, TextDocument } from "vscode";
+import { EventEmitter, extensions, TextDocument } from "vscode";
 import * as vscode from "vscode";
 import {
 	ViewMethodLevelTelemetryCommandArgs,
@@ -14,10 +14,6 @@ import {
 import { Strings } from "../system";
 import { Logger } from "../logger";
 import { InstrumentableSymbol, ISymbolLocator } from "./symbolLocator";
-
-// const languageSpecificExtensions: any = {
-// 	python: ["ms-python.python", "ms-python.vscode-pylance"]
-// };
 
 export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider {
 	private documentManager: any = {};
@@ -59,12 +55,44 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		this._onDidChangeCodeLenses.fire();
 	}
 
+	private hasSupportedRubyExtension(): boolean {
+		return (
+			extensions.getExtension<Promise<any>>("castwide.solargraph")?.isActive ||
+			extensions.getExtension<Promise<any>>("rebornix.Ruby")?.isActive ||
+			false
+		);
+	}
+
+	private missingRubyExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		const viewCommandArgs: ViewMethodLevelTelemetryErrorCommandArgs = {
+			error: { type: "NO_RUBY_VSCODE_EXTENSION" },
+			newRelicAccountId,
+			languageId: "ruby"
+		};
+		const missingRubyExtensionCodelens: vscode.CodeLens[] = [
+			new vscode.CodeLens(
+				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(1, 1)),
+				new InstrumentableSymbolCommand(
+					"Click to configure golden signals from New Relic",
+					"codestream.viewMethodLevelTelemetry",
+					"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
+					[JSON.stringify(viewCommandArgs)]
+				)
+			)
+		];
+		return missingRubyExtensionCodelens;
+	}
+
 	public async provideCodeLenses(
 		document: TextDocument,
 		token: vscode.CancellationToken
 	): Promise<vscode.CodeLens[]> {
 		let codeLenses: vscode.CodeLens[] = [];
 		let instrumentableSymbols: InstrumentableSymbol[] = [];
+
+		if (document.languageId === "ruby" && !this.hasSupportedRubyExtension()) {
+			return this.missingRubyExtensionCodelens();
+		}
 
 		try {
 			if (token.isCancellationRequested) {
@@ -144,7 +172,8 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 						error: fileLevelTelemetryResponse.error,
 						newRelicEntityGuid: fileLevelTelemetryResponse.newRelicEntityGuid,
 						newRelicAccountId: fileLevelTelemetryResponse.newRelicAccountId,
-						repo: fileLevelTelemetryResponse.repo
+						repo: fileLevelTelemetryResponse.repo,
+						languageId: document.languageId
 					};
 					const nonAssociatedCodeLens: vscode.CodeLens[] = [
 						new vscode.CodeLens(
@@ -179,15 +208,20 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 
 			const symbolMatcherFn = (
 				symbol: InstrumentableSymbol,
-				data: { className?: string; functionName: string }
+				data: { namespace?: string; className?: string; functionName: string }
 			) => {
 				let result: boolean;
 				if (symbol.parent) {
 					result =
-						data.className === symbol.parent.name && data.functionName === symbol.symbol.name;
+						(data.className === symbol.parent.name && data.functionName === symbol.symbol.name) ||
+						(data.namespace === symbol.parent.name && data.functionName === symbol.symbol.name);
 				} else {
 					// if no parent (aka class) ensure we find a function that doesn't have a parent
 					result = !symbol.parent && data.functionName === symbol.symbol.name;
+				}
+				if (!result) {
+					// Since nothing matched, relax criteria and base just on function name
+					result = data.functionName === symbol.symbol.name;
 				}
 				return result;
 			};
@@ -206,7 +240,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 					: undefined;
 
 				if (!throughputForFunction && !averageDurationForFunction && !errorRateForFunction) {
-					Logger.debug(`provideCodeLenses no data for ${_.symbol.name}`);
+					Logger.warn(`provideCodeLenses no data for ${_.symbol.name}`);
 					return undefined;
 				}
 
@@ -261,7 +295,8 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 					cacheKey,
 					fileLevelTelemetryResponse && fileLevelTelemetryResponse.newRelicAccountId
 						? fileLevelTelemetryResponse.newRelicAccountId.toString()
-						: ""
+						: "",
+					document.languageId
 				);
 			}
 		} catch (ex) {
@@ -273,12 +308,13 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		return codeLenses;
 	}
 
-	private tryTrack(cacheKey: string, accountId: string) {
+	private tryTrack(cacheKey: string, accountId: string, languageId: string) {
 		const doc = this.documentManager[cacheKey];
 		if (doc && !doc.tracked) {
 			try {
 				this.telemetryService.track("MLT Codelenses Rendered", {
-					"NR Account ID": accountId
+					"NR Account ID": accountId,
+					Language: languageId
 				});
 				doc.tracked = true;
 			} catch {}

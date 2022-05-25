@@ -1,4 +1,7 @@
-import { getProviderPullRequestRepo } from "@codestream/webview/store/providerPullRequests/reducer";
+import {
+	getProviderPullRequestRepo,
+	getCurrentProviderPullRequest
+} from "@codestream/webview/store/providerPullRequests/reducer";
 import { DropdownButton } from "@codestream/webview/Stream/DropdownButton";
 import { distanceOfTimeInWords } from "@codestream/webview/Stream/Timestamp";
 import React, { useState, useEffect, useMemo } from "react";
@@ -20,11 +23,23 @@ import {
 	FetchThirdPartyPullRequestPullRequest
 } from "@codestream/protocols/agent";
 import { HostApi } from "../webview-api";
+import Icon from "./Icon";
+import styled from "styled-components";
+import Tooltip from "./Tooltip";
 
 const STATUS_MAP = {
 	modified: FileStatus.modified
 };
 
+export const DirectoryTopLevel = styled.div`
+	cursor: pointer;
+	margin: 0 !important;
+	display: flex;
+	&:hover {
+		background: var(--app-background-color-hover);
+		color: var(--text-color-highlight);
+	}
+`;
 interface DropdownItem {
 	label: any;
 	key?: string;
@@ -43,6 +58,8 @@ export const PullRequestFilesChangedTab = (props: {
 	setPrCommitsRange: Function;
 	prCommitsRange: string[];
 	initialScrollPosition?: number;
+	sidebarView?: boolean;
+	fetch?: Function;
 }) => {
 	const { prCommitsRange, setPrCommitsRange, pr } = props;
 	const dispatch = useDispatch();
@@ -51,6 +68,7 @@ export const PullRequestFilesChangedTab = (props: {
 			providerPullRequests: state.providerPullRequests.pullRequests,
 			pullRequestFilesChangedMode: state.preferences.pullRequestFilesChangedMode || "files",
 			currentRepo: getProviderPullRequestRepo(state),
+			currentPullRequest: getCurrentProviderPullRequest(state),
 			currentPullRequestId: state.context.currentPullRequest
 				? state.context.currentPullRequest.id
 				: undefined
@@ -61,6 +79,10 @@ export const PullRequestFilesChangedTab = (props: {
 	const [filesChanged, setFilesChanged] = useState<any[]>([]);
 	const [prCommits, setPrCommits] = useState<FetchThirdPartyPullRequestCommitsResponse[]>([]);
 	const [accessRawDiffs, setAccessRawDiffs] = useState(false);
+	const [showDirectory, setShowDirectory] = useState(true);
+	const [viewedRatio, setViewedRatio] = useState("");
+	const [showViewedRatio, setShowViewedRatio] = useState(false);
+
 	// const [lastReviewCommitOid, setLastReviewCommitOid] = useState<string | undefined>();
 
 	const _mapData = data => {
@@ -83,6 +105,17 @@ export const PullRequestFilesChangedTab = (props: {
 			data.sort((a, b) => new Date(a.authoredDate).getTime() - new Date(b.authoredDate).getTime())
 		);
 	};
+
+	//set ratio of viewed/total when currentPr changed in redux
+	useEffect(() => {
+		const prFileNodes =
+			derivedState.currentPullRequest?.conversations?.repository?.pullRequest?.files?.nodes;
+
+		if (prFileNodes) {
+			const viewedCount = prFileNodes.filter(f => f?.viewerViewedState === "VIEWED").length;
+			setViewedRatio(`${viewedCount}/${prFileNodes.length}`);
+		}
+	}, [derivedState.currentPullRequest]);
 
 	useEffect(() => {
 		// re-render if providerPullRequests changes
@@ -142,6 +175,11 @@ export const PullRequestFilesChangedTab = (props: {
 		}
 	};
 
+	const toggleDirectory = e => {
+		e.preventDefault();
+		setShowDirectory(!showDirectory);
+	};
+
 	const commitBased = useMemo(() => prCommitsRange.length > 0, [prCommitsRange]);
 	const baseRef = useMemo(() => {
 		if (prCommitsRange.length === 1) {
@@ -178,10 +216,17 @@ export const PullRequestFilesChangedTab = (props: {
 		return;
 	}, [pr, prCommits]);
 
-	if (isLoading)
+	if (isLoading && !props.sidebarView)
 		return (
 			<div style={{ marginTop: "100px" }}>
 				<LoadingMessage>Loading Changed Files...</LoadingMessage>
+			</div>
+		);
+
+	if (isLoading && props.sidebarView)
+		return (
+			<div style={{ marginLeft: "45px" }}>
+				Loading... <Icon name="sync" className="spin row-icon" />
 			</div>
 		);
 
@@ -189,7 +234,7 @@ export const PullRequestFilesChangedTab = (props: {
 
 	const dropdownLabel =
 		prCommitsRange.length === 0
-			? "Changes from all commits"
+			? "all commits"
 			: (() => {
 					let commitsInRange;
 					if (prCommitsRange.length === 1) {
@@ -279,34 +324,78 @@ export const PullRequestFilesChangedTab = (props: {
 		});
 
 	return (
-		<div style={{ position: "relative", margin: "0 0 20px 20px" }}>
+		<div
+			className="files-changed-list"
+			style={{ position: "relative", margin: props.sidebarView ? "0" : "0 0 20px 20px" }}
+		>
 			{derivedState.currentRepo && (
-				<div style={{ margin: "0 0 10px 0" }}>
-					<DropdownButton
-						variant="text"
-						items={dropdownItems}
-						isMultiSelect={true}
-						itemsRange={prCommitsRange}
-					>
-						{dropdownLabel}
-					</DropdownButton>
-				</div>
+				<>
+					{props.sidebarView && (
+						<DirectoryTopLevel
+							onClick={e => toggleDirectory(e)}
+							className="files-changed-list-dropdown"
+						>
+							<div>
+								<Icon name={showDirectory ? "chevron-down-thin" : "chevron-right-thin"} /> Files
+								<DropdownButton
+									variant="text"
+									items={dropdownItems}
+									isMultiSelect={true}
+									itemsRange={prCommitsRange}
+								>
+									<span style={{ fontSize: "smaller", color: "var(--text-color-subtle)" }}>
+										{dropdownLabel}
+									</span>
+								</DropdownButton>
+							</div>
+
+							<Tooltip title="Files Viewed" delay={0.5}>
+								<div
+									style={{
+										margin: "0 14px 0 auto",
+										padding: "3px 0 0 0"
+									}}
+								>
+									{viewedRatio}
+								</div>
+							</Tooltip>
+						</DirectoryTopLevel>
+					)}
+
+					{!props.sidebarView && (
+						<div className="files-changed-list-dropdown" style={{ margin: "0 0 10px 0" }}>
+							Files
+							<DropdownButton
+								variant="text"
+								items={dropdownItems}
+								isMultiSelect={true}
+								itemsRange={prCommitsRange}
+							>
+								{dropdownLabel}
+							</DropdownButton>
+						</div>
+					)}
+				</>
 			)}
-			<PullRequestFilesChangedList
-				pr={pr}
-				filesChanged={filesChanged}
-				repositoryName={pr.repository && pr.repository.name}
-				baseRef={baseRef}
-				baseRefName={commitBased ? pr.headRefName : pr.baseRefName}
-				headRef={commitBased ? prCommitsRange[prCommitsRange.length - 1] : pr.headRefOid}
-				headRefName={pr.headRefName}
-				isLoading={isLoading}
-				setIsLoadingMessage={props.setIsLoadingMessage!}
-				commitBased={commitBased}
-				accessRawDiffs={accessRawDiffs}
-				setAccessRawDiffs={setAccessRawDiffs}
-				initialScrollPosition={props.initialScrollPosition}
-			/>
+			{showDirectory && (
+				<PullRequestFilesChangedList
+					pr={pr}
+					filesChanged={filesChanged}
+					repositoryName={pr.repository && pr.repository.name}
+					baseRef={baseRef}
+					baseRefName={commitBased ? pr.headRefName : pr.baseRefName}
+					headRef={commitBased ? prCommitsRange[prCommitsRange.length - 1] : pr.headRefOid}
+					headRefName={pr.headRefName}
+					isLoading={isLoading}
+					setIsLoadingMessage={props.setIsLoadingMessage!}
+					commitBased={commitBased}
+					prCommitsRange={prCommitsRange}
+					sidebarView={props.sidebarView}
+					accessRawDiffs={accessRawDiffs}
+					setAccessRawDiffs={setAccessRawDiffs}
+					initialScrollPosition={props.initialScrollPosition}
+				/>
+			)}
 		</div>
 	);
 };

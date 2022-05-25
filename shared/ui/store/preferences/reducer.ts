@@ -1,10 +1,10 @@
-import { ActionType } from "../common";
-import * as actions from "./actions";
-import { PreferencesActionsType, PreferencesState, FilterQuery } from "./types";
-import { merge, mergeWith } from "lodash-es";
+import { FetchRequestQuery } from "@codestream/protocols/api";
+import { mergeWith } from "lodash-es";
 import { createSelector } from "reselect";
 import { CodeStreamState } from "..";
-import { FetchRequestQuery, PullRequestQuery } from "@codestream/protocols/api";
+import { ActionType } from "../common";
+import * as actions from "./actions";
+import { FilterQuery, PreferencesActionsType, PreferencesState } from "./types";
 
 type PreferencesActions = ActionType<typeof actions>;
 
@@ -15,7 +15,9 @@ const mergeCustom = function(target, source) {
 	if (source instanceof Array) {
 		return [...source];
 	}
+	return undefined;
 };
+
 export function reducePreferences(state = initialState, action: PreferencesActions) {
 	switch (action.type) {
 		case PreferencesActionsType.Set:

@@ -51,7 +51,8 @@ const initialState: ContextState = {
 	errorsInboxOptions: undefined,
 	currentInstrumentation: undefined,
 	currentPixieDynamicLoggingOptions: undefined,
-	wantNewRelicOptions: undefined
+	wantNewRelicOptions: undefined,
+	currentPullRequestNeedsRefresh: { needsRefresh: false, providerId: "", pullRequestId: "" }
 };
 
 export function reduceContext(
@@ -158,7 +159,11 @@ export function reduceContext(
 								providerId: action.payload.providerId,
 								id: action.payload.id,
 								commentId: action.payload.commentId,
-								source: action.payload.source
+								source: action.payload.source,
+								view: action.payload.view,
+								previousView: state?.currentPullRequest?.view,
+								// @ts-ignore
+								groupIndex: action.payload?.groupIndex
 						  }
 						: undefined,
 				pullRequestCheckoutBranch: false
@@ -179,6 +184,12 @@ export function reduceContext(
 			return {
 				...state,
 				errorsInboxOptions: action.payload
+			};
+		}
+		case ContextActionsType.SetCurrentPullRequestNeedsRefresh: {
+			return {
+				...state,
+				currentPullRequestNeedsRefresh: action.payload
 			};
 		}
 		case ContextActionsType.SetCurrentInstrumentationOptions: {

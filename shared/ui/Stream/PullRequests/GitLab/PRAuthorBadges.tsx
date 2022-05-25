@@ -1,7 +1,12 @@
 import React from "react";
 import Tooltip from "../../Tooltip";
 import { FetchThirdPartyPullRequestPullRequest } from "@codestream/protocols/agent";
-import { GHOST } from "./PullRequestTimelineItems";
+
+export const GHOST = {
+	login: "ghost",
+	avatarUrl:
+		"https://avatars2.githubusercontent.com/u/10137?s=460&u=b1951d34a583cf12ec0d3b0781ba19be97726318&v=4"
+};
 
 // https://docs.github.com/en/graphql/reference/enums#commentauthorassociation
 const AUTHOR_ASSOCIATION_MAP = {

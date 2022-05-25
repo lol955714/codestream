@@ -50,6 +50,7 @@ class CodeStreamConfigurable : SearchableConfigurable {
             settingsService.autoSignIn = gui.autoSignIn.isSelected
             settingsService.serverUrl = serverUrl
             settingsService.disableStrictSSL = gui.disableStrictSSL.isSelected
+            settingsService.extraCerts = gui.extraCerts.text
             settingsService.avatars = gui.showAvatars.isSelected
             settingsService.showFeedbackSmiley = gui.showFeedbackSmiley.isSelected
             settingsService.showMarkers = gui.showMarkers.isSelected
@@ -67,7 +68,8 @@ class CodeStreamConfigurable : SearchableConfigurable {
         val needsRestart = settingsService.serverUrl != startingState.serverUrl ||
             settingsService.disableStrictSSL != startingState.disableStrictSSL ||
             settingsService.proxyStrictSSL != startingState.proxyStrictSSL ||
-            settingsService.proxySupport != startingState.proxySupport.value
+            settingsService.proxySupport != startingState.proxySupport.value ||
+            settingsService.extraCerts != startingState.extraCerts
         val needsResetContext = settingsService.serverUrl != startingState.serverUrl
         return RestartOpts(needsRestart, needsResetContext)
     }
@@ -96,6 +98,7 @@ class CodeStreamConfigurable : SearchableConfigurable {
                 autoSignIn.isSelected = it.autoSignIn
                 serverUrl.text = it.serverUrl
                 disableStrictSSL.isSelected = it.disableStrictSSL
+                extraCerts.text = it.extraCerts
                 showAvatars.isSelected = it.avatars
                 showFeedbackSmiley.isSelected = it.showFeedbackSmiley
                 showMarkers.isSelected = it.showMarkers

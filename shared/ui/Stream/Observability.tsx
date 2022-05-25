@@ -475,9 +475,10 @@ export const Observability = React.memo((props: Props) => {
 										</>
 									) : (
 										<>
-											{observabilityAssignments.map(_ => {
+											{observabilityAssignments.map((_, index) => {
 												return (
 													<ErrorRow
+														key={index}
 														title={_.errorClass}
 														isLoading={loadingAssignmentErrorsClick[_.errorGroupGuid]}
 														tooltip={_.message}
@@ -655,15 +656,15 @@ export const Observability = React.memo((props: Props) => {
 				)}
 			</PaneHeader>
 			{props.paneState !== PaneState.Collapsed && (
-				<PaneBody>
+				<PaneBody key={"observability"}>
 					<div style={{ padding: "0 10px 0 20px" }}></div>
 					{derivedState.newRelicIsConnected ? (
 						<>
 							{noAccess ? (
 								<div style={{ padding: "0 20px 20px 20px" }}>
 									<span>
-										Your New Relic account doesn’t have access to the integration with
-										CodeStream. Contact your New Relic admin to upgrade.
+										Your New Relic account doesn’t have access to the integration with CodeStream.
+										Contact your New Relic admin to upgrade.
 									</span>
 								</div>
 							) : (

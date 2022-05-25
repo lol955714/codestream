@@ -134,6 +134,43 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 			new CancellationTokenSource().token
 		);
 		assert.strictEqual(codeLenses.length, 1);
+		assert.strictEqual(codeLenses[0].command!.title!.includes("Click to configure"), true);
+		assert.strictEqual(
+			codeLenses[0].command!.tooltip,
+			"Associate this repository with an entity from New Relic so that you can see golden signals right in your editor"
+		);
+	});
+
+	test("NO_RUBY_VSCODE_EXTENSION", async () => {
+		const observabilityService = {
+			getFileLevelTelemetry: function(
+				filePath: string,
+				languageId: string,
+				resetCache?: boolean,
+				options?: FileLevelTelemetryRequestOptions | undefined
+			): Promise<GetFileLevelTelemetryResponse> {
+				return new Promise(resolve => {
+					return resolve({} as GetFileLevelTelemetryResponse);
+				});
+			}
+		};
+
+		const provider = new InstrumentationCodeLensProvider(
+			"anythingHere",
+			new MockSymbolLocator(),
+			observabilityService,
+			{ track: function() {} } as any
+		);
+
+		const codeLenses = await provider.provideCodeLenses(
+			documentFactory("agents_controller.rb", "agents_controller.rb", "ruby"),
+			new CancellationTokenSource().token
+		);
+		assert.strictEqual(codeLenses.length, 1);
 		assert.strictEqual(codeLenses[0].command!.title!.indexOf("Click to configure") > -1, true);
+		assert.strictEqual(
+			codeLenses[0].command!.tooltip,
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code..."
+		);
 	});
 });

@@ -94,7 +94,10 @@ export class InstrumentableCodeLensController implements Disposable {
 			Container.agent.telemetry!
 		);
 		this._providerDisposable = Disposable.from(
-			languages.registerCodeLensProvider([{ language: "python" }], this._provider)
+			languages.registerCodeLensProvider(
+				[{ language: "python" }, { language: "ruby" }],
+				this._provider
+			)
 		);
 	}
 }

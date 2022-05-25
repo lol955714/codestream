@@ -12,7 +12,7 @@
 	"scripts": {
 		"analyze": "webpack --env analyze=true",
 		"build": "npm run agent:build && webpack --env development=true",
-		"bundle": "npm install --no-save && npm run agent:bundle && npm run agent:pkg && webpack --env production=true",
+		"bundle": "npm install --no-save && npm run agent:bundle && webpack --env production=true",
 		"bundle:mac": "npm run agent:bundle && npm run agent:pkg:mac && webpack --env production=true",
 		"bundle:ci": "npm run clean:ci && npm run bundle",
 		"clean:ci": "git clean -xdf -e licenses/**/* && npm run webview:clean:ci && npm run agent:clean:ci",

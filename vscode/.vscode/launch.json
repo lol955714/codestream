@@ -76,6 +76,24 @@
 				"--extensionTestsPath=${workspaceFolder}/out/__test__/suite/index"
 			],
 			"outFiles": ["${workspaceFolder}/out/__test__/**/*.js"]
+		},
+		{
+			"name": "Unit Tests",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+			"args": [
+				"--require",
+				"ts-node/register",
+				"--colors",
+				"--timeout",
+				"999999",
+				"src/**/*.spec.ts"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"protocol": "inspector",
+			"skipFiles": ["<node_internals>/**"]
 		}
 	]
 }

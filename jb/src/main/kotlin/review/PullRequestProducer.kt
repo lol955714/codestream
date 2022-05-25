@@ -2,6 +2,7 @@ package com.codestream.review
 
 import com.codestream.agentService
 import com.codestream.protocols.agent.GetFileContentsAtRevisionParams
+import com.codestream.protocols.agent.ScmSha1RangesParams
 import com.intellij.diff.chains.DiffRequestProducer
 import com.intellij.diff.requests.DiffRequest
 import com.intellij.diff.requests.ErrorDiffRequest
@@ -47,6 +48,13 @@ class PullRequestProducer(
                 )
             )
 
+            val ranges = agent.scmSha1Ranges(ScmSha1RangesParams(
+                repoId,
+                filePath,
+                baseSha,
+                headSha
+            ))
+
             val leftData = CodeStreamDiffUriData(
                 filePath,
                 repoId,
@@ -70,9 +78,9 @@ class PullRequestProducer(
             )
 
             val leftContent =
-                createRevisionDiffContent(project, baseContents.repoRoot, leftData, ReviewDiffSide.LEFT, baseContents.content)
+                createRevisionDiffContent(project, baseContents.repoRoot, leftData, ReviewDiffSide.LEFT, baseContents.content, ranges.map { it.baseLinesChanged })
             val rightContent =
-                createRevisionDiffContent(project, headContents.repoRoot, rightData, ReviewDiffSide.RIGHT, headContents.content)
+                createRevisionDiffContent(project, headContents.repoRoot, rightData, ReviewDiffSide.RIGHT, headContents.content, ranges.map { it.headLinesChanged })
             val title = "$filePath (${baseSha.take(8)}) ⇔ (${headSha.take(8)})"
             request = SimpleDiffRequest(title, leftContent, rightContent, filePath, filePath).also {
                 it.putUserData(REVIEW_DIFF, true)

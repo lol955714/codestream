@@ -1141,6 +1141,7 @@ export class ReviewsManager extends CachedEntityManagerBase<CSReview> {
 		if (!gitLog) return 0;
 
 		const myEmail = await git.getConfig(repo.path, "user.email");
+		if (!myEmail) return 0;
 		const unreviewedCommits = [];
 		let openReviewId: string | undefined = undefined;
 		let lastAuthorEmail = undefined;

@@ -32,7 +32,7 @@ class ReviewDiffRequestProducer(
             val leftContent = createReviewDiffContent(
                 project,
                 response.repoRoot,
-                review.id,
+                review,
                 checkpoint,
                 repoId,
                 ReviewDiffSide.LEFT,
@@ -42,7 +42,7 @@ class ReviewDiffRequestProducer(
             val rightContent = createReviewDiffContent(
                 project,
                 response.repoRoot,
-                review.id,
+                review,
                 checkpoint,
                 repoId,
                 ReviewDiffSide.RIGHT,

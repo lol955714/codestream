@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { PRButtonRow, PRCodeCommentReply, PRCodeCommentReplyInput } from "./PullRequestComponents";
+import {
+	PRButtonRowFlex,
+	PRCodeCommentReply,
+	PRCodeCommentReplyInput
+} from "./PullRequestComponents";
 import { HostApi } from "../webview-api";
 import { FetchThirdPartyPullRequestPullRequest } from "@codestream/protocols/agent";
 import MessageInput from "./MessageInput";
@@ -19,10 +23,13 @@ interface Props {
 	parentId?: string;
 	isOpen: boolean;
 	__onDidRender: Function;
+	oneRow?: boolean;
+	children?: any;
+	noHeadshot?: boolean;
 }
 
 export const PullRequestReplyComment = styled((props: Props) => {
-	const { pr, databaseId, parentId } = props;
+	const { oneRow, pr, databaseId, parentId } = props;
 	const dispatch = useDispatch();
 
 	const [text, setText] = useState("");
@@ -87,7 +94,7 @@ export const PullRequestReplyComment = styled((props: Props) => {
 
 	return (
 		<PRCodeCommentReply className={props.className}>
-			<PRHeadshot size={30} person={pr.viewer} />
+			{!props.noHeadshot && <PRHeadshot size={30} person={pr.viewer} />}
 
 			<PRCodeCommentReplyInput className={open ? "open-comment" : ""} onClick={() => setOpen(true)}>
 				<MessageInput
@@ -100,16 +107,24 @@ export const PullRequestReplyComment = styled((props: Props) => {
 					__onDidRender={stuff => props.__onDidRender(stuff)}
 				/>
 			</PRCodeCommentReplyInput>
-			{open && !isPreviewing && (
-				<PRButtonRow>
-					<Button variant="secondary" onClick={handleCancelComment}>
-						Cancel
-					</Button>
-
-					<Button variant="primary" isLoading={isSubmitting} onClick={handleComment}>
-						Comment
-					</Button>
-				</PRButtonRow>
+			{!isPreviewing && (
+				<PRButtonRowFlex>
+					{props.children}
+					{open && (
+						<>
+							<Button
+								style={oneRow ? { marginLeft: "auto" } : ""}
+								variant="secondary"
+								onClick={handleCancelComment}
+							>
+								Cancel
+							</Button>
+							<Button variant="primary" isLoading={isSubmitting} onClick={handleComment}>
+								Comment
+							</Button>
+						</>
+					)}
+				</PRButtonRowFlex>
 			)}
 		</PRCodeCommentReply>
 	);

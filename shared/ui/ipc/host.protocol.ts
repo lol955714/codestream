@@ -197,6 +197,7 @@ export interface CompareLocalFilesRequest {
 			providerId: string;
 			pullRequestReviewId?: string;
 			id: string;
+			collaborators: any[];
 		};
 	};
 }

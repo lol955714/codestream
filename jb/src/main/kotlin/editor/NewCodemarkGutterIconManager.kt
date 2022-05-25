@@ -47,7 +47,7 @@ class NewCodemarkGutterIconManager(val editor: Editor) : EditorMouseMotionListen
             val line = editor.xyToLogicalPosition(e.mouseEvent.point).line
             if (line != lastHighlightedLine && !editor.selectionModel.hasSelection() && line < editor.document.lineCount) {
                 disableCurrentRenderer()
-                if (isCSDiff && settingsService.state.showNewCodemarkGutterIconOnHover) enableRenderer(line)
+                if (isCSDiff && settingsService.state.showNewCodemarkGutterIconOnHover) enableRenderer(line, false)
             }
         } else if (!editor.selectionModel.hasSelection()) {
             disableCurrentRenderer()
@@ -61,41 +61,36 @@ class NewCodemarkGutterIconManager(val editor: Editor) : EditorMouseMotionListen
         if (!e.newRange.isEmpty) {
             val offset = min(e.newRange.startOffset, e.newRange.endOffset)
             val line = editor.document.getLineNumber(offset)
-            enableRenderer(line)
+            enableRenderer(line, true)
         }
     }
 
     private fun disableCurrentRenderer() {
-            lastHighlightedLine?.let {
-                lineHighlighters[it]?.updateRenderer(null)
+        highlighterProcessor.restoreLastOverlappedHighlighterRenderer()
+        lastHighlightedLine?.let {
+            lineHighlighters[it]?.updateRenderer(null)
             lastHighlightedLine = null
         }
     }
 
     private val highlighterProcessor = CodeStreamHighlighterProcessor()
 
-    private fun enableRenderer(line: Int) {
+    private fun enableRenderer(line: Int, canOverlapExistingHighlighter: Boolean) {
         val startOffset = editor.document.getLineStartOffset(line)
         val endOffset = editor.document.getLineEndOffset(line)
         highlighterProcessor.startOffset = startOffset
         highlighterProcessor.endOffset = endOffset
-        val canAddHighlighter = (editor.markupModel as? MarkupModelEx)?.processRangeHighlightersOverlappingWith(
+        val noOverlappingHighlighter = (editor.markupModel as? MarkupModelEx)?.processRangeHighlightersOverlappingWith(
             startOffset, endOffset, highlighterProcessor
         ) ?: false
-        if (!canAddHighlighter) return
 
-        lineHighlighters.getOrPut(line, {
-            editor.markupModel.addLineHighlighter(line, HighlighterLayer.LAST, null)
-        }).updateRenderer(renderer.also { it.line = line })
-        lastHighlightedLine = line
-    }
-
-    private fun RangeHighlighter.updateRenderer(renderer: GutterIconRenderer?) {
-        try {
-            this.gutterIconRenderer = renderer
-        } catch (ex: Exception) {
-            // ignore
+        if (noOverlappingHighlighter || canOverlapExistingHighlighter) {
+            highlighterProcessor.hideLastOverlappedHighlighterRenderer()
+            lineHighlighters.getOrPut(line) {
+                editor.markupModel.addLineHighlighter(line, HighlighterLayer.LAST, null)
+            }.updateRenderer(renderer.also { it.line = line })
         }
+        lastHighlightedLine = line
     }
 }
 
@@ -103,10 +98,41 @@ class CodeStreamHighlighterProcessor : Processor<RangeHighlighter> {
     var startOffset: Int = 0
     var endOffset: Int = 0
 
+    private var lastOverlappingHighlighter: RangeHighlighter? = null
+    private var hiddenRenderer: GutterIconRenderer? = null
+
     override fun process(highlighter: RangeHighlighter?): Boolean {
+        lastOverlappingHighlighter = null
+
         return highlighter?.let {
             val minOffset = min(it.startOffset, it.endOffset)
-            it.getUserData(CODESTREAM_HIGHLIGHTER) != true || minOffset < startOffset || minOffset > endOffset
+            val nonOverlapping = it.getUserData(CODESTREAM_HIGHLIGHTER) != true || minOffset < startOffset || minOffset > endOffset
+            if (!nonOverlapping) {
+                lastOverlappingHighlighter = highlighter
+            }
+            nonOverlapping
         } ?: true
+    }
+
+    fun hideLastOverlappedHighlighterRenderer() {
+        if (lastOverlappingHighlighter != null) {
+            hiddenRenderer = lastOverlappingHighlighter?.gutterIconRenderer
+            lastOverlappingHighlighter?.updateRenderer(null)
+        }
+    }
+
+    fun restoreLastOverlappedHighlighterRenderer() {
+        if (hiddenRenderer != null) {
+            lastOverlappingHighlighter?.updateRenderer(hiddenRenderer)
+            hiddenRenderer = null
+        }
+    }
+}
+
+fun RangeHighlighter.updateRenderer(renderer: GutterIconRenderer?) {
+    try {
+        this.gutterIconRenderer = renderer
+    } catch (ex: Exception) {
+        // ignore
     }
 }

@@ -182,6 +182,7 @@ export const PRAuthorBadges = (props: {
 					derivedState.prLabel.pullrequest
 				}`}
 				placement="bottom"
+				delay={1}
 			>
 				<div className="author">Author</div>
 			</Tooltip>
@@ -194,6 +195,7 @@ export const PRAuthorBadges = (props: {
 				key="association"
 				title={AUTHOR_ASSOCIATION_MAP[node.authorAssociation][1]}
 				placement="bottom"
+				delay={1}
 			>
 				<div className="member">{AUTHOR_ASSOCIATION_MAP[node.authorAssociation][0]}</div>
 			</Tooltip>
@@ -1318,6 +1320,7 @@ export const PullRequestConversationTab = (props: {
 					pr={pr}
 					setIsLoadingMessage={setIsLoadingMessage}
 					__onDidRender={__onDidRender}
+					key={Math.random().toString()}
 				/>
 			</div>
 			<PRSidebar>

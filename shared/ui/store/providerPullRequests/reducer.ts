@@ -917,7 +917,7 @@ export const getProviderPullRequestRepoObjectCore = (
 			}
 			// this is for gitlab
 			repoName = currentPr.conversations.project?.name?.toLowerCase();
-			repoUrl = currentPr.conversations.project!.mergeRequest.webUrl.toLowerCase();
+			repoUrl = currentPr.conversations.project!.mergeRequest.webUrl?.toLowerCase();
 		}
 		result.repoName = repoName;
 		result.repoUrl = repoUrl;
@@ -926,10 +926,10 @@ export const getProviderPullRequestRepoObjectCore = (
 		const matchingRepos = repos.filter(_ =>
 			_.remotes.some(
 				r =>
-					r.normalizedUrl &&
-					r.normalizedUrl.length > 2 &&
-					r.normalizedUrl.match(/([a-zA-Z0-9]+)/) &&
-					repoUrl.indexOf(r.normalizedUrl.toLowerCase()) > -1
+					r?.normalizedUrl &&
+					r?.normalizedUrl.length > 2 &&
+					r?.normalizedUrl.match(/([a-zA-Z0-9]+)/) &&
+					repoUrl?.indexOf(r?.normalizedUrl?.toLowerCase()) > -1
 			)
 		);
 
@@ -940,7 +940,7 @@ export const getProviderPullRequestRepoObjectCore = (
 			let matchingRepos2 = repos.filter(_ => _.name && _.name.toLowerCase() === repoName);
 			if (matchingRepos2.length != 1) {
 				matchingRepos2 = repos.filter(_ =>
-					_.remotes.some(r => repoUrl.indexOf(r.normalizedUrl.toLowerCase()) > -1)
+					_.remotes.some(r => repoUrl?.indexOf(r?.normalizedUrl?.toLowerCase()) > -1)
 				);
 				if (matchingRepos2.length === 1) {
 					result.currentRepo = matchingRepos2[0];
@@ -948,14 +948,14 @@ export const getProviderPullRequestRepoObjectCore = (
 				} else {
 					// try to match on the best/closet repo
 					const bucket: { repo: CSRepository; points: number }[] = [];
-					const splitRepoUrl = repoUrl.split("/");
+					const splitRepoUrl = repoUrl?.split("/");
 					for (const repo of repos) {
 						let points = 0;
 						for (const remote of repo.remotes) {
-							const split = remote.normalizedUrl.split("/");
-							if (split.length) {
+							const split = remote.normalizedUrl?.split("/");
+							if (split?.length) {
 								for (const s of split) {
-									if (s && splitRepoUrl.includes(s)) {
+									if (s && splitRepoUrl?.includes(s)) {
 										points++;
 									}
 								}

@@ -1,8 +1,15 @@
 package com.codestream.extensions
 
+import com.codestream.agentService
+import com.codestream.editor.InlineTextFieldManager
+import com.codestream.editorService
 import com.codestream.protocols.webview.EditorMargins
 import com.codestream.protocols.webview.EditorSelection
+import com.codestream.review.DIFF_RANGES
+import com.codestream.review.PULL_REQUEST
 import com.codestream.review.ReviewDiffVirtualFile
+import com.google.gson.JsonElement
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -12,11 +19,15 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.tabs.impl.JBTabsImpl
 import com.intellij.util.DocumentUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import java.awt.Container
 import java.awt.Font
 import java.awt.Point
+import java.util.concurrent.CompletableFuture
 
 val Editor.displayPath: String?
     get() = FileDocumentManager.getInstance().getFile(document)?.name
@@ -172,4 +183,85 @@ fun Editor.isRangeVisible(range: Range): Boolean {
     val firstRange = ranges.first()
     val lastRange = ranges.last()
     return range.start.line >= firstRange.start.line && range.end.line <= lastRange.end.line
+}
+
+val Editor.inlineTextFieldManager: InlineTextFieldManager?
+    get() = this.project?.editorService?.getInlineTextFieldManager(this)
+
+fun Editor.isSelectionWithinDiffRange(): Boolean {
+    val diffRanges = document.getUserData(DIFF_RANGES) ?: return false
+    val selection = selectionOrCurrentLine
+
+    val selectionStart = selection.start.line + 1
+    val selectionEnd = selection.end.line + 1
+
+    diffRanges.forEach {
+        if (it.end >= it.start) {
+            if ((it.start <= selectionStart && selectionStart <= it.end) ||
+                (it.start <= selectionEnd && selectionEnd <= it.end) ||
+                (selectionStart <= it.start && it.end <= selectionEnd)) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+val Editor.isGitLab: Boolean
+    get() {
+        val pullRequest = document.getUserData(PULL_REQUEST)
+        return pullRequest?.providerId?.lowercase()?.contains("gitlab") == true
+    }
+
+
+val Editor.addSingleCommentText
+    get() = if (isGitLab) "Add comment now" else "Add single comment"
+
+val Editor.addCommentToReviewText: String
+    get() = "Add comment to review"
+
+val Editor.startReviewText: String
+    get() = "Start a review"
+
+suspend fun Editor.getDefaultPrCommentText(): String? {
+    val textFuture = CompletableFuture<String>()
+    ApplicationManager.getApplication().invokeLater {
+        val isSelectionWithinDiffRange = isSelectionWithinDiffRange()
+        GlobalScope.launch {
+            val text = when {
+                isPullRequest() -> {
+                    if (isSelectionWithinDiffRange) {
+                        if (hasPendingPullRequestReview()) {
+                            addCommentToReviewText
+                        } else {
+                            startReviewText
+                        }
+                    } else {
+                        addSingleCommentText
+                    }
+                }
+                else -> {
+                    null
+                }
+            }
+            textFuture.complete(text)
+        }
+    }
+    return textFuture.await()
+}
+
+suspend fun Editor.getPullRequestReviewId(): JsonElement? {
+    val agent = project?.agentService ?: return null
+    val pullRequest = document.getUserData(PULL_REQUEST) ?: return null
+    return agent.getPullRequestReviewId(pullRequest.id, pullRequest.providerId)
+}
+
+suspend fun Editor.hasPendingPullRequestReview(): Boolean {
+    val reviewId = getPullRequestReviewId()
+    // GH returns a string ID or null. GL returns true or false.
+    return !(reviewId == null || reviewId.isJsonNull || (reviewId.isJsonPrimitive && reviewId.asJsonPrimitive.isBoolean && !reviewId.asBoolean))
+}
+
+fun Editor.isPullRequest(): Boolean {
+    return document.getUserData(PULL_REQUEST) != null
 }

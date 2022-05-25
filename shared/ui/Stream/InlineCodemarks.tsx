@@ -57,7 +57,8 @@ import {
 	setComposeCodemarkActive,
 	closePanel,
 	closeAllModals,
-	closeAllPanels
+	closeAllPanels,
+	closePrDetailModal
 } from "../store/context/actions";
 import { sortBy as _sortBy } from "lodash-es";
 import { setEditorContext, changeSelection } from "../store/editorContext/actions";
@@ -125,10 +126,12 @@ interface Props {
 	webviewFocused: boolean;
 	currentReviewId?: string;
 	currentCodeErrorId?: string;
+	currentPullRequestCommentId?: string;
 	currentPullRequestId?: string;
 	currentPullRequestProviderId?: string;
 	lightningCodeReviewsEnabled: boolean;
 	activePanel: WebviewPanels | string;
+	expandedPullRequestGroupIndex?: string;
 
 	setEditorContext: (
 		...args: Parameters<typeof setEditorContext>
@@ -153,7 +156,7 @@ interface Props {
 	closePanel: Function;
 	closeAllModals: Function;
 	closeAllPanels: Function;
-
+	closePrDetailModal: Function;
 	createPostAndCodemark: (...args: Parameters<typeof createPostAndCodemark>) => any;
 	addDocumentMarker: Function;
 	changeSelection: Function;
@@ -1153,14 +1156,21 @@ export class SimpleInlineCodemarks extends Component<Props, State> {
 			currentReviewId,
 			currentPullRequestId,
 			currentCodeErrorId,
-			composeCodemarkActive
+			composeCodemarkActive,
+			expandedPullRequestGroupIndex,
+			currentPullRequestProviderId
 		} = this.props;
 		if (currentReviewId) {
 			HostApi.instance.send(ReviewCloseDiffRequestType, {});
 			this.props.closeAllModals();
 		} else if (currentPullRequestId) {
 			HostApi.instance.send(LocalFilesCloseDiffRequestType, {});
-			this.props.closeAllModals();
+			// this.props.closeAllModals();
+			this.props.closePrDetailModal(
+				currentPullRequestProviderId,
+				currentPullRequestId,
+				expandedPullRequestGroupIndex
+			);
 		} else if (currentCodeErrorId) {
 			this.props.closeAllModals();
 			this.props.closeAllPanels();
@@ -1177,7 +1187,9 @@ export class SimpleInlineCodemarks extends Component<Props, State> {
 			currentPullRequestId,
 			currentCodeErrorId,
 			currentPullRequestProviderId,
-			composeCodemarkActive
+			composeCodemarkActive,
+			currentPullRequestCommentId,
+			expandedPullRequestGroupIndex
 		} = this.props;
 
 		const composeOpen = composeCodemarkActive ? true : false;
@@ -1185,12 +1197,14 @@ export class SimpleInlineCodemarks extends Component<Props, State> {
 			currentPullRequestId &&
 			(currentPullRequestProviderId === "gitlab*com" ||
 				currentPullRequestProviderId === "gitlab/enterprise");
+
 		return (
 			<Modal
-				noScroll
-				noPadding
+				noScroll={!currentPullRequestCommentId ? true : undefined}
+				noPadding={!currentPullRequestCommentId ? true : undefined}
 				onClose={isGitLabPR || currentCodeErrorId ? undefined : () => this.close()}
 				sidebarBackground={!!currentReviewId || !!currentCodeErrorId}
+				translucent={currentPullRequestCommentId ? true : undefined}
 			>
 				<div style={{ overflow: isGitLabPR ? "visible" : "hidden" }}>
 					{currentReviewId ? (
@@ -1364,6 +1378,7 @@ const EMPTY_OBJECT = {};
 
 const mapStateToProps = (state: CodeStreamState) => {
 	const { context, editorContext, preferences, teams, configs, documentMarkers, ide } = state;
+	const expandedPullRequestGroupIndex = context.currentPullRequest?.groupIndex;
 
 	const docMarkers = documentMarkers[editorContext.textEditorUri || ""] || EMPTY_ARRAY;
 	const numHidden = docMarkers.filter(
@@ -1421,7 +1436,11 @@ const mapStateToProps = (state: CodeStreamState) => {
 		webviewFocused: context.hasFocus,
 		lightningCodeReviewsEnabled: isFeatureEnabled(state, "lightningCodeReviews"),
 		composeCodemarkActive: context.composeCodemarkActive,
-		newPostEntryPoint: context.newPostEntryPoint
+		newPostEntryPoint: context.newPostEntryPoint,
+		currentPullRequestCommentId: context.currentPullRequest
+			? context.currentPullRequest.commentId
+			: undefined,
+		expandedPullRequestGroupIndex
 	};
 };
 
@@ -1440,6 +1459,7 @@ export default connect(mapStateToProps, {
 	setNewPostEntry,
 	closeAllModals,
 	closeAllPanels,
+	closePrDetailModal,
 	closePanel
 })(SimpleInlineCodemarks);
 

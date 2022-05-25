@@ -137,14 +137,22 @@ export class JiraProvider extends ThirdPartyIssueProviderBase<CSJiraProviderInfo
 	}
 
 	async onConnected(providerInfo?: CSJiraProviderInfo) {
-		super.onConnected(providerInfo);
-		this._urlAddon = "";
+		await super.onConnected(providerInfo);
 		if (this._providerInfo?.isApiToken) {
 			this._webUrl = this._providerInfo?.data?.baseUrl || "";
+			Logger.log("jira using api token with webUrl", this._webUrl);
 			return;
 		}
+		if (this._urlAddon?.length > 0) {
+			return;
+		}
+
+		// Infinite loop if get also does ensureConnected() so pass flag to disable check
 		const response = await this.get<AccessibleResourcesResponse>(
-			"/oauth/token/accessible-resources"
+			"/oauth/token/accessible-resources",
+			undefined,
+			undefined,
+			false
 		);
 
 		Logger.debug("Jira: Accessible Resources are", response.body);
@@ -182,7 +190,6 @@ export class JiraProvider extends ThirdPartyIssueProviderBase<CSJiraProviderInfo
 	@log()
 	async getBoards(request: FetchThirdPartyBoardsRequest): Promise<FetchThirdPartyBoardsResponse> {
 		if (this.boards.length > 0) return { boards: this.boards };
-		await this.ensureConnected();
 		try {
 			Logger.debug("Jira: fetching projects");
 			const jiraBoards: JiraBoard[] = [];
@@ -328,7 +335,6 @@ export class JiraProvider extends ThirdPartyIssueProviderBase<CSJiraProviderInfo
 
 	@log()
 	async getCards(request: FetchThirdPartyCardsRequest): Promise<FetchThirdPartyCardsResponse> {
-		await this.ensureConnected();
 		// /rest/api/2/search?jql=assignee=currentuser()
 		// https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/
 		// why don't we get assignees for subtasks?
@@ -413,7 +419,6 @@ export class JiraProvider extends ThirdPartyIssueProviderBase<CSJiraProviderInfo
 
 	@log()
 	async createCard(request: CreateThirdPartyCardRequest) {
-		await this.ensureConnected();
 		const data = request.data as CreateJiraCardRequest;
 		// using /api/2 because 3 returns nonsense errors for the same request
 		const body: { [k: string]: any } = {
@@ -444,7 +449,6 @@ export class JiraProvider extends ThirdPartyIssueProviderBase<CSJiraProviderInfo
 
 	@log()
 	async moveCard(request: MoveThirdPartyCardRequest) {
-		await this.ensureConnected();
 		try {
 			Logger.debug("Jira: moving card");
 			const response = await this.post(`/rest/api/2/issue/${request.cardId}/transitions`, {

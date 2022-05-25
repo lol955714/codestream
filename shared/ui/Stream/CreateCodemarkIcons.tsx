@@ -30,6 +30,7 @@ import { setEditorContext, changeSelection } from "../store/editorContext/action
 import { CodeStreamState } from "../store";
 import ComposeTitles from "./ComposeTitles";
 import { canCreateCodemark } from "../store/codemarks/actions";
+import { parseCodeStreamDiffUri } from "../store/codemarks/actions";
 
 interface Props {
 	narrow?: boolean;
@@ -87,6 +88,19 @@ export const CreateCodemarkIcons = (props: Props) => {
 		const activePanel =
 			context.panelStack && context.panelStack.length ? context.panelStack[0] : "";
 
+		const currentPullRequestId = state.context.currentPullRequest
+			? state.context.currentPullRequest.id
+			: undefined;
+
+		const matchFile =
+			currentPullRequestId &&
+			state.editorContext.scmInfo &&
+			state.editorContext.scmInfo.uri &&
+			state.editorContext.scmInfo.uri.startsWith("codestream-diff://")
+				? state.editorContext.scmInfo.uri
+				: "";
+		const parsedDiffUri = parseCodeStreamDiffUri(matchFile || "");
+
 		return {
 			// viewInline: context.codemarksFileViewStyle === "inline",
 			textEditorUri: editorContext.textEditorUri,
@@ -104,7 +118,9 @@ export const CreateCodemarkIcons = (props: Props) => {
 			composeCodemarkActive: context.composeCodemarkActive,
 			activePanel,
 			activePanelName: WebviewPanelNames[activePanel],
-			sidebarLocation: getSidebarLocation(state)
+			sidebarLocation: getSidebarLocation(state),
+			parsedDiffUri,
+			isInJetBrains: state.ide.name === "JETBRAINS"
 		};
 	};
 
@@ -230,13 +246,8 @@ export const CreateCodemarkIcons = (props: Props) => {
 		// we only add the title properties (which add tooltips)
 		// when you mouse over them for performance reasons. adding
 		// tool tips on each one slowed things down a lot. -Pez
-		const {
-			currentReviewId,
-			currentPullRequestId,
-			currentCodeErrorId,
-			sidebarLocation
-		} = derivedState;
-		const showNonComments = !currentReviewId && !currentPullRequestId && !currentCodeErrorId;
+		const { currentReviewId, currentCodeErrorId, sidebarLocation, parsedDiffUri } = derivedState;
+		const showNonComments = !currentReviewId && !parsedDiffUri && !currentCodeErrorId;
 
 		let icons = [
 			{
@@ -346,7 +357,9 @@ export const CreateCodemarkIcons = (props: Props) => {
 	const lineHeight = metrics.lineHeight || codeHeight() / numLinesVisible;
 	const paddingTop = (metrics.margins && metrics.margins.top) || 0;
 
-	if (iconsOnLine0 >= 0) {
+	if (derivedState.isInJetBrains) {
+		return null;
+	} else if (iconsOnLine0 >= 0) {
 		// const top = (codeHeight * iconsOnLine0) / (numLinesVisible + 1);
 		// const top = paddingTop ? "calc(" + topPct + " + " + paddingTop + "px)" : topPct;
 		const top = lineHeight * iconsOnLine0 + paddingTop;

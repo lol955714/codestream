@@ -1,6 +1,8 @@
 package com.codestream.review
 
 import com.codestream.gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.intellij.util.Base64
 import java.nio.charset.Charset
 
@@ -26,7 +28,17 @@ class CodeStreamDiffUriContext(
 
 class CodeStreamDiffUriPullRequest(
     val providerId: String,
-    val id: String
+    val id: String,
+    val collaborators: List<CodeStreamDiffUriPullRequestCollaborator>
+)
+
+class CodeStreamDiffUriPullRequestCollaborator(
+    val id: Int,
+    val username: String,
+    val avatar: CodeStreamDiffUriPullRequestCollaboratorAvatar
+)
+class CodeStreamDiffUriPullRequestCollaboratorAvatar(
+    val image: String?
 )
 
 private val utf8 = Charset.forName("UTF-8")

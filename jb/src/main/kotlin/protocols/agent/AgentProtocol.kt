@@ -6,9 +6,13 @@ import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationNamesInfo
+import com.intellij.util.io.HttpRequests
+import org.apache.commons.codec.digest.DigestUtils
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.WorkspaceFolder
+import javax.swing.Icon
+import javax.swing.ImageIcon
 
 class ProxySettings(val url: String, val strictSSL: Boolean)
 
@@ -78,6 +82,19 @@ class UserLoggedIn(
 ) {
     val userId get() = state.userId
     val teamId get() = state.teamId
+
+    val avatarIcon: Icon? by lazy {
+        try {
+            val email = user.email
+            val emailHash: String = DigestUtils.md5Hex(email.toLowerCase().trim())
+            val size = 20
+            val avatarUrl = "https://www.gravatar.com/avatar/$emailHash.png?s=$size&d=identicon"
+            val bytes: ByteArray = HttpRequests.request(avatarUrl).readBytes(null)
+            ImageIcon(bytes)
+        } catch(ignore: Exception) {
+            null
+        }
+    }
 }
 
 
@@ -99,6 +116,7 @@ class CSUser(
     val id: String,
     val username: String,
     val email: String,
+    val fullName: String,
     var preferences: CSPreferences?
 ) {
     fun wantsToastNotifications(): Boolean = when (preferences?.notificationDelivery) {
@@ -333,6 +351,7 @@ class Post(
 
 class Review(
     val id: String,
+    val postId: String,
     val title: String,
     val followerIds: List<String>?,
     val reviewChangesets: List<ReviewChangeset>
@@ -386,6 +405,8 @@ class GetUserParams(
     val userId: String
 )
 
+class GetUsersParams()
+
 class GetPostParams(
     val streamId: String,
     val postId: String
@@ -411,6 +432,18 @@ class PullRequestFile(
     val deletions: Int,
     val patch: String?
 )
+
+class ExecuteThirdPartyRequestParams(
+    val method: String,
+    val providerId: String,
+    val params: ThirdPartyRequestParams
+)
+
+interface ThirdPartyRequestParams
+
+class GetPullRequestReviewIdParams(
+    val pullRequestId: String
+) : ThirdPartyRequestParams
 
 class Marker(
     val id: String,
@@ -502,39 +535,44 @@ class FileLevelTelemetryParams(
 )
 
 data class MethodLevelTelemetrySymbolIdentifier(
+    val namespace: String?,
     val className: String?,
     val functionName: String
 )
 
 open class MethodLevelTelemetryData(
+    val namespace: String?,
     val className: String?,
     val functionName: String,
     val metricTimesliceName: String
 ) {
     val symbolIdentifier: MethodLevelTelemetrySymbolIdentifier
-        get() = MethodLevelTelemetrySymbolIdentifier(className, functionName)
+        get() = MethodLevelTelemetrySymbolIdentifier(namespace, className, functionName)
 }
 
 class MethodLevelTelemetryThroughput (
+    namespace: String?,
     className: String?,
     functionName: String,
     metricTimesliceName: String,
     val requestsPerMinute: Float
-) : MethodLevelTelemetryData(className, functionName, metricTimesliceName)
+) : MethodLevelTelemetryData(namespace, className, functionName, metricTimesliceName)
 
 class MethodLevelTelemetryAverageDuration(
+    namespace: String?,
     className: String?,
     functionName: String,
     metricTimesliceName: String,
     val averageDuration: Float
-) : MethodLevelTelemetryData(className, functionName, metricTimesliceName)
+) : MethodLevelTelemetryData(namespace, className, functionName, metricTimesliceName)
 
 class MethodLevelTelemetryErrorRate(
+    namespace: String?,
     className: String?,
     functionName: String,
     metricTimesliceName: String,
     val errorsPerMinute: Float
-) : MethodLevelTelemetryData(className, functionName, metricTimesliceName)
+) : MethodLevelTelemetryData(namespace, className, functionName, metricTimesliceName)
 
 class FileLevelTelemetryResult(
     var error: FileLevelTelemetryResultError?,
@@ -558,4 +596,109 @@ class FileLevelTelemetryResultError(
     val type: String
 )
 
+class ScmRangeInfoParams(
+    val uri: String,
+    val range: Range
+)
+
+class ScmRangeInfoResult(
+    val uri: String,
+    val range: Range,
+    val contents: String,
+    val scm: ScmRangeInfoResultScm?,
+    val error: String?,
+    val context: JsonObject?,
+    val ignored: Boolean?,
+// context?: {
+//     pullRequest?: {
+//         id: string;
+//         providerId: string;
+//         pullRequestReviewId?: string;
+//     };
+)
+
+class ScmRangeInfoResultScm(
+    val file: String,
+    val repoPath: String,
+    val repoId: String?,
+    val revision: String?,
+    val fixedGitSha: Boolean?,
+    val authors: List<BlameAuthor>,
+    val remotes: List<GitRemote>,
+    val branch: String?
+)
+class BlameAuthor()
+class GitRemote(
+    val name: String,
+    val url: String
+)
+
+class ScmSha1RangesParams(
+    val repoId: String,
+    val filePath: String,
+    val baseSha: String,
+    val headSha: String
+)
+
+class ScmSha1RangesResult(
+    val baseLinesChanged: ScmSha1RangesResultLinesChanged,
+    val headLinesChanged: ScmSha1RangesResultLinesChanged
+)
+
+class ScmSha1RangesResultLinesChanged(
+    val start: Int,
+    val end: Int
+)
+
+class CreateShareableCodemarkParams(
+    val attributes: ShareableCodemarkAttributes,
+    val parentPostId: String?,
+    val memberIds: List<String>,
+    val textDocuments: List<TextDocumentIdentifier>?,
+    val entryPoint: String?,
+    val mentionedUserIds: List<String>?,
+    val addedUsers: List<String>?,
+    // files?: Attachment[];
+    // parentPostId?: string;
+    // isPseudoCodemark?: boolean;
+    // /**
+    //  * true, if this "comment" is part of a PR provider review, rather than a single comment
+    //  */
+    val isProviderReview: Boolean?,
+    // /**
+    //  * the possible reviewId of
+    //  */
+    // pullRequestReviewId?: string;
+    val ideName: String?
+)
+
+class ShareableCodemarkAttributes(
+    // providerType?: ProviderType | undefined;
+    val type: String, // TODO CodemarkType,
+    val text: String?,
+    // streamId?: string;
+    // postId?: string;
+    val parentPostId: String?,
+    // status?: string;
+    // title?: string;
+    // assignees?: string[];
+    // tags?: string[];
+    val remotes: List<String>?,
+    // externalProvider?: string;
+    // externalProviderUrl?: string;
+    // externalProviderHost?: string;
+    // externalAssignees?: { displayName: string; email?: string }[];
+    // remoteCodeUrl?: { name: string; url: string };
+    // threadUrl?: string;
+    // createPermalink?: false | "public" | "private";
+    // relatedCodemarkIds?: string[];
+
+    val codeBlocks: List<ScmRangeInfoResult>
+    // crossPostIssueValues?: CrossPostIssueValues;
+)
+
+class CreateShareableCodemarkResult(
+    val pullRequest: JsonObject?,
+    val directives: JsonObject?
+)
 

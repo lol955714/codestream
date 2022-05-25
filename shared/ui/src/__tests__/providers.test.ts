@@ -1,3 +1,4 @@
+import { CSRemote } from "@codestream/protocols/api";
 import { describe, expect, it } from "@jest/globals";
 import { getProviderPullRequestRepoObjectCore } from "../../store/providerPullRequests/reducer";
 
@@ -5,17 +6,21 @@ describe("providers", () => {
 	it("should match on name", () => {
 		const result = getProviderPullRequestRepoObjectCore(
 			[
+				// @ts-ignore
 				{
 					name: "backend",
 					remotes: [
+						// @ts-ignore
 						{
 							normalizedUrl: "git.example.com/mono/backend"
 						}
 					]
 				},
+				// @ts-ignore
 				{
 					name: "backend-backend",
 					remotes: [
+						// @ts-ignore
 						{
 							normalizedUrl: "git.example.com/bar/backend/backend"
 						}
@@ -35,7 +40,7 @@ describe("providers", () => {
 			},
 			"gitlab*com"
 		);
-		expect(result.currentRepo.name).toEqual("backend");
+		expect(result.currentRepo?.name).toEqual("backend");
 		expect(result.reason).toEqual("repoName");
 	});
 
@@ -47,6 +52,7 @@ describe("providers", () => {
 				{
 					name: "backend",
 					remotes: [
+						// @ts-ignore
 						{
 							normalizedUrl: "git.codestream.dev/mono"
 						}
@@ -55,6 +61,7 @@ describe("providers", () => {
 				{
 					name: "frontend",
 					remotes: [
+						// @ts-ignore
 						{
 							normalizedUrl: "git.codestream.dev/mono/frontend"
 						}
@@ -63,6 +70,7 @@ describe("providers", () => {
 				{
 					name: "backend",
 					remotes: [
+						// @ts-ignore
 						{
 							normalizedUrl: "git.codestream.dev/mono/backend"
 						}
@@ -83,7 +91,7 @@ describe("providers", () => {
 			"gitlab*com"
 		);
 
-		expect(result.currentRepo.remotes[0].normalizedUrl).toEqual("git.codestream.dev/mono/backend");
+		expect(result.currentRepo?.remotes[0].normalizedUrl).toEqual("git.codestream.dev/mono/backend");
 		expect(result.reason).toEqual("closestMatch");
 	});
 });

@@ -44,6 +44,7 @@ data class ApplicationSettingsServiceState(
     var email: String? = null,
     var serverUrl: String = API_PROD,
     var disableStrictSSL: Boolean = false,
+    var extraCerts: String? = null,
     var avatars: Boolean = true,
     var showFeedbackSmiley: Boolean = true,
     var showMarkers: Boolean = true,
@@ -130,6 +131,13 @@ class ApplicationSettingsService : PersistentStateComponent<ApplicationSettingsS
         set(value) {
             state.disableStrictSSL = value
         }
+
+    var extraCerts
+        get() = state.extraCerts
+        set(value) {
+            state.extraCerts = value
+        }
+
     val email get() = state.email
 
     var showFeedbackSmiley

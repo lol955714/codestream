@@ -5,7 +5,6 @@ import {
 	FetchForkPointRequestType
 } from "@codestream/protocols/agent";
 import { HostApi } from "..";
-import { ChangesetFile } from "./Review/ChangesetFile";
 import { useSelector } from "react-redux";
 import { CodeStreamState } from "@codestream/webview/store";
 import Icon from "./Icon";
@@ -24,16 +23,29 @@ import { Link } from "./Link";
 import { Meta, MetaLabel } from "./Codemark/BaseCodemark";
 import { MetaIcons } from "./Review";
 import {
+	getProviderPullRequestCollaborators,
 	getProviderPullRequestRepo,
-	getPullRequestId
+	getPullRequestId,
+	getCurrentProviderPullRequest
 } from "../store/providerPullRequests/reducer";
 import { CompareFilesProps } from "./PullRequestFilesChangedList";
 import { TernarySearchTree } from "../utilities/searchTree";
-import { PRErrorBox } from "./PullRequestComponents";
+import { PRErrorBox, PRErrorBoxSidebar } from "./PullRequestComponents";
+import { PullRequestFilesChangedFileComments } from "./PullRequestFilesChangedFileComments";
+import { isUndefined } from "lodash-es";
 
 export const Directory = styled.div`
 	cursor: pointer;
 	padding: 2px 0;
+	margin: 0 !important;
+	&:hover {
+		background: var(--app-background-color-hover);
+		color: var(--text-color-highlight);
+	}
+`;
+
+export const FileWithComments = styled.div`
+	cursor: pointer;
 	margin: 0 !important;
 	&:hover {
 		background: var(--app-background-color-hover);
@@ -60,6 +72,9 @@ interface Props extends CompareFilesProps {
 		[path: string]: any;
 	};
 	commitBased?: boolean;
+	prCommitsRange: any;
+	sidebarView?: boolean;
+	startingDepth?: number;
 	accessRawDiffs?: boolean;
 	setAccessRawDiffs?: Function;
 }
@@ -86,6 +101,7 @@ export const PullRequestFilesChanged = (props: Props) => {
 			currentPullRequestProviderId: state.context.currentPullRequest
 				? state.context.currentPullRequest.providerId
 				: undefined,
+			currentPullRequest: getCurrentProviderPullRequest(state),
 			matchFile,
 			parsedDiffUri,
 			userId,
@@ -93,7 +109,8 @@ export const PullRequestFilesChanged = (props: Props) => {
 			currentRepo: getProviderPullRequestRepo(state),
 			numFiles: props.filesChanged.length,
 			isInVscode: state.ide.name === "VSC",
-			pullRequestId: getPullRequestId(state)
+			pullRequestId: getPullRequestId(state),
+			collaborators: getProviderPullRequestCollaborators(state)
 		};
 	});
 
@@ -208,7 +225,8 @@ export const PullRequestFilesChanged = (props: Props) => {
 						? {
 								pullRequest: {
 									providerId: pr.providerId,
-									id: derivedState.pullRequestId
+									id: derivedState.pullRequestId,
+									collaborators: derivedState.collaborators
 								}
 						  }
 						: undefined
@@ -219,8 +237,6 @@ export const PullRequestFilesChanged = (props: Props) => {
 					console.warn(err);
 					setErrorMessage(err || "Could not open file diff");
 				}
-
-				visitFile(f.file, index);
 
 				HostApi.instance.track("PR Diff Viewed", {
 					Host: pr && pr.providerId
@@ -296,16 +312,13 @@ export const PullRequestFilesChanged = (props: Props) => {
 	const renderFile = (f, index, depth) => {
 		const selected = derivedState.parsedDiffUri && derivedState.parsedDiffUri.path == f.file;
 		const visited = visitedFiles[f.file];
-		if (selected && !visited) {
-			visitFile(f.file, index);
-		}
 
+		// This logic replaces old logic of auto-checking
+		// Now, we have the user manually check files off in their diff list
 		let icon;
 		// if we're loading, show a spinner
 		if (loading) icon = "sync";
 		// this file is currently selected, and visible in diff view
-		else if (selected) icon = "arrow-right";
-		// this file has been visitied during the review
 		else if (visited) icon = "ok";
 		// not yet visited, but part of the review
 		else icon = "circle";
@@ -313,63 +326,30 @@ export const PullRequestFilesChanged = (props: Props) => {
 		const iconClass = loading ? "file-icon spin" : "file-icon";
 		// i is a temp variable to create the correct scope binding
 		const i = index;
-		const commentCount = (props.commentMap[f.file] || []).length;
+
+		const hasComments = (props.commentMap[f.file] || []).length > 0;
 		return (
-			<>
-				<ChangesetFile
-					selected={selected}
-					viewMode={props.viewMode}
-					icon={
-						isDisabled ? null : (
-							<Icon
-								onClick={
-									visited
-										? async e => {
-												e.preventDefault();
-												e.stopPropagation();
-												unVisitFile(f.file);
-										  }
-										: undefined
-								}
-								name={icon}
-								className={iconClass}
-							/>
-						)
-					}
-					noHover={isDisabled || loading}
-					onClick={
-						isDisabled || loading
-							? undefined
-							: async e => {
-									e.preventDefault();
-									goDiff(i);
-							  }
-					}
-					badge={commentCount > 0 ? <span className="badge">{commentCount}</span> : undefined}
-					actionIcons={
-						!loading &&
-						!isDisabled && (
-							<div className="actions">
-								<Icon
-									name="goto-file"
-									className="clickable action"
-									title="Open File"
-									placement="left"
-									delay={1}
-									onClick={async e => {
-										e.stopPropagation();
-										e.preventDefault();
-										openFile(i);
-									}}
-								/>
-							</div>
-						)
-					}
-					key={i + ":" + f.file}
-					depth={depth}
-					{...f}
-				/>
-			</>
+			<PullRequestFilesChangedFileComments
+				key={`${i}_${f.file}`}
+				comments={hasComments && props.commentMap[f.file]}
+				icon={icon}
+				prCommitsRange={props.prCommitsRange}
+				iconClass={iconClass}
+				index={i}
+				hasComments={hasComments}
+				selected={selected}
+				viewMode={props.viewMode}
+				fileObject={f}
+				isDisabled={isDisabled}
+				loading={loading}
+				unVisitFile={unVisitFile}
+				visitFile={visitFile}
+				goDiff={goDiff}
+				depth={depth}
+				visited={visited}
+				filesChanged={props.filesChanged}
+				pullRequest={pr}
+			/>
 		);
 	};
 
@@ -378,8 +358,9 @@ export const PullRequestFilesChanged = (props: Props) => {
 		const hidden = visitedFiles[hideKey];
 		return (
 			<Directory
-				style={{ paddingLeft: `${depth * 12}px` }}
+				style={{ paddingLeft: `${depth * 10}px` }}
 				onClick={() => props.toggleDirectory(hideKey)}
+				key={`directory_${dirPath}_${hideKey}`}
 			>
 				<Icon name={hidden ? "chevron-right-thin" : "chevron-down-thin"} />
 				{path.join(...dirPath)}
@@ -456,20 +437,31 @@ export const PullRequestFilesChanged = (props: Props) => {
 					siblings.forEach(n => render(n, [...fullPath, n.segment], dirPath, depth, false));
 				}
 			};
-			render((tree as any)._root, [], [], 0, true);
+			render((tree as any)._root, [], [], props.startingDepth || 0, true);
 		} else {
-			lines.push(...props.filesChanged.map((f, index) => renderFile(f, index, 0)));
+			lines.push(
+				...props.filesChanged.map((f, index) => renderFile(f, index, props.startingDepth || 0))
+			);
 			filesInOrder = [...props.filesChanged];
 		}
 		return [lines, filesInOrder];
-	}, [pr, loading, derivedState.matchFile, visitedFiles, forkPointSha, props.viewMode]);
+	}, [
+		pr,
+		derivedState.currentPullRequest,
+		props.prCommitsRange,
+		loading,
+		derivedState.matchFile,
+		visitedFiles,
+		forkPointSha,
+		props.viewMode
+	]);
 
 	React.useEffect(() => {
 		if (pr && !derivedState.currentRepo) {
 			setRepoErrorMessage(
 				<span>
-					Repo <span className="monospace highlight">{pr.repository.name}</span> not found in your
-					editor. Open it, or <Link href={pr.repository.url}>clone the repo</Link>.
+					Repo <span className="monospace highlight">{pr.repository?.name}</span> not found in your
+					editor. Open it, or <Link href={pr.repository?.url}>clone the repo</Link>.
 					<p style={{ margin: "5px 0 0 0" }}>
 						Changes can be viewed under <Icon name="diff" /> Diff Hunks view.
 					</p>
@@ -502,13 +494,18 @@ export const PullRequestFilesChanged = (props: Props) => {
 
 	return (
 		<>
-			{(errorMessage || repoErrorMessage) && (
+			{(errorMessage || repoErrorMessage) && !props.sidebarView && (
 				<PRErrorBox>
 					<Icon name="alert" className="alert" />
 					<div className="message">{errorMessage || repoErrorMessage}</div>
 				</PRErrorBox>
 			)}
-			{changedFiles.length > 0 && (
+			{(errorMessage || repoErrorMessage) && props.sidebarView && (
+				<PRErrorBoxSidebar>
+					<span>{errorMessage || repoErrorMessage}</span>
+				</PRErrorBoxSidebar>
+			)}
+			{changedFiles.length > 0 && !props.sidebarView && (
 				<Meta id="changed-files">
 					<MetaLabel>
 						{props.filesChanged.length} Changed Files

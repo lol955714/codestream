@@ -34,7 +34,7 @@ import { UserStatus } from "../src/components/UserStatus";
 import { SelectPeople } from "../src/components/SelectPeople";
 import { HeadshotName } from "../src/components/HeadshotName";
 import { InlineMenu } from "../src/components/controls/InlineMenu";
-import { PaneHeader, Pane, PaneBody, PaneNode, PaneNodeName } from "../src/components/Pane";
+import { PaneHeader, Pane, PaneNode, PaneNodeName } from "../src/components/Pane";
 import { Modal } from "./Modal";
 import { Dialog } from "../src/components/Dialog";
 import { switchToTeam } from "../store/session/actions";

@@ -4,7 +4,9 @@ import com.codestream.protocols.CodemarkType
 import com.codestream.protocols.agent.CSRepo
 import com.codestream.protocols.agent.FileLevelTelemetryOptions
 import com.codestream.protocols.agent.PixieDynamicLoggingFunctionParameter
+import com.google.gson.JsonObject
 import org.eclipse.lsp4j.Range
+import org.eclipse.lsp4j.TextDocumentIdentifier
 
 interface WebViewNotification {
     fun getMethod(): String
@@ -107,6 +109,13 @@ object PullRequestNotifications {
     ) : WebViewNotification {
         override fun getMethod() = "webview/pullRequest/show"
     }
+
+    class HandleDirectives(
+        val pullRequest: JsonObject?,
+        val directives: JsonObject?
+    ) : WebViewNotification {
+        override fun getMethod() = "webview/pullRequest/handleDirectives"
+    }
 }
 
 object StreamNotifications {
@@ -183,5 +192,13 @@ object ShowProgressIndicator {
         val progressStatus: Boolean = true
     ) : WebViewNotification {
         override fun getMethod() = "webview/system/progressIndicator"
+    }
+}
+
+object DocumentMarkerNotifications {
+    class DidChange(
+        val textDocument: TextDocumentIdentifier
+    ) : WebViewNotification {
+        override fun getMethod(): String = "codestream/didChangeDocumentMarkers"
     }
 }

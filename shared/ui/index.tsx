@@ -26,7 +26,8 @@ import {
 	HostDidChangeLayoutNotificationType,
 	RouteWithQuery,
 	ViewMethodLevelTelemetryNotificationType,
-	ShowProgressIndicatorType
+	ShowProgressIndicatorType,
+	HandlePullRequestDirectivesNotificationType
 } from "./ipc/webview.protocol";
 import { createCodeStreamStore } from "./store";
 import { HostApi } from "./webview-api";
@@ -106,7 +107,7 @@ import {
 	PENDING_CODE_ERROR_ID_FORMAT as toPendingCodeErrorId,
 	resolveStackTraceLine
 } from "./store/codeErrors/actions";
-import { openPullRequestByUrl } from "./store/providerPullRequests/actions";
+import { handleDirectives, openPullRequestByUrl } from "./store/providerPullRequests/actions";
 import { updateCapabilities } from "./store/capabilities/actions";
 import { confirmPopup } from "./Stream/Confirm";
 import { switchToTeam } from "./store/session/actions";
@@ -780,6 +781,16 @@ function listenForEvents(store) {
 
 	api.on(ShowProgressIndicatorType, params => {
 		store.dispatch(setBootstrapped(!params.progressStatus));
+	});
+
+	api.on(HandlePullRequestDirectivesNotificationType, params => {
+		store.dispatch(
+			handleDirectives(
+				params.pullRequest.providerId,
+				params.pullRequest.id,
+				params.directives.directives
+			)
+		);
 	});
 }
 

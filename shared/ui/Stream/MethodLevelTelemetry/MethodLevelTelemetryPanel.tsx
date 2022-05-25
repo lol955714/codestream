@@ -17,7 +17,6 @@ import {
 	DidChangeObservabilityDataNotificationType,
 	GetMethodLevelTelemetryRequestType,
 	GetMethodLevelTelemetryResponse,
-	TelemetryRequestType,
 	WarningOrError
 } from "@codestream/protocols/agent";
 import { DelayedRender } from "@codestream/webview/Container/DelayedRender";
@@ -45,6 +44,7 @@ import { DropdownButton } from "../DropdownButton";
 const Root = styled.div``;
 
 const ApmServiceTitle = styled.span`
+	opacity: 0.5;
 	a {
 		color: var(--text-color-highlight);
 		text-decoration: none;
@@ -116,7 +116,8 @@ export const MethodLevelTelemetryPanel = () => {
 
 	useDidMount(() => {
 		HostApi.instance.track("MLT Codelens Clicked", {
-			"NR Account ID": derivedState.currentMethodLevelTelemetry?.newRelicAccountId + ""
+			"NR Account ID": derivedState.currentMethodLevelTelemetry?.newRelicAccountId + "",
+			Language: derivedState.currentMethodLevelTelemetry.languageId
 		});
 		if (!derivedState.currentMethodLevelTelemetry.error) {
 			loadData(derivedState.currentMethodLevelTelemetry.newRelicEntityGuid!);
@@ -137,7 +138,8 @@ export const MethodLevelTelemetryPanel = () => {
 
 	if (
 		derivedState.currentMethodLevelTelemetry.error &&
-		derivedState.currentMethodLevelTelemetry.error.type === "NOT_ASSOCIATED"
+		derivedState.currentMethodLevelTelemetry.error.type === "NOT_ASSOCIATED" &&
+		derivedState.currentMethodLevelTelemetry.repo
 	) {
 		return (
 			<Root className="full-height-codemark-form">
@@ -197,56 +199,58 @@ export const MethodLevelTelemetryPanel = () => {
 		);
 	}
 
+	if (
+		derivedState.currentMethodLevelTelemetry.error &&
+		derivedState.currentMethodLevelTelemetry.error.type === "NO_RUBY_VSCODE_EXTENSION"
+	) {
+		return (
+			<Root className="full-height-codemark-form">
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						width: "100%"
+					}}
+				>
+					<div
+						style={{ marginLeft: "auto", marginRight: "13px", whiteSpace: "nowrap", flexGrow: 0 }}
+					>
+						<CancelButton onClick={() => dispatch(closePanel())} />
+					</div>
+				</div>
+
+				<div className="embedded-panel" style={{ marginLeft: "40px" }}>
+					<h3>Code-Level Metrics</h3>
+					<p style={{ marginTop: 0 }}>
+						To see code-level metrics you'll need to install one of the following extensions for VS
+						Code that allow CodeStream to identify the methods in your Ruby code.
+					</p>
+					<br />
+					<div>
+						<Link href={"vscode:extension/rebornix.Ruby"}>
+							Ruby Plugin
+						</Link>
+					</div>
+					<div>
+						<Link href={"vscode:extension/castwide.solargraph"}>
+							Ruby Solargraph Plugin
+						</Link>
+					</div>
+				</div>
+			</Root>
+		);
+	}
+
 	return (
 		<Root className="full-height-codemark-form">
 			{!loading && (
 				<div
 					style={{
-						paddingTop: "2px",
 						whiteSpace: "nowrap",
 						overflow: "hidden",
 						textOverflow: "ellipsis"
 					}}
 				>
-					<div
-						style={{
-							display: "inline-block",
-							width: "10px",
-							height: "10px",
-							border: "0px",
-							backgroundColor:
-								ALERT_SEVERITY_COLORS[
-									(telemetryResponse && telemetryResponse.newRelicAlertSeverity) || "UNKNOWN"
-								],
-							margin: "0 5px 0 6px"
-						}}
-					/>
-
-					{telemetryResponse && telemetryResponse.newRelicUrl && (
-						<Tooltip title="View service summary on New Relic" placement="bottom" delay={1}>
-							<span style={{ opacity: ".5" }}>
-								<ApmServiceTitle>
-									<Link
-										onClick={e => {
-											e.preventDefault();
-											HostApi.instance.track("MLT Open on NR1", {
-												"NR Account ID":
-													derivedState.currentMethodLevelTelemetry.newRelicAccountId + ""
-											});
-											HostApi.instance.send(OpenUrlRequestType, {
-												url: telemetryResponse.newRelicUrl!
-											});
-										}}
-									>
-										<span className="subtle">
-											{(telemetryResponse && telemetryResponse.newRelicEntityName) || "Entity"}
-										</span>{" "}
-										<Icon name="link-external" className="open-external"></Icon>
-									</Link>
-								</ApmServiceTitle>
-							</span>
-						</Tooltip>
-					)}
 					<PanelHeader
 						title={derivedState.currentMethodLevelTelemetry.functionName + " telemetry"}
 					></PanelHeader>
@@ -289,17 +293,19 @@ export const MethodLevelTelemetryPanel = () => {
 															key: item.entityGuid + "-" + i,
 															checked: item.entityGuid === telemetryResponse.newRelicEntityGuid!,
 															action: async () => {
-																const repoId = derivedState.currentMethodLevelTelemetry!.repo.id;
+																const repoId = derivedState.currentMethodLevelTelemetry?.repo?.id;
 																const newPreferences = derivedState.observabilityRepoEntities.filter(
 																	_ => _.repoId !== repoId
 																);
-																newPreferences.push({
-																	repoId: repoId,
-																	entityGuid: item.entityGuid
-																});
-																dispatch(
-																	setUserPreference(["observabilityRepoEntities"], newPreferences)
-																);
+																if (repoId) {
+																	newPreferences.push({
+																		repoId: repoId,
+																		entityGuid: item.entityGuid
+																	});
+																	dispatch(
+																		setUserPreference(["observabilityRepoEntities"], newPreferences)
+																	);
+																}
 
 																// update the IDEs
 																HostApi.instance.send(RefreshEditorsCodeLensRequestType, {});
@@ -325,10 +331,35 @@ export const MethodLevelTelemetryPanel = () => {
 											>
 												{telemetryResponse.newRelicEntityName!}
 											</DropdownButton>
+											{telemetryResponse && telemetryResponse.newRelicUrl && (
+												<Tooltip
+													title="View service summary on New Relic"
+													placement="bottom"
+													delay={1}
+												>
+													<ApmServiceTitle>
+														<Link
+															onClick={e => {
+																e.preventDefault();
+																HostApi.instance.track("MLT Open on NR1", {
+																	"NR Account ID":
+																		derivedState.currentMethodLevelTelemetry.newRelicAccountId + ""
+																});
+																HostApi.instance.send(OpenUrlRequestType, {
+																	url: telemetryResponse.newRelicUrl!
+																});
+															}}
+														>
+															{" "}
+															<Icon name="link-external" className="open-external"></Icon>
+														</Link>
+													</ApmServiceTitle>
+												</Tooltip>
+											)}
 										</EntityDropdownContainer>
 									)}
 									<div style={{ margin: "0 0 11px 0" }}>
-										<b>Repo:</b> {derivedState.currentMethodLevelTelemetry.repo.name}
+										<b>Repo:</b> {derivedState.currentMethodLevelTelemetry.repo?.name}
 									</div>
 									<div>
 										<b>File:</b> {derivedState?.currentMethodLevelTelemetry.relativeFilePath}
@@ -338,26 +369,30 @@ export const MethodLevelTelemetryPanel = () => {
 										{telemetryResponse &&
 											telemetryResponse.goldenMetrics &&
 											telemetryResponse.goldenMetrics.map((_, index) => {
+												// hide charts with no data.
+												if (_.result?.length === 0) return null;
+
 												return (
 													<div
 														key={"chart-" + index}
-														style={{ marginLeft: "-25px", marginBottom: "15px" }}
+														style={{ marginLeft: "-37px", marginBottom: "15px" }}
 													>
-														<ResponsiveContainer width="90%" height={270}>
+														<ResponsiveContainer width="100%" height={300} debounce={1}>
 															<LineChart
 																width={500}
 																height={300}
 																data={_.result}
 																margin={{
 																	top: 5,
-																	right: 30,
-																	left: 10,
+																	right: 0,
+																	left: 0,
 																	bottom: 5
 																}}
 															>
 																<CartesianGrid strokeDasharray="3 3" />
 																<XAxis
 																	dataKey="endDate"
+																	tick={{ fontSize: 12 }}
 																	tickFormatter={label =>
 																		new Date(label).toLocaleTimeString(undefined, {
 																			hour: "2-digit",
@@ -365,14 +400,15 @@ export const MethodLevelTelemetryPanel = () => {
 																		})
 																	}
 																/>
-																<YAxis dataKey={_.title} />
+																<YAxis dataKey={_.title} tick={{ fontSize: 12 }} />
 																<ReTooltip />
-																<Legend />
+																<Legend wrapperStyle={{ fontSize: "0.95em" }} />
 																<Line
 																	type="monotone"
 																	dataKey={_.title}
 																	stroke="#8884d8"
 																	activeDot={{ r: 8 }}
+																	connectNulls={true}
 																/>
 															</LineChart>
 														</ResponsiveContainer>

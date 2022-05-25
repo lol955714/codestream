@@ -644,11 +644,17 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 
 			if (response?.repository?.pullRequest) {
 				// break up the main query to get around https://github.com/TeamCodeStream/codestream/issues/546
-				const response2 = (await this.query<any>(
-					`query pr($owner:String!, $name:String!, $pullRequestNumber:Int!) {
+
+				// eric here next, gh version is like 999 so only worry bout incompatible ghe
+
+				let response2;
+
+				if (version && semver.gt(version.version, "3.0.0")) {
+					response2 = (await this.query<any>(
+						`query pr($owner:String!, $name:String!, $pullRequestNumber:Int!) {
 					rateLimit {
 					  limit
-					  cost
+					  cost 
 					  remaining
 					  resetAt
 					}
@@ -660,6 +666,7 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 							  path
 							  deletions
 							  additions
+							  viewerViewedState
 							}
 						}
 						commits(last: 1) {
@@ -704,12 +711,80 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 					}
 				}
 				  }`,
-					{
-						owner: repoOwner,
-						name: repoName,
-						pullRequestNumber: pullRequestNumber
+						{
+							owner: repoOwner,
+							name: repoName,
+							pullRequestNumber: pullRequestNumber
+						}
+					)) as FetchThirdPartyPullRequestResponse;
+				} else {
+					response2 = (await this.query<any>(
+						`query pr($owner:String!, $name:String!, $pullRequestNumber:Int!) {
+						rateLimit {
+						  limit
+						  cost
+						  remaining
+						  resetAt
+						}
+						repository(name:$name, owner:$owner) {
+						  pullRequest(number:$pullRequestNumber) {
+							files(first: 100) {
+								totalCount
+								nodes {
+								  path
+								  deletions
+								  additions
+								}
+							}
+							commits(last: 1) {
+								totalCount
+								${this._transform(`[
+									nodes {
+									  commit {
+										statusCheckRollup {
+											state
+											contexts(first: 100) {
+												nodes {
+													... on CheckRun {
+														__typename
+														conclusion
+														status
+														name
+														title
+														detailsUrl
+														startedAt
+														completedAt
+														checkSuite {
+														  app {
+															logoUrl(size: 40)
+															slug
+														  }
+														}
+													}
+													... on StatusContext {
+														__typename
+														avatarUrl(size: 40)
+														context
+														description
+														state
+														targetUrl
+													}
+												}
+											}
+										}
+									  }
+									}:>=3.0.0]`)}
+							}
+						}
 					}
-				)) as FetchThirdPartyPullRequestResponse;
+					  }`,
+						{
+							owner: repoOwner,
+							name: repoName,
+							pullRequestNumber: pullRequestNumber
+						}
+					)) as FetchThirdPartyPullRequestResponse;
+				}
 				response.repository.pullRequest.files = response2.repository.pullRequest.files;
 				response.repository.pullRequest.commits = response2.repository.pullRequest.commits;
 
@@ -1256,6 +1331,36 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 		return query;
 	}
 
+	async markFileAsViewed(request: { path: string; pullRequestId: string; onOff: boolean }) {
+		const method = request.onOff ? "markFileAsViewed" : "unmarkFileAsViewed";
+		const Method = request.onOff ? "MarkFileAsViewed" : "UnmarkFileAsViewed";
+		const query = `mutation ${Method}($pullRequestId: ID!, $path: String!) {
+			${method}(input: {pullRequestId: $pullRequestId, path: $path}) {
+				  clientMutationId
+				  pullRequest {
+					files(first: 100) {
+					  totalCount
+					  nodes {
+						path
+						deletions
+						additions
+						viewerViewedState
+					  }
+					}
+				  }
+				}
+			  }`;
+
+		const response = await this.mutate<any>(query, {
+			pullRequestId: request.pullRequestId,
+			path: request.path
+		});
+
+		return this.handleResponse(request.pullRequestId, {
+			directives: [{ type: "updatePullRequest", data: response[method].pullRequest }]
+		});
+	}
+
 	async markPullRequestReadyForReview(request: {
 		pullRequestId: string;
 		isReady: boolean;
@@ -1742,6 +1847,11 @@ export class GitHubProvider extends ThirdPartyIssueProviderBase<CSGitHubProvider
 	 * @param request
 	 */
 	async getPullRequestReviewId(request: { pullRequestId: string }) {
+		const cachedPR = this._pullRequestCache.get(request.pullRequestId);
+		if (cachedPR?.repository?.pullRequest) {
+			return cachedPR.repository.pullRequest.pendingReview?.id;
+		}
+
 		const metaData = await this.getRepoOwnerFromPullRequestId(request.pullRequestId);
 
 		const response = await this.query<any>(

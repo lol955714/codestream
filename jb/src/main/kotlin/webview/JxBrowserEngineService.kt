@@ -156,7 +156,7 @@ class JxBrowserEngineService : Disposable {
                         downloadedFiles.completeExceptionally(it)
                     }
 
-                if (platform == Platform.LINUX) {
+                if (platform == Platform.LINUX_X64) {
                     // Downloader class is broken on Linux. It downloads, but the Future never completes.
                     GlobalScope.launch {
                         while(!downloadedFiles.isDone) {

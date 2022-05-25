@@ -427,8 +427,6 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 	};
 
 	const [isLoadingCard, setIsLoadingCard] = React.useState("");
-	const [loadedBoards, setLoadedBoards] = React.useState(0);
-	const [loadedCards, setLoadedCards] = React.useState(0);
 	const [addingCustomFilterForProvider, setAddingCustomFilterForProvider] = React.useState<
 		ThirdPartyProviderConfig | undefined
 	>();
@@ -523,8 +521,6 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 
 		try {
 			dispatch(fetchBoardsAndCardsAction(props.activeProviders));
-			setLoadedCards(loadedCards + 1);
-			setLoadedBoards(loadedBoards + 1);
 		} catch (e) {
 			console.error(e);
 		}
@@ -583,7 +579,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 				setStartWorkCard(undefined);
 			}
 		},
-		[loadedBoards, loadedCards]
+		[reload]
 	);
 
 	const escapeRegExp = (str: string) => str?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -617,7 +613,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 					key: "customer-filter-" + filter,
 					action: () => {
 						setPreference(provider.id, "filterCustom", { selected: filter });
-						setLoadedBoards(loadedBoards + 1);
+						setReload(reload + 1);
 					}
 				});
 			});
@@ -649,7 +645,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 									// reset selected if we're deleting the selected one
 									selected: selected === filter ? "" : selected
 								});
-								if (selected === filter) setLoadedBoards(loadedBoards + 1);
+								if (selected === filter) setReload(reload + 1);
 							}
 						};
 					})
@@ -813,7 +809,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 
 		return { cards: items, canFilter, cardLabel, selectedLabel, fetchCardErrors };
 	}, [
-		loadedCards,
+		reload,
 		derivedState.startWorkPreferences,
 		derivedState.csIssues,
 		derivedState.selectedCardId
@@ -872,7 +868,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 		items.services = props.knownIssueProviderOptions;
 
 		return items;
-	}, [loadedCards, derivedState.startWorkPreferences, props.knownIssueProviderOptions]);
+	}, [reload, derivedState.startWorkPreferences, props.knownIssueProviderOptions]);
 
 	const saveCustomFilter = query => {
 		if (isValidQuery(query)) {
@@ -883,7 +879,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 				},
 				selected: newCustomFilter
 			});
-			setLoadedBoards(loadedBoards + 1);
+			setReload(reload + 1);
 			setAddingCustomFilterForProvider(undefined);
 		}
 	};
@@ -1150,7 +1146,7 @@ export const IssueList = React.memo((props: React.PropsWithChildren<IssueListPro
 				/>
 			</PaneHeader>
 			{props.paneState !== PaneState.Collapsed && (
-				<PaneBody>
+				<PaneBody key={'issuespane'}>
 					<div className="instructions">
 						<Icon name="light-bulb" />
 						Start work by grabbing a ticket below, and creating a branch.
