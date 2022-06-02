@@ -294,7 +294,7 @@ export const goToNewUserEntry = (params = {}) =>
 export const goToForgotPassword = (params = {}) =>
 	action(ContextActionsType.SetRoute, { name: Route.ForgotPassword, params });
 
-export type SupportedSSOProvider = "github" | "gitlab" | "bitbucket" | "okta";
+export type SupportedSSOProvider = "github" | "gitlab" | "bitbucket" | "okta" | "newrelic_azure";
 
 export const goToSSOAuth = (
 	provider: SupportedSSOProvider,
@@ -305,6 +305,7 @@ export const goToSSOAuth = (
 		case "github":
 		case "gitlab":
 		case "bitbucket":
+		case "newrelic_azure":
 		case "okta":
 			return action(ContextActionsType.SetRoute, { name: Route.ProviderAuth, params });
 		default:

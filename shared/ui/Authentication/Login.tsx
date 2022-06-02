@@ -226,6 +226,11 @@ class Login extends React.Component<Props, State> {
 		this.props.startSSOSignin("bitbucket");
 	};
 
+	handleClickNewRelicAzureLogin = event => {
+		event.preventDefault();
+		this.props.startSSOSignin("newrelic_azure");
+	};
+
 	handleClickOktaLogin = event => {
 		event.preventDefault();
 		this.props.goToOktaConfig({});
@@ -321,6 +326,14 @@ class Login extends React.Component<Props, State> {
 									>
 										<Icon name="bitbucket" />
 										<div className="copy">Sign In with Bitbucket</div>
+										<Icon name="chevron-right" />
+									</Button>
+									<Button
+										className="row-button no-top-margin"
+										onClick={this.handleClickNewRelicAzureLogin}
+									>
+										<Icon name="newrelic" />
+										<div className="copy">Sign In with New Relic Azure</div>
 										<Icon name="chevron-right" />
 									</Button>
 									{this.props.oktaEnabled && (

@@ -94,6 +94,7 @@ export * from "./bitbucket";
 export * from "./bitbucketServer";
 export * from "./youtrack";
 export * from "./azuredevops";
+export * from "./newrelic_azure";
 export * from "./slack";
 export * from "./msteams";
 export * from "./okta";

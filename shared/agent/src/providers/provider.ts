@@ -62,6 +62,7 @@ export const providerDisplayNamesByNameKey = new Map<string, string>([
 	["trello", "Trello"],
 	["youtrack", "YouTrack"],
 	["azuredevops", "Azure DevOps"],
+	["newrelic_azure", "New Relic (Azure)"],
 	["slack", "Slack"],
 	["msteams", "Microsoft Teams"],
 	["okta", "Okta"],

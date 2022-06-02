@@ -608,6 +608,8 @@ export interface CSAzureDevOpsProviderInfo extends CSProviderInfo {
 	organization?: string;
 }
 
+export interface CSNewRelicAzureProviderInfo extends CSProviderInfo {}
+
 export interface CSOktaProviderInfo extends CSProviderInfo {}
 
 export interface CSShortcutProviderInfo extends CSProviderInfo {}
@@ -628,6 +630,7 @@ export type CSProviderInfos =
 	| CSTrelloProviderInfo
 	| CSYouTrackProviderInfo
 	| CSAzureDevOpsProviderInfo
+	| CSNewRelicAzureProviderInfo
 	| CSOktaProviderInfo
 	| CSShortcutProviderInfo
 	| CSLinearProviderInfo
@@ -806,6 +809,7 @@ type CSMeProviderInfo = {
 		trello?: CSTrelloProviderInfo;
 		youtrack?: CSYouTrackProviderInfo;
 		azuredevops?: CSAzureDevOpsProviderInfo;
+		newrelic_azure?: CSNewRelicAzureProviderInfo;
 		okta?: CSOktaProviderInfo;
 		newrelic?: CSNewRelicProviderInfo;
 		[key: string]: CSProviderInfos | undefined;

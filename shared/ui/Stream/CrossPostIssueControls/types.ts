@@ -236,6 +236,15 @@ export const PROVIDER_MAPPINGS: { [provider: string]: ProviderDisplay } = {
 		cardLabel: "work item",
 		supportsStartWork: true
 	},
+	newrelic_azure: {
+		displayName: "New Relic (Azure)",
+		icon: "newrelic_azure"
+		//getUrl: "https://azure.microsoft.com/en-us/services/devops",
+		//boardLabel: "project",
+		//listLabel: "list",
+		//cardLabel: "work item",
+		//supportsStartWork: true
+	},
 	slack: { displayName: "Slack", icon: "slack", groupName: "Workspace" },
 	msteams: { displayName: "Microsoft Teams", icon: "msteams", groupName: "Organization" },
 	//okta: { displayName: "Okta", icon: "okta" } -- suppress display under "Active Integrations"

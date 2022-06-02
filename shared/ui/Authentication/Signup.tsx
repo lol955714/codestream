@@ -400,6 +400,17 @@ export const Signup = (props: Props) => {
 		[props.type]
 	);
 
+	const onClickNewRelicAzureSignup = useCallback(
+		(event: React.SyntheticEvent) => {
+			event.preventDefault();
+			HostApi.instance.track("Provider Auth Selected", {
+				Provider: "New Relic (Azure)"
+			});
+			return dispatch(startSSOSignin("newrelic_azure", buildSignupInfo()));
+		},
+		[props.type]
+	);
+
 	const onClickGithubSignup = useCallback(
 		(event: React.SyntheticEvent) => {
 			event.preventDefault();
@@ -505,6 +516,18 @@ export const Signup = (props: Props) => {
 											<Button className="row-button no-top-margin" onClick={onClickNewRelicSignup}>
 												<Icon name="newrelic" />
 												<div className="copy">New Relic</div>
+												<Icon name="chevron-right" />
+											</Button>
+										</SignupButtonContainer>
+									)}
+									{!limitAuthentication && (
+										<SignupButtonContainer>
+											<Button
+												className="row-button no-top-margin"
+												onClick={onClickNewRelicAzureSignup}
+											>
+												<Icon name="newrelic" />
+												<div className="copy">New Relic (Azure)</div>
 												<Icon name="chevron-right" />
 											</Button>
 										</SignupButtonContainer>
