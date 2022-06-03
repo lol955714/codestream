@@ -96,8 +96,6 @@ class ApplicationSettingsService : PersistentStateComponent<ApplicationSettingsS
 
     val extensionInfo get() = Extension(environmentVersion)
 
-    val ideInfo get() = Ide()
-
     val traceLevel get() = if (logger.isDebugEnabled) TraceLevel.DEBUG else TraceLevel.VERBOSE
 
     val isDebugging get() = DEBUG

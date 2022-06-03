@@ -228,7 +228,8 @@ export enum ReportingMessageType {
 
 export interface ReportMessageRequest {
 	type: ReportingMessageType;
-	message: string;
+	error?: Error;
+	message?: string;
 	source: "webview" | "extension" | "agent";
 	extra?: object;
 }

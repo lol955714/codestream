@@ -412,7 +412,18 @@ function listenForEvents(store) {
 		if (e.url) {
 			store.dispatch(openPullRequestByUrl(e.url, { source: e.source }));
 		} else {
-			store.dispatch(setCurrentPullRequest(e.providerId, e.id, e.commentId, e.source));
+			// if comment id is present, details view (its where the comment view is nested)
+			// if no comment id, set to sidebar-diffs view (ie coming from toast notification)
+			store.dispatch(
+				setCurrentPullRequest(
+					e.providerId,
+					e.id,
+					e.commentId || "",
+					e.source || "",
+					e.commentId ? "details" : "sidebar-diffs",
+					"-2"
+				)
+			);
 		}
 	});
 

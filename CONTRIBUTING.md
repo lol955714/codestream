@@ -1,10 +1,18 @@
 # Contributing
 
+👍🎉 First off, thanks for taking the time to contribute! 🎉👍
+
+When contributing to this project, please first discuss the changes you wish to make via an issue before making changes.
+
 ## What contributions are accepted?
 
 In short, we are open to nearly all contributions! We love feedback in all forms, issues, comments, PRs, etc!
 
 Unless you feel confident your change will be accepted (trivial bug fixes, code cleanup, etc) you should first create an issue to discuss your change with us. This lets us all discuss the design and proposed implementation of your change, which helps ensure your time is well spent and that your contribution will be accepted.
+
+## Ready to code?
+
+Check the development guides for [VS Code](vscode/docs/dev.md), [JetBrains](jb/docs/dev.md), or [Visual Studio](vs/docs/dev.md).
 
 ## All contributions will be goverened by the Apache 2.0 Software License
 

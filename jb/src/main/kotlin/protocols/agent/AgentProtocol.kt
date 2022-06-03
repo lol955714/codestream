@@ -18,7 +18,7 @@ class ProxySettings(val url: String, val strictSSL: Boolean)
 
 class InitializationOptions(
     val extension: Extension,
-    val ide: Ide,
+    val ide: IdeClass,
     val isDebugging: Boolean,
     val proxy: ProxySettings?,
     val proxySupport: String?,
@@ -27,6 +27,7 @@ class InitializationOptions(
     val traceLevel: String,
     val gitPath: String?,
     val workspaceFolders: Set<WorkspaceFolder>,
+    val newRelicTelemetryEnabled : Boolean?,
     val recordRequests: Boolean = RECORD_REQUESTS
 )
 
@@ -173,10 +174,14 @@ class Extension(val versionFormatted: String) {
     }
 }
 
-class Ide {
+val Ide = IdeClass()
+
+// it needs to be a class rather than an object otherwise the values are
+// not properly serialized
+class IdeClass {
     val name = "JetBrains"
-    val version: String = ApplicationInfo.getInstance().fullVersion
-    var detail: String = ApplicationNamesInfo.getInstance().fullProductNameWithEdition
+    val version = ApplicationInfo.getInstance().fullVersion
+    val detail = ApplicationNamesInfo.getInstance().fullProductNameWithEdition
 }
 
 enum class TraceLevel(val value: String) {
@@ -524,10 +529,15 @@ class FileLevelTelemetryOptions(
     val includeErrorRate: Boolean?
 )
 
+class FunctionLocator(
+    val namespace: String?,
+    val functionName: String?
+)
+
 class FileLevelTelemetryParams(
-    val filePath: String,
+    val filePath: String?,
     val languageId: String,
-    val codeNamespace: String?,
+    val locator: FunctionLocator,
     val newRelicAccountId: Int?,
     val newRelicEntityGuid: String?,
     val resetCache: Boolean?,
@@ -700,5 +710,18 @@ class ShareableCodemarkAttributes(
 class CreateShareableCodemarkResult(
     val pullRequest: JsonObject?,
     val directives: JsonObject?
+)
+
+class ReportMessageParams(
+    val type: String,
+    val error: ReportMessageRequestError?,
+    val message: String?,
+    val source: String,
+    val extra: Any?
+)
+
+class ReportMessageRequestError(
+    val message: String,
+    val stack: Any
 )
 

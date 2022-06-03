@@ -1,6 +1,7 @@
 package com.codestream.protocols.webview
 
 import com.codestream.agent.ApiVersionCompatibility
+import com.codestream.protocols.agent.IdeClass
 import com.codestream.protocols.agent.Marker
 import com.codestream.review.CodeStreamDiffUriContext
 import com.google.gson.JsonElement
@@ -15,7 +16,7 @@ class BootstrapResponse(
     val configs: Configs,
     val context: JsonElement,
     val version: String,
-    val ide: Ide,
+    val ide: IdeClass,
     val apiVersionCompatibility: ApiVersionCompatibility?,
     val missingCapabilities: JsonObject?
 )
@@ -39,12 +40,6 @@ class Configs(
     val showFeedbackSmiley: Boolean,
     val showGoldenSignalsInEditor: Boolean
 )
-
-class Ide(
-    val name: String,
-    val detail: String
-)
-
 class Services {
     val vsls = false
 }

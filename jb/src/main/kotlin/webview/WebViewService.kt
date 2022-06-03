@@ -9,6 +9,7 @@ import com.codestream.protocols.webview.WebViewNotification
 import com.codestream.sessionService
 import com.codestream.settings.ApplicationSettingsService
 import com.codestream.settingsService
+import com.codestream.telemetryService
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import com.intellij.openapi.Disposable
@@ -55,11 +56,11 @@ class WebViewService(val project: Project) : Disposable {
         }
 
         extractAssets()
-        applyStylesheet()
+        generateHtmlFile()
 
         UIManager.addPropertyChangeListener {
             if (it.propertyName == "lookAndFeel") {
-                applyStylesheet()
+                generateHtmlFile()
                 webView.loadUrl(htmlFile.url)
             }
         }
@@ -80,7 +81,7 @@ class WebViewService(val project: Project) : Disposable {
         if (resetContext) {
             project.settingsService?.clearWebViewContext()
         }
-        applyStylesheet()
+        generateHtmlFile()
         GlobalScope.launch {
             try {
                 webViewCreation.await()
@@ -112,12 +113,32 @@ class WebViewService(val project: Project) : Disposable {
         ))
     }
 
-    private fun applyStylesheet() {
-        val theme = WebViewTheme.build()
+    private fun generateHtmlFile() {
         val htmlContent = FileUtils.readFileToString(htmlTemplateFile, Charsets.UTF_8)
+            .let { injectStylesheet(it) }
+            .let { injectTelemetryScript(it) }
+
+        FileUtils.write(htmlFile, htmlContent, Charsets.UTF_8)
+    }
+
+    private fun injectStylesheet(html: String): String {
+        val theme = WebViewTheme.build()
+        return html
             .replace("{bodyClass}", theme.name)
             .replace("{csStyle}", theme.stylesheet)
-        FileUtils.write(htmlFile, htmlContent, Charsets.UTF_8)
+
+    }
+    private fun injectTelemetryScript(html: String): String {
+        val template = javaClass.getResource("/webview/newrelic-browser.js")?.readText()?.trim() ?: ""
+        val script = project.telemetryService?.telemetryOptions?.webviewOptions()?.let {
+            template
+                .replace("{{accountID}}", it.accountId)
+                .replace("{{applicationID}}", it.webviewAppId)
+                .replace("{{agentID}}", it.webviewAgentId)
+                .replace("{{licenseKey}}", it.browserIngestKey)
+        } ?: ""
+        return html
+            .replace("{telemetryScript}", script)
     }
 
     fun postResponse(id: String, params: Any?, error: String? = null, responseError: ResponseError? = null) {

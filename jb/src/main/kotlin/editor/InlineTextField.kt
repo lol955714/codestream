@@ -4,6 +4,7 @@ package com.codestream.editor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.actions.IncrementalFindAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
@@ -251,8 +252,11 @@ class InlineTextField(
             if (isSubmitAllowed()) {
                 submitting = true
                 update()
-                submitter(textField.text).join()
-                submitting = false
+                ApplicationManager.getApplication().invokeLater {
+                    submitter(textField.text).thenRun {
+                        submitting = false
+                    }
+                }
             }
         }
 

@@ -1,7 +1,6 @@
 import {
 	PRActionIcons,
 	PRButtonRow,
-	PRBranch,
 	PRCodeCommentBody,
 	PRCodeCommentWrapper,
 	PRThreadedCommentHeader
@@ -43,7 +42,6 @@ import {
 import { EditorScrollToNotificationType } from "../ipc/webview.protocol";
 import { Range, Position } from "vscode-languageserver-types";
 import { useDidMount } from "../utilities/hooks";
-import { isEmpty } from "lodash-es";
 
 const PRBranchContainer = styled.div`
 	display: inline-block;
@@ -154,7 +152,7 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 		if (
 			derivedState.documentMarkers.length > 0 &&
 			// all files in array will have same file value
-			derivedState.documentMarkers[0].file === fileInfo.filename
+			derivedState.documentMarkers[0]?.file === fileInfo?.filename
 		) {
 			let _docMarkers = derivedState.documentMarkers;
 			//@ts-ignore
@@ -200,7 +198,7 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 			baseSha: pr.baseRefOid,
 			headBranch: pr.headRefName,
 			headSha: pr.headRefOid,
-			filePath: fileInfo.filename,
+			filePath: fileInfo?.filename,
 			previousFilePath: fileInfo?.previousFilename,
 			repoId: derivedState.currentRepo!.id!,
 			context: pr
@@ -255,6 +253,10 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 				range: Range.create(_lineNumber, 0, _lineNumber, 9999)
 			});
 		}
+
+		HostApi.instance.track("PR Jump to Local File", {
+			Host: pr && pr.providerId
+		});
 	};
 
 	const handleResolve = async (e, threadId) => {
@@ -437,7 +439,12 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 											<div style={{ marginLeft: "auto" }}>
 												<span
 													style={{ color: "var(--text-color-subtle)" }}
-													onClick={handleDiffClick}
+													onClick={e => {
+														handleDiffClick();
+														HostApi.instance.track("PR Jump to Diff", {
+															Host: pr && pr.providerId
+														});
+													}}
 												>
 													<Icon
 														name="diff"

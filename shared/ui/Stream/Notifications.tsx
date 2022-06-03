@@ -12,6 +12,7 @@ import {
 } from "@codestream/protocols/api";
 import Icon from "./Icon";
 import { Dialog } from "../src/components/Dialog";
+import * as providerSelectors from "../store/providers/reducer";
 
 const prNotificationProviders = new Set([
 	"github*com",
@@ -26,7 +27,10 @@ export const Notifications = props => {
 		const hasDesktopNotifications = state.ide.name === "VSC" || state.ide.name === "JETBRAINS";
 		const notificationDeliverySupported = isFeatureEnabled(state, "notificationDeliveryPreference");
 		const emailSupported = isFeatureEnabled(state, "emailSupport");
-		const showPRNotificationSetting = Object.keys(state.activeIntegrations.integrations).some(p =>
+		const prConnectedProviderIds = providerSelectors
+			.getConnectedSupportedPullRequestHosts(state)
+			.map(it => it.id);
+		const showPRNotificationSetting = prConnectedProviderIds.some(p =>
 			prNotificationProviders.has(p)
 		);
 
@@ -68,30 +72,26 @@ export const Notifications = props => {
 	const handleChange = async (value: string) => {
 		setLoading(true);
 		HostApi.instance.track("Notification Preference Changed", { Value: value });
-		// @ts-ignore
-		await dispatch(setUserPreference(["notifications"], value));
+		dispatch(setUserPreference(["notifications"], value));
 		setLoading(false);
 	};
 
 	const handleChangeReviewReminders = async (value: boolean) => {
 		setLoadingReminderDelivery(true);
-		// @ts-ignore
-		await dispatch(setUserPreference(["reviewReminderDelivery"], value));
+		dispatch(setUserPreference(["reviewReminderDelivery"], value));
 		setLoadingReminderDelivery(false);
 	};
 
 	const handleChangeWeeklyEmailDelivery = async (value: boolean) => {
 		setLoadingWeeklyEmailDelivery(true);
-		// @ts-ignore
-		await dispatch(setUserPreference(["weeklyEmailDelivery"], value));
+		dispatch(setUserPreference(["weeklyEmailDelivery"], value));
 		setLoadingWeeklyEmailDelivery(false);
 	};
 
 	const handleChangeDelivery = async (value: string) => {
 		setLoadingDelivery(true);
 		HostApi.instance.track("Notification Delivery Preference Changed", { Value: value });
-		// @ts-ignore
-		await dispatch(setUserPreference(["notificationDelivery"], value));
+		dispatch(setUserPreference(["notificationDelivery"], value));
 		setLoadingDelivery(false);
 	};
 
@@ -152,14 +152,29 @@ export const Notifications = props => {
 								<p className="explainer">Deliver notifications via:</p>
 								<RadioGroup
 									name="delivery"
+									data-test-id="deliveryRadioGroup"
 									selectedValue={derivedState.notificationDeliveryPreference}
 									onChange={handleChangeDelivery}
 									loading={loadingDelivery}
 								>
-									<Radio value={CSNotificationDeliveryPreference.All}>Email &amp; Desktop</Radio>
-									<Radio value={CSNotificationDeliveryPreference.EmailOnly}>Email only</Radio>
-									<Radio value={CSNotificationDeliveryPreference.ToastOnly}>Desktop only</Radio>
-									<Radio value={CSNotificationDeliveryPreference.Off}>None</Radio>
+									<Radio data-testid="delivery-all" value={CSNotificationDeliveryPreference.All}>
+										Email &amp; Desktop
+									</Radio>
+									<Radio
+										data-testid="delivery-email"
+										value={CSNotificationDeliveryPreference.EmailOnly}
+									>
+										Email only
+									</Radio>
+									<Radio
+										data-testid="delivery-desktop"
+										value={CSNotificationDeliveryPreference.ToastOnly}
+									>
+										Desktop only
+									</Radio>
+									<Radio data-testid="delivery-none" value={CSNotificationDeliveryPreference.Off}>
+										None
+									</Radio>
 								</RadioGroup>
 							</div>
 						)}

@@ -2,7 +2,7 @@ package com.codestream.session
 
 import com.codestream.agent.DidChangeUnreadsNotification
 import com.codestream.agentService
-import com.codestream.error.ErrorHandler
+import com.codestream.telemetry.ErrorHandler
 import com.codestream.protocols.agent.CSPreferences
 import com.codestream.protocols.agent.CSUser
 import com.codestream.protocols.agent.EnvironmentInfo
@@ -102,6 +102,7 @@ class SessionService(val project: Project) {
     fun login(userLoggedIn: UserLoggedIn) {
         _userLoggedIn = userLoggedIn
         ErrorHandler.userLoggedIn = userLoggedIn
+        ErrorHandler.agentService = project.agentService
     }
 
     fun logout() {

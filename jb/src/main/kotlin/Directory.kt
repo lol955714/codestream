@@ -7,6 +7,7 @@ import com.codestream.notification.NotificationComponent
 import com.codestream.review.ReviewService
 import com.codestream.session.SessionService
 import com.codestream.settings.SettingsService
+import com.codestream.telemetry.TelemetryService
 import com.codestream.webview.WebViewService
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
@@ -41,6 +42,9 @@ val Project.webViewService: WebViewService?
 
 val Project.reviewService: ReviewService?
     get() = getServiceIfNotDisposed(ReviewService::class.java)
+
+val Project.telemetryService: TelemetryService?
+    get() = getServiceIfNotDisposed(TelemetryService::class.java)
 
 fun <T : Any> Project.getServiceIfNotDisposed(serviceClass: Class<T>): T? =
     if (!isDisposed) ServiceManager.getService(this, serviceClass)

@@ -8,6 +8,7 @@ export function logError(error: string | Error, extra?: object) {
 		HostApi.instance.send(ReportMessageRequestType, {
 			source: "webview",
 			type: ReportingMessageType.Error,
+			error: error instanceof Error ? error : undefined,
 			message: typeof error === "string" ? error : error.message,
 			extra
 		});

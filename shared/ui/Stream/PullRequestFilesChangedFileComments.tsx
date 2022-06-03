@@ -47,7 +47,7 @@ export const PendingCircle = styled.div`
 	border-radius: 50%;
 	border: 1px solid #bf8700;
 	width: 17px;
-	height: 16px;
+	height: 17px;
 	text-align: center;
 	margin-right: 13px;
 	font-size: 10px;
@@ -122,9 +122,13 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 	});
 	const { currentPullRequest } = derivedState;
 	const currentPr = isGitLab
-		? currentPullRequest?.conversations?.mergeRequest
+		? currentPullRequest?.conversations?.mergeRequest ||
+		  currentPullRequest?.conversations?.project?.mergeRequest
 		: currentPullRequest?.conversations?.repository?.pullRequest;
-	const supportsViewerViewedState = semver.gt(currentPr?.supports?.version?.version, "3.0.0");
+	// For GHE, can only check files in version greater than 3.0.0
+	const supportsViewerViewedState = currentPr
+		? semver.gt(currentPr?.supports?.version?.version, "3.0.0")
+		: false;
 
 	useEffect(() => {
 		syncCheckedStatusWithPr();
@@ -209,7 +213,12 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 	const lineNumber = commentObject => {
 		// With git, the "line number" is actually 2 numbers, left and right
 		// For now, we are going to base it off of the right number, subject to change.
-		// let leftLine = 0;
+		// The basic formula is:
+		// 		Right line number taken from top of diff hunk
+		//    + Length of the diff hunk (in new lines)
+		//    - Number of negative or removed lines from diff hunk
+		//    -----------------------------------------------------
+		//      Line Number
 		let rightLine = 0;
 
 		if (!commentObject?.comment || !commentObject?.review) {
@@ -222,17 +231,21 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 			commentObject?.comment?.position?.patch ||
 			"";
 		let diffHunkNewLineLength = diffHunk.split("\n").length - 1;
+		let negativeLineCount = 1;
 
 		diffHunk.split("\n").map(d => {
-			const matches = d.match(/@@ \-(\d+).*? \+(\d+)/);
-			if (matches) {
-				// leftLine = parseInt(matches[1], 10) - 1;
-				rightLine = parseInt(matches[2]);
+			const topLineMatch = d.match(/@@ \-(\d+).*? \+(\d+)/);
+			const negativeLineMatch = d.match(/^\-.*/);
+			if (topLineMatch) {
+				rightLine = parseInt(topLineMatch[2]);
+			}
+			if (negativeLineMatch) {
+				negativeLineCount++;
 			}
 		});
 
 		if (rightLine) {
-			return rightLine + diffHunkNewLineLength;
+			return rightLine + diffHunkNewLineLength - negativeLineCount;
 		} else {
 			return "";
 		}
@@ -253,12 +266,23 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 				"details"
 			)
 		);
+
+		HostApi.instance.track("PR Conversation View", {
+			Host: pullRequest?.providerId
+		});
 	};
 
 	const handlePendingClick = event => {
 		event.preventDefault();
 		event.stopPropagation();
-		dispatch(openModal(WebviewModals.FinishReview));
+		if (
+			pullRequest?.providerId === "gitlab*com" ||
+			pullRequest?.providerId === "gitlab/enterprise"
+		) {
+			return;
+		} else {
+			dispatch(openModal(WebviewModals.FinishReview));
+		}
 	};
 
 	const handleMouseEnter = event => {
@@ -301,6 +325,10 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 				range: Range.create(0, 0, 0, 0)
 			});
 		}
+
+		HostApi.instance.track("PR Jump To Local File from Tree", {
+			Host: pullRequest && pullRequest.providerId
+		});
 	};
 
 	let commentsSortedByLineNumber;
@@ -338,6 +366,9 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 									name={displayIcon}
 									style={{ color: "var(--text-color-subtle)" }}
 									className={"clickable"}
+									delay={1}
+									title={displayIcon === "ok" ? "Mark as Not Viewed" : "Mark as Viewed"}
+									placement="bottom"
 								/>
 							</span>
 						)
@@ -368,6 +399,9 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 							: async e => {
 									e.preventDefault();
 									goDiff(index);
+									HostApi.instance.track("PR File Clicked", {
+										Host: pullRequest && pullRequest.providerId
+									});
 							  }
 					}
 					key={index + ":" + fileObject.file}
@@ -428,6 +462,9 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 												name={displayIcon}
 												style={{ color: "var(--text-color-subtle)" }}
 												className={"clickable"}
+												delay={1}
+												title={displayIcon === "ok" ? "Mark as Not Viewed" : "Mark as Viewed"}
+												placement="bottom"
 											/>
 										</span>
 									)}
@@ -452,6 +489,9 @@ export const PullRequestFilesChangedFileComments = (props: Props) => {
 								: async e => {
 										e.preventDefault();
 										goDiff(index);
+										HostApi.instance.track("PR File Clicked", {
+											Host: pullRequest && pullRequest.providerId
+										});
 								  }
 						}
 						key={index + ":" + fileObject.file}

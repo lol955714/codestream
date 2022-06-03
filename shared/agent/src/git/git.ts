@@ -122,7 +122,12 @@ export async function git(
 			}
 		}
 
-		Logger.error(ex, "git", ...args, `  cwd='${options.cwd}'\n\n  `);
+		Logger.error(
+			ex,
+			"git",
+			...args,
+			` killed=${ex?.killed} signal=${ex?.signal} code=${ex?.code} cwd='${options.cwd}'\n\n  `
+		);
 		throw ex;
 	} finally {
 		pendingCommands.delete(command);

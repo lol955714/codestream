@@ -16,6 +16,8 @@ import com.codestream.protocols.agent.CreateShareableCodemarkResult
 import com.codestream.protocols.agent.DocumentMarkersParams
 import com.codestream.protocols.agent.DocumentMarkersResult
 import com.codestream.protocols.agent.ExecuteThirdPartyRequestParams
+import com.codestream.protocols.agent.FileLevelTelemetryParams
+import com.codestream.protocols.agent.FileLevelTelemetryResult
 import com.codestream.protocols.agent.FollowReviewParams
 import com.codestream.protocols.agent.FollowReviewResult
 import com.codestream.protocols.agent.GetAllReviewContentsParams
@@ -24,21 +26,21 @@ import com.codestream.protocols.agent.GetFileContentsAtRevisionParams
 import com.codestream.protocols.agent.GetFileContentsAtRevisionResult
 import com.codestream.protocols.agent.GetLocalReviewContentsParams
 import com.codestream.protocols.agent.GetPostParams
+import com.codestream.protocols.agent.GetPullRequestReviewIdParams
 import com.codestream.protocols.agent.GetReviewContentsParams
 import com.codestream.protocols.agent.GetReviewContentsResult
 import com.codestream.protocols.agent.GetReviewParams
 import com.codestream.protocols.agent.GetStreamParams
 import com.codestream.protocols.agent.GetUserParams
+import com.codestream.protocols.agent.GetUsersParams
 import com.codestream.protocols.agent.Ide
 import com.codestream.protocols.agent.InitializationOptions
-import com.codestream.protocols.agent.FileLevelTelemetryParams
-import com.codestream.protocols.agent.FileLevelTelemetryResult
-import com.codestream.protocols.agent.GetPullRequestReviewIdParams
-import com.codestream.protocols.agent.GetUsersParams
 import com.codestream.protocols.agent.PixieDynamicLoggingParams
 import com.codestream.protocols.agent.PixieDynamicLoggingResult
 import com.codestream.protocols.agent.Post
 import com.codestream.protocols.agent.PullRequestFile
+import com.codestream.protocols.agent.ReportMessageParams
+import com.codestream.protocols.agent.ReportMessageRequestError
 import com.codestream.protocols.agent.ResolveStackTraceLineParams
 import com.codestream.protocols.agent.ResolveStackTraceLineResult
 import com.codestream.protocols.agent.Review
@@ -57,6 +59,7 @@ import com.codestream.protocols.agent.getPullRequestFilesParams
 import com.codestream.settings.ApplicationSettingsService
 import com.codestream.system.Platform
 import com.codestream.system.platform
+import com.codestream.telemetryService
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -87,6 +90,8 @@ import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.launch.LSPLauncher
 import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
 import java.util.Collections
@@ -218,6 +223,11 @@ class AgentService(private val project: Project) : Disposable {
         settings.extraCerts?.let {
             agentEnv["NODE_EXTRA_CA_CERTS"] = it
         }
+
+        project.telemetryService?.telemetryOptions?.agentOptions()?.let {
+            agentEnv.putAll(it.environment())
+        }
+
         return Collections.unmodifiableMap(agentEnv)
     }
 
@@ -262,26 +272,34 @@ class AgentService(private val project: Project) : Disposable {
 
         FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/agent.js"), agentJsDestFile)
 
-        val nodeDestFile = getNodeDestFile(agentDir, agentVersion)
-        deleteAllExcept(agentDir, "node", nodeDestFile.name)
+        getNodeResourcePath()?.let {
+            val nodeDestFile = getNodeDestFile(agentDir, agentVersion)
+            deleteAllExcept(agentDir, "node", nodeDestFile.name)
 
-        if (!nodeDestFile.exists()) {
-            FileUtils.copyToFile(javaClass.getResourceAsStream(getNodeResourcePath()), nodeDestFile)
-            if (platform.isPosix) {
-                Files.setPosixFilePermissions(nodeDestFile.toPath(), posixPermissions)
+            if (!nodeDestFile.exists()) {
+                FileUtils.copyToFile(javaClass.getResourceAsStream(it), nodeDestFile)
+                if (platform.isPosix) {
+                    Files.setPosixFilePermissions(nodeDestFile.toPath(), posixPermissions)
+                }
+                logger.info("Node.js for CodeStream LSP agent extracted to ${nodeDestFile.absolutePath}")
+
+                if (platform == Platform.LINUX_X64) {
+                    val xdgOpen = File(agentDir, "xdg-open")
+                    FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/xdg-open"), xdgOpen)
+                    Files.setPosixFilePermissions(xdgOpen.toPath(), posixPermissions)
+                    logger.info("xdg-open extracted to ${xdgOpen.absolutePath}")
+                }
             }
-            logger.info("Node.js for CodeStream LSP agent extracted to ${nodeDestFile.absolutePath}")
 
-            if (platform == Platform.LINUX_X64) {
-                val xdgOpen = File(agentDir, "xdg-open")
-                FileUtils.copyToFile(javaClass.getResourceAsStream("/agent/xdg-open"), xdgOpen)
-                Files.setPosixFilePermissions(xdgOpen.toPath(), posixPermissions)
-                logger.info("xdg-open extracted to ${xdgOpen.absolutePath}")
-            }
-        }
-
-        return GeneralCommandLine(
-            nodeDestFile.absolutePath,
+            return GeneralCommandLine(
+                nodeDestFile.absolutePath,
+                "--nolazy",
+                agentJsDestFile.absolutePath,
+                "--stdio"
+            ).withEnvironment(agentEnv).createProcess()
+        } ?: return GeneralCommandLine(
+            // if we don't ship Node.js for the user's platform, fallback to system-installed node
+            "node",
             "--nolazy",
             agentJsDestFile.absolutePath,
             "--stdio"
@@ -354,12 +372,13 @@ class AgentService(private val project: Project) : Disposable {
         }).start()
     }
 
-    private fun getNodeResourcePath(): String {
+    private fun getNodeResourcePath(): String? {
         return when (platform) {
             Platform.LINUX_X64 -> "/agent/node-linux-x64/node"
             Platform.MAC_ARM64 -> "/agent/node-darwin-arm64/node"
             Platform.MAC_X64 -> "/agent/node-darwin-x64/node"
             Platform.WIN_X64 -> "/agent/node-win-x64/node.exe"
+            else -> null
         }
     }
 
@@ -386,7 +405,9 @@ class AgentService(private val project: Project) : Disposable {
 
         val initParams = InitializeParams()
         initParams.capabilities = clientCapabilities
-        initParams.initializationOptions = initializationOptions(newServerUrl)
+        initParams.initializationOptions = initializationOptions(newServerUrl).also {
+            logger.info("NewRelic telemetry enabled: ${it?.newRelicTelemetryEnabled}")
+        }
         initParams.rootUri = project.baseUri
         return initParams
     }
@@ -404,7 +425,7 @@ class AgentService(private val project: Project) : Disposable {
 
         return InitializationOptions(
             settings.extensionInfo,
-            Ide(),
+            Ide,
             DEBUG,
             settings.proxySettings,
             settings.proxySupport,
@@ -412,7 +433,8 @@ class AgentService(private val project: Project) : Disposable {
             settings.disableStrictSSL,
             settings.traceLevel.value,
             gitPath,
-            project.workspaceFolders
+            project.workspaceFolders,
+            project.telemetryService?.telemetryOptions?.agentOptions() != null
         )
     }
 
@@ -592,6 +614,32 @@ class AgentService(private val project: Project) : Disposable {
             .request("codestream/codemarks/sharing/create", params)
             .await() as JsonObject?
         return gson.fromJson(json!!)
+    }
+
+    suspend fun reportMessage(t: Throwable) {
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        t.printStackTrace(pw)
+        val error = ReportMessageRequestError(
+            t.message ?: "",
+            sw.toString()
+        )
+
+        val params = ReportMessageParams(
+            "error",
+            error,
+            null,
+            "extension",
+            mapOf(
+                "ideName" to Ide.name,
+                "ideVersion" to Ide.version,
+                "ideDetail" to Ide.detail
+            )
+        )
+
+        remoteEndpoint
+            .request("codestream/reporting/message", params)
+            .await()
     }
 
     private val _restartObservers = mutableListOf<() -> Unit>()

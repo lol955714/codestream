@@ -311,14 +311,17 @@ export const OpenPullRequests = React.memo((props: Props) => {
 			currentPullRequestIdExact: getPullRequestExactId(state),
 			currentRepoObject: getProviderPullRequestRepoObject(state),
 			reposState: state.repos,
-			maximized: settings.maximized
+			maximized: settings.maximized,
+			// VS will not use sidebar-diffs currently, uses old method of going directly to
+			// details view when selecting a PR
+			isVS: state.ide?.name?.toUpperCase() === "VS"
 		};
 	}, shallowEqual);
 
-	const openReposWithName = props.openRepos.map(repo => {
-		const id = repo.id || "";
-		return { ...repo, name: derivedState.repos[id] ? derivedState.repos[id].name : "" };
-	});
+	// const openReposWithName = props.openRepos.map(repo => {
+	// 	const id = repo.id || "";
+	// 	return { ...repo, name: derivedState.repos[id] ? derivedState.repos[id].name : "" };
+	// });
 
 	// Currently always showing, regardless of provider
 	// const hasPRSupportedRepos =
@@ -475,7 +478,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		return () => {
 			clearInterval(disposable);
 		};
-	}, [queries]);
+	}, [queries, fetchPRs]);
 
 	useEffect(() => {
 		const newGroups = {};
@@ -550,7 +553,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					});
 				}
 
-				const queriesObject = {
+				const queries = {
 					...defaultQueriesResponse,
 					...(derivedState.pullRequestQueries || {})
 				};
@@ -562,9 +565,9 @@ export const OpenPullRequests = React.memo((props: Props) => {
 				// 		results[p].push(_);
 				// 	});
 				// });
-				setQueries(queriesObject);
+				setQueries(queries);
 				setDefaultQueries(defaultQueriesResponse);
-				fetchPRs(queriesObject, undefined, "useDidMount").then(_ => {
+				fetchPRs(queries, undefined, "useDidMount").then(_ => {
 					mountedRef.current = true;
 				});
 				getOpenRepos();
@@ -699,9 +702,11 @@ export const OpenPullRequests = React.memo((props: Props) => {
 	const goPR = async (url: string, providerId: string) => {
 		setPrError("");
 		setPrFromUrlProviderId(providerId);
-		setPrFromUrlLoading(true);
+		if (!derivedState.isVS) {
+			setPrFromUrlLoading(true);
+		}
 		const response = (await dispatch(
-			openPullRequestByUrl(url, { providerId, groupIndex: "-1" })
+			openPullRequestByUrl(url, { providerId, groupIndex: "-1", isVS: derivedState.isVS })
 		)) as {
 			error?: string;
 		};
@@ -734,15 +739,24 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		}
 	}, [loadFromUrlOpen]);
 
+	// Handle case where user opens PR from toast notifcation.
+	useEffect(() => {
+		if (!expandedPR && !individualLoadingPR && derivedState.currentPullRequestProviderId) {
+			fetchOnePR(derivedState.currentPullRequestProviderId, derivedState.currentPullRequestId);
+		}
+	}, [derivedState.currentPullRequestId]);
+
 	const totalPRs = useMemo(() => {
 		let total = 0;
-		Object.values(pullRequestGroups).forEach(group =>
-			group.forEach(list => (total += list.length))
-		);
+		if (!isEmpty(pullRequestGroups)) {
+			Object.values(pullRequestGroups).forEach(group =>
+				group.forEach(list => (total += list.length))
+			);
+		}
 		return total;
 	}, [pullRequestGroups]);
 
-	const clickPR = (pr, groupIndex) => {
+	const clickPR = (pr, groupIndex, queryName) => {
 		if (!derivedState.maximized) {
 			dispatch(setPaneMaximized("open-pull-requests", !derivedState.maximized));
 		}
@@ -753,7 +767,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 			// otherwise, either open the PR details or show the diffs,
 			// depending on the user's preference
 			if (pr?.providerId && pr?.id) {
-				const view = derivedState.hideDiffs ? "details" : "sidebar-diffs";
+				const view = derivedState.hideDiffs || derivedState.isVS ? "details" : "sidebar-diffs";
 				let prId;
 				if (pr?.providerId === "gitlab*com" || pr?.providerId === "gitlab/enterprise") {
 					prId = pr.idComputed || pr?.id;
@@ -765,8 +779,16 @@ export const OpenPullRequests = React.memo((props: Props) => {
 				setCurrentGroupIndex(groupIndex);
 				fetchOnePR(pr.providerId, prId);
 
+
+				const nonCustomQueries = ["Waiting on my Review", "Assigned to Me", "Created by Me", "Recent", "From URL"];
+				let telemetryQueryName = queryName;
+				if (!nonCustomQueries.includes(queryName)) {
+					telemetryQueryName = "Custom";
+				}
+
 				HostApi.instance.track("PR Clicked", {
-					Host: pr.providerId
+					Host: pr.providerId,
+					Section: telemetryQueryName || ""
 				});
 			}
 		}
@@ -897,7 +919,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		}
 	};
 
-	const renderPrGroup = (providerId, pr, index, groupIndex) => {
+	const renderPrGroup = (providerId, pr, index, groupIndex, queryName) => {
 		let prId, expandedPrId;
 
 		if ((pr?.base_id || pr?.idComputed) && derivedState.expandedPullRequestId) {
@@ -916,13 +938,20 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		const expanded =
 			prId == expandedPrId &&
 			(derivedState.expandedPullRequestGroupIndex === groupIndex ||
-				currentGroupIndex === groupIndex);
+				currentGroupIndex === groupIndex ||
+				// -2 value is from toast notification since there is no way to tell what group index
+				// it is in.  On -2 group index we ignore matching and just set expanded
+				// @TODO: handle edge case where PR from toast notification is in multiple
+				// query results that are expanded
+				derivedState.expandedPullRequestGroupIndex === "-2");
+
 		const isLoadingPR = prId === individualLoadingPR;
-		const chevronIcon = derivedState.hideDiffs ? null : expanded ? (
-			<Icon name="chevron-down-thin" />
-		) : (
-			<Icon name="chevron-right-thin" />
-		);
+		const chevronIcon =
+			derivedState.hideDiffs || derivedState.isVS ? null : expanded ? (
+				<Icon name="chevron-down-thin" />
+			) : (
+				<Icon name="chevron-right-thin" />
+			);
 
 		if (providerId === "github*com" || providerId === "github/enterprise") {
 			const selected = openRepos.find(repo => {
@@ -937,7 +966,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					<Row
 						key={`pr_${prId}_${groupIndex}_${providerId}`}
 						className={selected ? "pr-row selected" : "pr-row"}
-						onClick={() => clickPR(pr, groupIndex)}
+						onClick={() => clickPR(pr, groupIndex, queryName)}
 					>
 						<div style={{ display: "flex" }}>
 							{chevronIcon}
@@ -1042,7 +1071,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 							<Timestamp time={pr.createdAt} relative abbreviated />
 						</div>
 					</Row>
-					{expanded && (
+					{expanded && !derivedState.isVS && (
 						<PullRequestExpandedSidebar
 							key={`pr_detail_row_${index}`}
 							pullRequest={pr}
@@ -1069,7 +1098,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 					<Row
 						key={`pr_${prId}_${groupIndex}_${providerId}`}
 						className={selected ? "pr-row selected" : "pr-row"}
-						onClick={() => clickPR(pr, groupIndex)}
+						onClick={() => clickPR(pr, groupIndex, queryName)}
 					>
 						<div style={{ display: "flex" }}>
 							{" "}
@@ -1197,7 +1226,8 @@ export const OpenPullRequests = React.memo((props: Props) => {
 	]);
 
 	const expandedPR: any = useMemo(() => {
-		if (!derivedState.currentPullRequest || derivedState.hideDiffs) return undefined;
+		if (!derivedState.currentPullRequest || derivedState.hideDiffs || derivedState.isVS)
+			return undefined;
 		const conversations = derivedState.currentPullRequest.conversations;
 		if (!conversations) {
 			return undefined;
@@ -1354,7 +1384,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 							</div>
 						)}
 						{!isEmpty(prFromUrl) && !prFromUrlLoading && prFromUrlProviderId === providerId && (
-							<>{renderPrGroup(prFromUrl?.providerId, prFromUrl, "-1", "-1")}</>
+							<>{renderPrGroup(prFromUrl?.providerId, prFromUrl, "-1", "-1", "From URL")}</>
 						)}
 					</>
 				)}
@@ -1400,7 +1430,7 @@ export const OpenPullRequests = React.memo((props: Props) => {
 							{!query.hidden &&
 								prGroup &&
 								prGroup.map((pr: any, index) => {
-									return renderPrGroup(providerId, pr, index, groupIndex);
+									return renderPrGroup(providerId, pr, index, groupIndex, query?.name);
 								})}
 						</PaneNode>
 					);

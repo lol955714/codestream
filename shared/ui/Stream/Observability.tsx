@@ -254,6 +254,9 @@ export const Observability = React.memo((props: Props) => {
 			.catch(ex => {
 				setLoadingAssigments(false);
 				if (ex.code === ERROR_NR_INSUFFICIENT_API_KEY) {
+					HostApi.instance.track("NR Access Denied", {
+						Query: "GetObservabilityErrorAssignments"
+					});
 					setNoAccess(true);
 				}
 			});
@@ -301,6 +304,9 @@ export const Observability = React.memo((props: Props) => {
 					.catch(ex => {
 						loading(repoIds, false);
 						if (ex.code === ERROR_NR_INSUFFICIENT_API_KEY) {
+							HostApi.instance.track("NR Access Denied", {
+								Query: "GetObservabilityErrors"
+							});
 							setNoAccess(true);
 						}
 					});
@@ -372,6 +378,9 @@ export const Observability = React.memo((props: Props) => {
 							.catch(ex => {
 								loading(repoId, false);
 								if (ex.code === ERROR_NR_INSUFFICIENT_API_KEY) {
+									HostApi.instance.track("NR Access Denied", {
+										Query: "GetObservabilityErrors"
+									});
 									setNoAccess(true);
 								}
 							});
@@ -400,6 +409,9 @@ export const Observability = React.memo((props: Props) => {
 			.catch(ex => {
 				loading(repoId, false);
 				if (ex.code === ERROR_NR_INSUFFICIENT_API_KEY) {
+					HostApi.instance.track("NR Access Denied", {
+						Query: "GetObservabilityRepos"
+					});
 					setNoAccess(true);
 				}
 			});

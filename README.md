@@ -21,7 +21,7 @@ CodeStream now supports creating, managing and performing code reviews on Pull R
 ![Pull Request](https://raw.githubusercontent.com/TeamCodeStream/codestream-guide/develop/docs/src/assets/images/animated/PullRequest-VSC.gif)
 
 # Develop CodeStream
-Interesting in CodeStream development? Check the development guides for [VS Code](vscode/docs/dev.md), [Jetbrains](jb/docs/dev.md), [Visual Studio](vs/docs/dev.md) or [Atom](atom/docs/dev.md).
+Interesting in CodeStream development? Check the development guides for [VS Code](vscode/docs/dev.md), [Jetbrains](jb/docs/dev.md), or [Visual Studio](vs/docs/dev.md).
 
 # Help & Feedback
 
@@ -29,3 +29,10 @@ Interesting in CodeStream development? Check the development guides for [VS Code
 * Report a bug or send a suggestion in [GitHub issues](https://github.com/TeamCodeStream/CodeStream/issues).
 * Contact us directly at support@codestream.com.
 * Follow [@teamcodestream](http://twitter.com/teamcodestream) for product updates and to share feedback and questions.
+
+# Contributors
+
+A big thanks to the members of the community that have contributed to CodeStream:
+
+- Takuya N ([@tnir](https://github.com/tnir)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=tnir) 
+- Karen Rodriguez ([@kleyla](https://github.com/kleyla)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=kleyla)

@@ -5,7 +5,10 @@ import com.intellij.util.system.CpuArch
 
 val platform: Platform by lazy {
     when {
-        SystemInfo.isLinux -> Platform.LINUX_X64
+        SystemInfo.isLinux -> when {
+            CpuArch.isArm64() -> Platform.LINUX_ARM64
+            else -> Platform.LINUX_X64
+        }
         SystemInfo.isMac -> when {
             CpuArch.isArm64() -> Platform.MAC_ARM64
             else -> Platform.MAC_X64
@@ -17,6 +20,7 @@ val platform: Platform by lazy {
 
 enum class Platform(val isPosix: Boolean) {
     LINUX_X64(true),
+    LINUX_ARM64(true),
     MAC_X64(true),
     MAC_ARM64(true),
     WIN_X64(false)

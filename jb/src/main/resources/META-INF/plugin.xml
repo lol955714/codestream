@@ -10,6 +10,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="com.codestream.jetbrains-codestream-withGo.xml">org.jetbrains.plugins.go</depends>
     <depends optional="true" config-file="com.codestream.jetbrains-codestream-withPython.xml">com.intellij.modules.python</depends>
+    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withCSharp.xml">com.intellij.modules.rider</depends>
     <depends optional="true" config-file="com.codestream.jetbrains-codestream-withRuby.xml">org.jetbrains.plugins.ruby</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -27,11 +28,12 @@
         <projectService serviceImplementation="com.codestream.webview.WebViewService"/>
         <projectService serviceImplementation="com.codestream.editor.EditorService"/>
         <projectService serviceImplementation="com.codestream.review.ReviewService"/>
+        <projectService serviceImplementation="com.codestream.telemetry.TelemetryService"/>
 
         <applicationConfigurable groupId="tools" displayName="CodeStream" id="preferences.CodeStreamConfigurable"
                                  instance="com.codestream.settings.CodeStreamConfigurable"/>
 
-        <errorHandler implementation="com.codestream.error.ErrorHandler"/>
+        <errorHandler implementation="com.codestream.telemetry.ErrorHandler"/>
 
         <diff.DiffExtension implementation="com.codestream.review.ReviewDiffExtension"/>
 
@@ -163,5 +165,5 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
-    <idea-version since-build="211.7142" />
+    <idea-version since-build="212.5080.55" />
 </idea-plugin>

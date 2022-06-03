@@ -169,7 +169,9 @@ export const AddAppMonitoringNodeJS = (props: {
 											defaultMessage="Something went wrong! Please try again, or "
 										/>
 										<FormattedMessage id="contactSupport" defaultMessage="contact support">
-											{text => <Link href="https://docs.newrelic.com/docs/codestream/">{text}</Link>}
+											{text => (
+												<Link href="https://docs.newrelic.com/docs/codestream/">{text}</Link>
+											)}
 										</FormattedMessage>
 										.
 									</div>
@@ -327,7 +329,7 @@ export const AddAppMonitoringNodeJS = (props: {
 												Restart your application to start sending your data to New Relic
 											</label>
 										</div>
-										<Button onClick={() => props.skip()} isDone={step > 6}>
+										<Button onClick={() => props.skip(1, { appName: appName })} isDone={step > 6}>
 											OK
 										</Button>
 									</InstallRow>

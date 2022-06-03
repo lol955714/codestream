@@ -1631,6 +1631,9 @@ export class CodeStreamSession {
 		const teamSettings = (team && team.settings) || {};
 		const teamFeatures = teamSettings.features || {};
 		this._apiCapabilities = {};
+		if (this.versionInfo.ide.name == null || this.versionInfo.ide.name === "") {
+			Logger.warn("IDE name not set - IDE-specific capabilities can't be identified");
+		}
 		for (const key in apiCapabilities) {
 			const capability = apiCapabilities[key];
 			if (

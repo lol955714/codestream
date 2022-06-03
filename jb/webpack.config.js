@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const fs = require("fs");
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const FileManagerPlugin = require("filemanager-webpack-plugin");
 const ForkTsCheckerPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -160,6 +161,20 @@ module.exports = function(env, argv) {
 		}),
 		new ForkTsCheckerPlugin({
 			async: false
+		}),
+		new FileManagerPlugin({
+			events: {
+				onEnd: [
+					{
+						copy: [
+							{
+								source: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"),
+								destination: `${__dirname}/src/main/resources/webview/`
+							}
+						]
+					}
+				]
+			}
 		})
 	];
 

@@ -13,9 +13,10 @@ import {
 	WebviewErrorRequestType
 } from "./protocol/agent.protocol";
 import { CodeStreamSession, SessionStatus } from "./session";
-import { lsp, lspHandler } from "./system";
+import { lsp, lspHandler, Strings } from "./system";
 import { Logger } from "./logger";
 import * as NewRelic from "newrelic";
+import md5 = Strings.md5;
 
 interface IErrorReporterProvider {
 	reportMessage(request: ReportMessageRequest): void;
@@ -183,7 +184,9 @@ class NewRelicErrorReporterProvider extends ErrorReporterProviderBase
 	}
 
 	reportMessage(request: ReportMessageRequest) {
-		const key = `${request.message}`;
+		if (!request.error && !request.message) return;
+
+		const key = request.error ? md5(JSON.stringify(request.error)) : `${request.message}`;
 		if (this._errorCache.has(key)) {
 			Logger.warn("Ignoring duplicate error", {
 				key: key
@@ -192,7 +195,7 @@ class NewRelicErrorReporterProvider extends ErrorReporterProviderBase
 		}
 
 		this._errorCache.add(key);
-		NewRelic.noticeError(new Error(request.message), {
+		NewRelic.noticeError(request.error || new Error(request.message), {
 			...this.customAttributes,
 			type: request.type,
 			source: request.source

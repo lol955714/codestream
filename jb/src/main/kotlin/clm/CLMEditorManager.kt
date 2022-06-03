@@ -7,6 +7,7 @@ import com.codestream.extensions.lspPosition
 import com.codestream.protocols.agent.FileLevelTelemetryOptions
 import com.codestream.protocols.agent.FileLevelTelemetryParams
 import com.codestream.protocols.agent.FileLevelTelemetryResult
+import com.codestream.protocols.agent.FunctionLocator
 import com.codestream.protocols.agent.MethodLevelTelemetryAverageDuration
 import com.codestream.protocols.agent.MethodLevelTelemetryErrorRate
 import com.codestream.protocols.agent.MethodLevelTelemetrySymbolIdentifier
@@ -30,6 +31,7 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.project.Project
 import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.suggested.startOffset
 import kotlinx.coroutines.GlobalScope
@@ -74,7 +76,7 @@ abstract class CLMEditorManager(
     private var lastResult: FileLevelTelemetryResult? = null
     private var analyticsTracked = false
     private val appSettings = ServiceManager.getService(ApplicationSettingsService::class.java)
-    private var doPoll = true;
+    private var doPoll = true
 
     init {
         pollLoadInlays()
@@ -113,7 +115,13 @@ abstract class CLMEditorManager(
                     try {
                         lastResult = project.agentService?.fileLevelTelemetry(
                             FileLevelTelemetryParams(
-                                path, languageId, className, null, null, resetCache, OPTIONS
+                                path,
+                                languageId,
+                                FunctionLocator(className, null),
+                                null,
+                                null,
+                                resetCache,
+                                OPTIONS
                             )
                         )
                         metricsBySymbol.clear()
@@ -182,7 +190,7 @@ abstract class CLMEditorManager(
         namespace: String?,
         className: String,
         functionName: String
-    ): NavigatablePsiElement?
+    ): PsiElement?
 
     abstract fun findTopLevelFunction(psiFile: PsiFile, functionName: String): NavigatablePsiElement?
 
@@ -193,7 +201,12 @@ abstract class CLMEditorManager(
         val since = result.sinceDateFormatted ?: "30 minutes ago"
         metricsBySymbol.forEach { (symbolIdentifier, metrics) ->
             val symbol = if (symbolIdentifier.className != null) {
-                findClassFunctionFromFile(psiFile, symbolIdentifier.namespace, symbolIdentifier.className, symbolIdentifier.functionName) ?:
+                findClassFunctionFromFile(
+                    psiFile,
+                    symbolIdentifier.namespace,
+                    symbolIdentifier.className,
+                    symbolIdentifier.functionName
+                ) ?:
                 // Metrics can have custom name in which case we don't get Module or Class names - just best effort match function name
                 findTopLevelFunction(psiFile, symbolIdentifier.functionName)
             } else {

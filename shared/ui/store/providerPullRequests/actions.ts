@@ -412,6 +412,7 @@ export const openPullRequestByUrl = (
 		checkoutBranch?: any;
 		providerId?: string;
 		groupIndex?: string;
+		isVS?: boolean;
 	}
 ) => async (dispatch, getState: () => CodeStreamState) => {
 	const prLabel = getPRLabelForProvider(options?.providerId || "");
@@ -441,7 +442,7 @@ export const openPullRequestByUrl = (
 						id as string,
 						"",
 						options ? options.source : undefined,
-						"sidebar-diffs",
+						options?.isVS ? "details" : "sidebar-diffs",
 						options?.groupIndex ? options.groupIndex : undefined
 					)
 				);

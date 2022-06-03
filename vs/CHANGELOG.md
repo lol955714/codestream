@@ -1,5 +1,24 @@
 # Change Log
 
+## [13.0.0] - 2022-6-2
+
+### Added
+
+- Adds a new user experience for the pull request integration, including a tree view for commenting on pull requests and reviewing existing comments
+
+### Changed
+
+- Files' view state now syncs with GitHub when reviewing pull requests
+- Include stock Node.js executable to run CodeStream agent
+- Updated copy on sign-in buttons to reflect code or password option
+
+### Fixed
+
+- Addresses [#837](https://github.com/TeamCodeStream/CodeStream/issues/837) &mdash; Support for Apple Silicon (universal binary)
+- Fixes an `Error fetching cards from Jira` on extension startup
+- Fixes an issue where the notification setting for pull request assignments wouldn't appear when connected to GitHub or GitLab cloud
+- Fixes an issue where your own commit would trigger a desktop notification to review changes
+
 ## [12.18.0] - 2022-5-13
 
 ### Fixed

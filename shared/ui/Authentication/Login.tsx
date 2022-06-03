@@ -393,7 +393,7 @@ class Login extends React.Component<Props, State> {
 											loading={this.state.loading}
 										>
 											<Icon name="codestream" />
-											<div className="copy">Sign in with Email</div>
+											<div className="copy">Sign in with Password</div>
 											<Icon name="chevron-right" />
 										</Button>
 										<p>
@@ -410,7 +410,7 @@ class Login extends React.Component<Props, State> {
 											loading={this.state.loading}
 										>
 											<Icon name="codestream" />
-											<div className="copy">Sign in with Email</div>
+											<div className="copy">Sign in with Code</div>
 											<Icon name="chevron-right" />
 										</Button>
 										<p>
