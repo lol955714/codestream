@@ -18,6 +18,8 @@ import {
 	Capabilities,
 	CreatePostResponse,
 	CreateSharedExternalPostRequest,
+	DeleteSharedExternalPostRequest,
+	DeleteSharedExternalPostResponse,
 	FetchStreamsRequest,
 	FetchStreamsResponse,
 	FetchUsersResponse,
@@ -71,10 +73,13 @@ type SlackMethods =
 	| "channels.info"
 	| "chat.meMessage"
 	| "chat.postMessage"
+	| "chat.delete"
 	| "chat.getPermalink"
 	| "chat.update"
 	| "conversations.info"
 	| "conversations.invite"
+	| "conversations.members"
+	| "conversations.open"
 	| "groups.info"
 	| "users.profile.set"
 	| "users.info";
@@ -425,6 +430,9 @@ export class SlackSharingApiProvider {
 
 			const { ok, error, message, ts } = response as WebAPICallResult & { message?: any; ts?: any };
 			if (!ok) throw new Error(error);
+			if (!message.ts) {
+				message.ts = ts;
+			}
 
 			sleep(1000); // wait for slack to be able to be called about this message
 
@@ -471,6 +479,21 @@ export class SlackSharingApiProvider {
 				});
 			}
 		}
+	}
+
+	@log()
+	async deleteExternalPost(
+		request: DeleteSharedExternalPostRequest
+	): Promise<DeleteSharedExternalPostResponse> {
+		const response = await this.slackApiCall("chat.delete", {
+			channel: request.channelId,
+			ts: request.postId
+		});
+		const { ok, error, ts } = response as WebAPICallResult & {
+			ts?: string;
+		};
+		if (!ok) throw new Error(error);
+		return { ts };
 	}
 
 	@log()

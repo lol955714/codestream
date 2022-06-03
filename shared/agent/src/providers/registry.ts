@@ -21,6 +21,8 @@ import {
 	CreateThirdPartyPostRequest,
 	CreateThirdPartyPostRequestType,
 	CreateThirdPartyPostResponse,
+	DeleteThirdPartyPostRequest,
+	DeleteThirdPartyPostRequestType,
 	DidChangeDataNotificationType,
 	DisconnectThirdPartyProviderRequest,
 	DisconnectThirdPartyProviderRequestType,
@@ -583,6 +585,27 @@ export class ThirdPartyProviderRegistry {
 		}
 
 		const response = await postProvider.createPost(request);
+		return response;
+	}
+
+	@log()
+	@lspHandler(DeleteThirdPartyPostRequestType)
+	async deletePost(request: DeleteThirdPartyPostRequest): Promise<DeleteThirdPartyPostRequest> {
+		const provider = getProvider(request.providerId);
+		if (provider === undefined) {
+			throw new Error(`No registered provider for '${request.providerId}'`);
+		}
+
+		const postProvider = provider as ThirdPartyPostProvider;
+		if (
+			postProvider == null ||
+			typeof postProvider.supportsSharing !== "function" ||
+			!postProvider.supportsSharing()
+		) {
+			throw new Error(`Provider(${provider.name}) doesn't support sharing`);
+		}
+
+		const response = await postProvider.deletePost(request);
 		return response;
 	}
 

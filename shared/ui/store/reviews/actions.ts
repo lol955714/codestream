@@ -17,7 +17,8 @@ import {
 	GetReviewRequestType,
 	FetchReviewsRequestType,
 	UpdateReviewResponse,
-	UpdatePostSharingDataRequestType
+	UpdatePostSharingDataRequestType,
+	DeleteThirdPartyPostRequestType
 } from "@codestream/protocols/agent";
 import { logError } from "@codestream/webview/logger";
 import { addStreams } from "../streams/actions";
@@ -171,11 +172,25 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 
 export const _deleteReview = (id: string) => action(ReviewsActionsTypes.Delete, id);
 
-export const deleteReview = (id: string) => async dispatch => {
+export const deleteReview = (id: string, sharedTo?: ShareTarget[]) => async dispatch => {
 	try {
 		await HostApi.instance.send(DeleteReviewRequestType, {
 			id
 		});
+		try {
+			if (sharedTo) {
+				for (const shareTarget of sharedTo) {
+					await HostApi.instance.send(DeleteThirdPartyPostRequestType, {
+						providerId: shareTarget.providerId,
+						channelId: shareTarget.channelId,
+						providerPostId: shareTarget.postId,
+						providerTeamId: shareTarget.teamId
+					});
+				}
+			}
+		} catch (error) {
+			logError(`There was an error deleting a third party shared post: ${error}`);
+		}
 		dispatch(_deleteReview(id));
 	} catch (error) {
 		logError(`failed to delete review: ${error}`, { id });

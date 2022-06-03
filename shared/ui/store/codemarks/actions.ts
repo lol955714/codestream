@@ -16,7 +16,8 @@ import {
 	DeleteMarkerRequestType,
 	CodemarkPlus,
 	MoveMarkerRequest,
-	MoveMarkerRequestType
+	MoveMarkerRequestType,
+	DeleteThirdPartyPostRequestType
 } from "@codestream/protocols/agent";
 import { ShareTarget } from "@codestream/protocols/api";
 import { logError } from "@codestream/webview/logger";
@@ -213,11 +214,25 @@ export const createCodemark = (attributes: SharingNewCodemarkAttributes) => asyn
 export const _deleteCodemark = (codemarkId: string) =>
 	action(CodemarksActionsTypes.Delete, codemarkId);
 
-export const deleteCodemark = (codemarkId: string) => async dispatch => {
+export const deleteCodemark = (codemarkId: string, sharedTo?: ShareTarget[]) => async dispatch => {
 	try {
 		void (await HostApi.instance.send(DeleteCodemarkRequestType, {
 			codemarkId
 		}));
+		try {
+			if (sharedTo) {
+				for (const shareTarget of sharedTo) {
+					await HostApi.instance.send(DeleteThirdPartyPostRequestType, {
+						providerId: shareTarget.providerId,
+						channelId: shareTarget.channelId,
+						providerPostId: shareTarget.postId,
+						providerTeamId: shareTarget.teamId
+					});
+				}
+			}
+		} catch (error) {
+			logError(`There was an error deleting a third party shared post: ${error}`);
+		}
 		dispatch(_deleteCodemark(codemarkId));
 	} catch (error) {
 		logError(`failed to delete codemark: ${error}`, { codemarkId });

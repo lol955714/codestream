@@ -439,7 +439,7 @@ export const BaseReviewMenu = (props: BaseReviewMenuProps) => {
 									className: "delete",
 									wait: true,
 									action: () => {
-										dispatch(deleteReview(review.id));
+										dispatch(deleteReview(review.id, post?.sharedTo));
 										dispatch(setCurrentReview());
 									}
 								}

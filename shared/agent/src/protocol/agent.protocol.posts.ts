@@ -59,6 +59,15 @@ export interface CreateSharedExternalPostRequest {
 	existingPostId?: string;
 }
 
+export interface DeleteSharedExternalPostRequest {
+	channelId: string;
+	postId: string;
+}
+
+export interface DeleteSharedExternalPostResponse {
+	ts?: string;
+}
+
 export interface CreatePostRequest {
 	streamId: string;
 	text: string;

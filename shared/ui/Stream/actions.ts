@@ -40,9 +40,10 @@ import {
 	CreateThirdPartyPostRequestType,
 	MarkItemReadRequestType,
 	UpdatePostSharingDataRequestType,
-	SharePostViaServerRequestType
+	SharePostViaServerRequestType,
+	DeleteThirdPartyPostRequestType
 } from "@codestream/protocols/agent";
-import { CSPost, StreamType, CSReviewStatus } from "@codestream/protocols/api";
+import { CSPost, StreamType, CSReviewStatus, ShareTarget } from "@codestream/protocols/api";
 import { logError } from "../logger";
 import {
 	saveCodemarks,
@@ -601,9 +602,27 @@ export const reactToPost = (post: CSPost, emoji: string, value: boolean) => asyn
 	}
 };
 
-export const deletePost = (streamId: string, postId: string) => async dispatch => {
+export const deletePost = (
+	streamId: string,
+	postId: string,
+	sharedTo?: ShareTarget[]
+) => async dispatch => {
 	try {
 		const { post } = await HostApi.instance.send(DeletePostRequestType, { streamId, postId });
+		try {
+			if (sharedTo) {
+				for (const shareTarget of sharedTo) {
+					await HostApi.instance.send(DeleteThirdPartyPostRequestType, {
+						providerId: shareTarget.providerId,
+						channelId: shareTarget.channelId,
+						providerPostId: shareTarget.postId,
+						providerTeamId: shareTarget.teamId
+					});
+				}
+			}
+		} catch (error) {
+			logError(`There was an error deleting a third party shared post: ${error}`);
+		}
 		return dispatch(postsActions.deletePost(post));
 	} catch (error) {
 		logError(`There was an error deleting a post: ${error}`, { streamId, postId });

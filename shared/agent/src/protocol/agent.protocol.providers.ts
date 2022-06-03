@@ -245,6 +245,25 @@ export const CreateThirdPartyPostRequestType = new RequestType<
 	void
 >("codestream/provider/posts/create");
 
+export interface DeleteThirdPartyPostRequest {
+	providerId: string;
+	providerTeamId: string;
+	channelId: string;
+	providerPostId: string;
+	providerServerTokenUserId?: string;
+}
+
+export interface DeleteThirdPartyPostResponse {
+	ts?: string;
+}
+
+export const DeleteThirdPartyPostRequestType = new RequestType<
+	DeleteThirdPartyPostRequest,
+	DeleteThirdPartyPostResponse,
+	void,
+	void
+>("codestream/provider/posts/delete");
+
 export const FetchThirdPartyChannelsRequestType = new RequestType<
 	FetchThirdPartyChannelsRequest,
 	FetchThirdPartyChannelsResponse,

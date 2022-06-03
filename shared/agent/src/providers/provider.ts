@@ -17,6 +17,7 @@ import {
 	CreateThirdPartyCardResponse,
 	CreateThirdPartyPostRequest,
 	CreateThirdPartyPostResponse,
+	DeleteThirdPartyPostRequest,
 	DocumentMarker,
 	DocumentMarkerExternalContent,
 	FetchAssignableUsersAutocompleteRequest,
@@ -86,6 +87,7 @@ export interface ThirdPartyProviderSupportsIssues {
 
 export interface ThirdPartyProviderSupportsPosts {
 	createPost(request: CreateThirdPartyPostRequest): Promise<CreateThirdPartyPostResponse>;
+	deletePost(request: DeleteThirdPartyPostRequest): Promise<DeleteThirdPartyPostRequest>;
 	getChannels(request: FetchThirdPartyChannelsRequest): Promise<FetchThirdPartyChannelsResponse>;
 }
 

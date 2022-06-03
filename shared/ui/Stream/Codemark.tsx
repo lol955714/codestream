@@ -808,7 +808,7 @@ export class Codemark extends React.Component<Props, State> {
 					className: "delete",
 					wait: true,
 					action: () => {
-						this.props.deleteCodemark(this.props.codemark!.id);
+						this.props.deleteCodemark(this.props.codemark!.id, this.props.post?.sharedTo);
 						this.props.setCurrentCodemark();
 					}
 				}
