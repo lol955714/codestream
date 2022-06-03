@@ -252,12 +252,14 @@ export const OnboardNewRelic = React.memo(function OnboardNewRelic() {
 	const [loadedData, setLoadedData] = useState(false);
 	const [projectType, setProjectType] = useState<RepoProjectType | undefined>();
 
-	const skip = (plus: number = 1) => setStep(currentStep + plus);
+	const skip = (plus: number = 1, options?: { appName?: string }) =>
+		setStep(currentStep + plus, options);
 
-	const setStep = (step: number) => {
+	const setStep = (step: number, options?: { appName?: string }) => {
 		if (step === NUM_STEPS - 1) {
 			HostApi.instance.track("Wizard Ended", {
-				"Language Selected": projectType
+				"Language Selected": projectType,
+				"App Name": options?.appName
 			});
 		}
 
@@ -1157,7 +1159,8 @@ const ProviderButtons = (props: { providerIds: string[]; setShowNextMessagingSte
 								if (connected) return;
 								if (provider.id == "login*microsoftonline*com") {
 									HostApi.instance.send(OpenUrlRequestType, {
-										url: "https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/"
+										url:
+											"https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/"
 									});
 									HostApi.instance.send(TelemetryRequestType, {
 										eventName: "Service Connected",
