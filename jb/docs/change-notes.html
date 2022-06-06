@@ -1,578 +1,1090 @@
-<h4 id="13_0_1">13.0.1</h4>
+<h4 id="13_0_2">13.0.2</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds support for code-level metrics for .NET</li>
+	<li>Adds support for code-level metrics for .NET</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue preventing connections to Trello and Asana</li>
+	<li>Fixes an issue preventing connections to Trello and Asana</li>
 </ul>
 <h4 id="13_0_0">13.0.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds a new user experience for the pull request integration, including a tree view for commenting on pull requests and reviewing existing comments and inline commenting</li>
+	<li>
+		Adds a new user experience for the pull request integration, including a tree view for
+		commenting on pull requests and reviewing existing comments and inline commenting
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Files' view state now syncs with GitHub when reviewing pull requests</li>
-    <li>Include stock Node.js executable to run CodeStream agent</li>
-    <li>Updated copy on sign-in buttons to reflect code or password option</li>
+	<li>Files' view state now syncs with GitHub when reviewing pull requests</li>
+	<li>Include stock Node.js executable to run CodeStream agent</li>
+	<li>Updated copy on sign-in buttons to reflect code or password option</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/837">#837</a> - Support for Apple Silicon (universal binary)
-    <li>Fixes an `Error fetching cards from Jira` on extension startup</li>
-    <li>Fixes an issue where the notification setting for pull request assignments wouldn't appear when connected to GitHub or GitLab cloud</li>
-    <li>Fixes an issue where your own commit would trigger a desktop notification to review changes</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/837">#837</a> - Support
+		for Apple Silicon (universal binary)
+	</li>
+	<li>Fixes an `Error fetching cards from Jira` on extension startup</li>
+	<li>
+		Fixes an issue where the notification setting for pull request assignments wouldn't appear when
+		connected to GitHub or GitLab cloud
+	</li>
+	<li>
+		Fixes an issue where your own commit would trigger a desktop notification to review changes
+	</li>
 </ul>
 <h4 id="12_18_0">12.18.0</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/967">#967</a> - newrelic_agent.log file created
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/967">#967</a> -
+		newrelic_agent.log file created
+	</li>
 </ul>
+
 <h4 id="12_17_0">12.17.0</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue preventing you from connecting to Jira from Linux</li>
-    <li>Fixes an issue where a custom issue filter wouldn't get applied without a reload</li>
+	<li>Fixes an issue preventing you from connecting to Jira from Linux</li>
+	<li>Fixes an issue where a custom issue filter wouldn't get applied without a reload</li>
 </ul>
 <h4 id="12_16_0">12.16.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds options to connect to GitHub and GitLab cloud services via personal access token</li>
+	<li>Adds options to connect to GitHub and GitLab cloud services via personal access token</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>The Pull Request and Issues sections automatically check for new PRs/issues once per minute</li>
-    <li>Deprecated the OAuth version of the Jira Server integration</li>
-    <li>Made validation of org entry for Azure DevOps more robust</li>
-    <li>Connections to services via personal access tokens are now validated immediately</li>
-    <li>Improved validations for base URLs entered when connecting to on-prem services</li>
-    <li>When certain CodeStream settings in the IDE are changed, such as Disable Strict SSL, CodeStream is automatically reloaded</li>
-    <li>Provide guidance to user when situation idetified in <a href="https://github.com/TeamCodeStream/codestream/issues/495#issuecomment-827646602">GitHub Issue #495</a> arises</li>
-    <li>When connecting to GitHub or GitHub Enterprise a link is provided that will automatically populate the form to create a personal access token with the appropriate scopes</li>
-    <li>When associating a forked repo with an entity on New Relic the upstream remote is now used by default</li>
+	<li>
+		The Pull Request and Issues sections automatically check for new PRs/issues once per minute
+	</li>
+	<li>Deprecated the OAuth version of the Jira Server integration</li>
+	<li>Made validation of org entry for Azure DevOps more robust</li>
+	<li>Connections to services via personal access tokens are now validated immediately</li>
+	<li>Improved validations for base URLs entered when connecting to on-prem services</li>
+	<li>
+		When certain CodeStream settings in the IDE are changed, such as Disable Strict SSL, CodeStream
+		is automatically reloaded
+	</li>
+	<li>
+		Provide guidance to user when situation idetified in
+		<a href="https://github.com/TeamCodeStream/codestream/issues/495#issuecomment-827646602"
+			>GitHub Issue #495</a
+		>
+		arises
+	</li>
+	<li>
+		When connecting to GitHub or GitHub Enterprise a link is provided that will automatically
+		populate the form to create a personal access token with the appropriate scopes
+	</li>
+	<li>
+		When associating a forked repo with an entity on New Relic the upstream remote is now used by
+		default
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue where the Assignee list when creating an issue on Jira Server didn't include all possible people</li>
+	<li>
+		Fixes an issue where the Assignee list when creating an issue on Jira Server didn't include all
+		possible people
+	</li>
 </ul>
 <h4 id="12_15_0">12.15.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Pull requests and issues from archived GitHub repos are no longer displayed by default</li>
+	<li>Pull requests and issues from archived GitHub repos are no longer displayed by default</li>
 </ul>
 <h4 id="12_14_0">12.14.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds support for remote URLs using the git protocol</li>
+	<li>Adds support for remote URLs using the git protocol</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Changes the color of the icon displayed in the editor gutter for pull request comments to green</li>
-    <li>Improved separators between the sections of the CodeStream pane</li>
+	<li>
+		Changes the color of the icon displayed in the editor gutter for pull request comments to green
+	</li>
+	<li>Improved separators between the sections of the CodeStream pane</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue where commenting in a feedback request cleared out the viewed state for all files</li>
-    <li>Fixes an issue with non-repository entries appearing in the Observability section</li>
-    <li>Fixes issues with the display of headshots in pull requests from GitHub Enterprise</li>
-    <li>Fixes an issue that would crash the IDe when multiple windows were open</li>
+	<li>
+		Fixes an issue where commenting in a feedback request cleared out the viewed state for all files
+	</li>
+	<li>Fixes an issue with non-repository entries appearing in the Observability section</li>
+	<li>Fixes issues with the display of headshots in pull requests from GitHub Enterprise</li>
+	<li>Fixes an issue that would crash the IDe when multiple windows were open</li>
 </ul>
 <h4 id="12_13_0">12.13.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds a setting on the Notifications page to control desktop notifications for pull request assignments</li>
+	<li>
+		Adds a setting on the Notifications page to control desktop notifications for pull request
+		assignments
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Application type is now display for each service in the entity-selection dropdowns in the Observability section</li>
-    <li>All personal access token fields are now treated like masked password fields when connection to various services</li>
-    <li>Improved validation messages when attempting to load a PR from URL</li>
-    
+	<li>
+		Application type is now display for each service in the entity-selection dropdowns in the
+		Observability section
+	</li>
+	<li>
+		All personal access token fields are now treated like masked password fields when connection to
+		various services
+	</li>
+	<li>Improved validation messages when attempting to load a PR from URL</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue where issues wouldn't appear in the Issues section of the CodeStream pane without clicking Refresh</li>
-    <li>Fixes an issue with the parsing of Java filepaths in stack traces for errors</li>
-    <li>Fixes stack error trace navigation for projects opened from WSL in JetBrains IDEs</li>
-    <li>Fixes an issue with broken images in the bot checks section of PRs</li>
-    <li>Fixes an issue with the visibility of the scrollbar in the CodeStream pane</li>
-    <li>Fixes an issue with a change in IDE them not getting picked up and reflected in CodeStream</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/889">#889</a> - Comment thread status (Resolved/Unresolved) are incorrect initially or if changed externally
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/844">#898</a> - "404 Project Not found" when creating new merge
+	<li>
+		Fixes an issue where issues wouldn't appear in the Issues section of the CodeStream pane without
+		clicking Refresh
+	</li>
+	<li>Fixes an issue with the parsing of Java filepaths in stack traces for errors</li>
+	<li>Fixes stack error trace navigation for projects opened from WSL in JetBrains IDEs</li>
+	<li>Fixes an issue with broken images in the bot checks section of PRs</li>
+	<li>Fixes an issue with the visibility of the scrollbar in the CodeStream pane</li>
+	<li>
+		Fixes an issue with a change in IDE them not getting picked up and reflected in CodeStream
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/889">#889</a> - Comment
+		thread status (Resolved/Unresolved) are incorrect initially or if changed externally
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/844">#898</a> - "404
+		Project Not found" when creating new merge
+	</li>
 </ul>
+
 <h4 id="12_12_0">12.12.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Complete refactor of the "Open a Pull Request" form</li>
-    <li>Allow for selection of repo when opening an error from New Relic where the service is associated with multiple repos</li>
-    <li>Jira tickets with a resolution set are exluded from the Issues section</li>
+	<li>Complete refactor of the "Open a Pull Request" form</li>
+	<li>
+		Allow for selection of repo when opening an error from New Relic where the service is associated
+		with multiple repos
+	</li>
+	<li>Jira tickets with a resolution set are exluded from the Issues section</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue with repo associations not working for remote URLs that start with `ssh://`</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/867">#867</a> - Can't get new relic observability to actually show something other than "set up monitoring"
-    <li>Fixes an where you'd get a "object Object" error trying to submit a feedback request against a repo with no commits and no remotes</li>
-    <li>Fixes an issue where the list of errors in the Observability section was limited when the recent errors had very high occurence counts</li>
-    <li>Fixes a `PR Api is not compatible` error when trying to access a GitHub Enterprise instance when not connected to the VPN</li>
-    <li>Fixes an unexpected error when opening a pull request without the given repo open in your IDE</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/848">#848</a> - Git command needs some escaping
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/847">#847</a> - Slack channel selector stopped working
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/844">#844</a> - Codemarks position themselves at the end of file
+	<li>
+		Fixes an issue with repo associations not working for remote URLs that start with `ssh://`
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/867">#867</a> - Can't get
+		new relic observability to actually show something other than "set up monitoring"
+	</li>
+	<li>
+		Fixes an where you'd get a "object Object" error trying to submit a feedback request against a
+		repo with no commits and no remotes
+	</li>
+	<li>
+		Fixes an issue where the list of errors in the Observability section was limited when the recent
+		errors had very high occurence counts
+	</li>
+	<li>
+		Fixes a `PR Api is not compatible` error when trying to access a GitHub Enterprise instance when
+		not connected to the VPN
+	</li>
+	<li>
+		Fixes an unexpected error when opening a pull request without the given repo open in your IDE
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/848">#848</a> - Git
+		command needs some escaping
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/847">#847</a> - Slack
+		channel selector stopped working
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/844">#844</a> - Codemarks
+		position themselves at the end of file
+	</li>
 </ul>
+
 <h4 id="12_11_0">12.11.0</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/699">#699</a> - Gitlab - "Checkout Branch" and "Code Review" broken
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/699">#699</a> - Gitlab -
+		"Checkout Branch" and "Code Review" broken
+	</li>
 </ul>
+
 <h4 id="12_10_0">12.10.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Observability section is now placed at the top of the sidebar for users signing up with New Relic</li>
-    <li>Jira tickets with a status of `Resolved` are not displayed in the Issues section</li>
+	<li>
+		Observability section is now placed at the top of the sidebar for users signing up with New
+		Relic
+	</li>
+	<li>Jira tickets with a status of `Resolved` are not displayed in the Issues section</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue where the the merge action for GitHub Enterprise PRs was always defaulting to "Squash & merge"</li>
-    <li>Fixes an issue where extraneous diffs in a Feedback Request resulted in a error about payload size</li>
-    <li>Fixes an issue where the dropdown in the Codemarks section would incorrectly be set to "[repository]"</li>
-    <li>Fixes an issue where GitHub Enterprise would not work properly if the server was not accessible when CodeStream started</li>
+	<li>
+		Fixes an issue where the the merge action for GitHub Enterprise PRs was always defaulting to
+		"Squash & merge"
+	</li>
+	<li>
+		Fixes an issue where extraneous diffs in a Feedback Request resulted in a error about payload
+		size
+	</li>
+	<li>
+		Fixes an issue where the dropdown in the Codemarks section would incorrectly be set to
+		"[repository]"
+	</li>
+	<li>
+		Fixes an issue where GitHub Enterprise would not work properly if the server was not accessible
+		when CodeStream started
+	</li>
 </ul>
 <h4 id="12_9_0">12.9.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Reorganized Assignee dropdown in New Relic error groups in "Suggestions from Git" and "My Organization"</li>
-    <li>Removed the Work In Progress section</li>
+	<li>
+		Reorganized Assignee dropdown in New Relic error groups in "Suggestions from Git" and "My
+		Organization"
+	</li>
+	<li>Removed the Work In Progress section</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue with an endless spinner on the acitivity feed in an organization with more than 50 posts but none of them are for the code open in the IDE</li>
-    <li>Fixes an issue with excessive CPU usage</li>
-    <li>Fixes an issue where the Connect to New Relic page would be shown after signup even if the user was already connected</li>
+	<li>
+		Fixes an issue with an endless spinner on the acitivity feed in an organization with more than
+		50 posts but none of them are for the code open in the IDE
+	</li>
+	<li>Fixes an issue with excessive CPU usage</li>
+	<li>
+		Fixes an issue where the Connect to New Relic page would be shown after signup even if the user
+		was already connected
+	</li>
 </ul>
 <h4 id="12_8_0">12.8.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Don't prompt for repo associations in the Observability section if there are no entities on New Relic</li>
-    <li>Jira issues in `Done` status are excluded from the Issues section</li>
-    <li>The Pull Requests section of the CodeStream pane is always display, regardless of what repos you have open in your IDE</li>
+	<li>
+		Don't prompt for repo associations in the Observability section if there are no entities on New
+		Relic
+	</li>
+	<li>Jira issues in `Done` status are excluded from the Issues section</li>
+	<li>
+		The Pull Requests section of the CodeStream pane is always display, regardless of what repos you
+		have open in your IDE
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/836">#836</a> - CodeStream Plugin Crashes PHPStorm
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/713">#713</a> - Saved query executing differently in different projects/windows
-    <li>Fixes an issue with incorrect options being displayed when creating a permalink (i.e., add/remove range, pin)</li>
-    <li>Fixes an issue where the filter in the Codemarks section defaults to "[repository]" for a new user</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/836">#836</a> -
+		CodeStream Plugin Crashes PHPStorm
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/713">#713</a> - Saved
+		query executing differently in different projects/windows
+	</li>
+	<li>
+		Fixes an issue with incorrect options being displayed when creating a permalink (i.e.,
+		add/remove range, pin)
+	</li>
+	<li>
+		Fixes an issue where the filter in the Codemarks section defaults to "[repository]" for a new
+		user
+	</li>
 </ul>
 <h4 id="12_7_0">12.7.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds the ability to sign into CodeStream using a code sent to you via email</li>
-    <li>Adds the ability to sign up for CodeStream using your New Relic One user api key</li>
-    <li>Adds a search box to the entity selection dropdown in the Observability section</li>
-    <li>Adds the ability for organization admins to delete their own organizations</li>
+	<li>Adds the ability to sign into CodeStream using a code sent to you via email</li>
+	<li>Adds the ability to sign up for CodeStream using your New Relic One user api key</li>
+	<li>Adds a search box to the entity selection dropdown in the Observability section</li>
+	<li>Adds the ability for organization admins to delete their own organizations</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Notifications about unreviewed commmits when you pull are now off by default for new users</li>
+	<li>
+		Notifications about unreviewed commmits when you pull are now off by default for new users
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/767">#767</a> - Slack channel-selector dropdown not working
-    <li>Fixes an issue where CodeStream doesn't think you have the repo open when viewing a merge request</li>
-    <li>Fixes an issue where issues from a Jira instance with many projects would </li>
-    <li>Fixes an issue where channels for a workspace with a very large number of channels take a long time to load</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/767">#767</a> - Slack
+		channel-selector dropdown not working
+	</li>
+	<li>
+		Fixes an issue where CodeStream doesn't think you have the repo open when viewing a merge
+		request
+	</li>
+	<li>Fixes an issue where issues from a Jira instance with many projects would</li>
+	<li>
+		Fixes an issue where channels for a workspace with a very large number of channels take a long
+		time to load
+	</li>
 </ul>
 <h4 id="12_6_0">12.6.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Improved UI for unassigned errors</li>
+	<li>Improved UI for unassigned errors</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/734">#734</a> - Merge Request view is not showing if there is merge conflict
-    <li>Fixes an issue with creating a PR across forks when there are a large number of forks for the repo</li>
-    <li>Fixes an issue with creating a codemark in an uncommitted file</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/734">#734</a> - Merge
+		Request view is not showing if there is merge conflict
+	</li>
+	<li>
+		Fixes an issue with creating a PR across forks when there are a large number of forks for the
+		repo
+	</li>
+	<li>Fixes an issue with creating a codemark in an uncommitted file</li>
 </ul>
 <h4 id="12_5_0">12.5.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Simplified signup flow</li>
-    <li>Generalize caching of related objects returned with each fetch</li>
+	<li>Simplified signup flow</li>
+	<li>Generalize caching of related objects returned with each fetch</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue preventing you from recreating the "recent" query in the Pull Requests section</li>
-    <li>Fixes an issue with a `resolveStackTrace failed` error when opening error in IDE</li>
-    <li>Fixes an issue with the CodeStream pane ocassionally being blank</li>
+	<li>
+		Fixes an issue preventing you from recreating the "recent" query in the Pull Requests section
+	</li>
+	<li>Fixes an issue with a `resolveStackTrace failed` error when opening error in IDE</li>
+	<li>Fixes an issue with the CodeStream pane ocassionally being blank</li>
 </ul>
 <h4 id="12_4_0">12.4.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>CodeStream now remembers the last organization you had selected when you sign in</li>
+	<li>CodeStream now remembers the last organization you had selected when you sign in</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes a race condition that could make error stack traces not clickabl</li>
-    <li>Fixes an issue parsing stack traces with Windows paths</li>
-    <li>Fixes an issue that caused an exception `Assert: must be called on EDT` when opening an error</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/778">#778</a> - VSCODE PR fails if forked-repo branch has same name as the (base) repo branch
-    <li>Fixes an issue with the first codemark in a feedback request in a new session taking a long time to submit</li>
-    <li>Fixes an issue that resulted in an error associating a repo with a NR1 entity</li>
+	<li>Fixes a race condition that could make error stack traces not clickabl</li>
+	<li>Fixes an issue parsing stack traces with Windows paths</li>
+	<li>
+		Fixes an issue that caused an exception `Assert: must be called on EDT` when opening an error
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/778">#778</a> - VSCODE PR
+		fails if forked-repo branch has same name as the (base) repo branch
+	</li>
+	<li>
+		Fixes an issue with the first codemark in a feedback request in a new session taking a long time
+		to submit
+	</li>
+	<li>Fixes an issue that resulted in an error associating a repo with a NR1 entity</li>
 </ul>
 <h4 id="12_3_1">12.3.1</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue related to the connection of certain providers</li>
+	<li>Fixes an issue related to the connection of certain providers</li>
 </ul>
 <h4 id="12_3_0">12.3.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds an intro tour the first time someone opens an error group</li>
+	<li>Adds an intro tour the first time someone opens an error group</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue with the parsing of stack traces in error groups</li>
+	<li>Fixes an issue with the parsing of stack traces in error groups</li>
 </ul>
 <h4 id="12_2_0">12.2.0</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Codemarks created in an error group now reference and link to the error group</li>
-    <li>When you select an issue to start work in the Issues section it is now identified via an arrow to the left of the entry</li>
-    <li>Error stack trace resolution is now asynchronous and doesn’t block initial error loading</li>
+	<li>Codemarks created in an error group now reference and link to the error group</li>
+	<li>
+		When you select an issue to start work in the Issues section it is now identified via an arrow
+		to the left of the entry
+	</li>
+	<li>Error stack trace resolution is now asynchronous and doesn’t block initial error loading</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/774">#774</a> - Pending review comments in GH PR aren't being saved
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/765">#765</a> - Field 'draft' doesn't exist on type 'MergeRequest'
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/707">#707</a> - GLSM "TypeError: Cannot read property 'mergeRequest' of null"
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/597">#597</a> - GitLab self hosted error. Field 'userDiscussionsCount' and 'reviewers' doesn't exist on type 'MergeRequest'
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/774">#774</a> - Pending
+		review comments in GH PR aren't being saved
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/765">#765</a> - Field
+		'draft' doesn't exist on type 'MergeRequest'
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/707">#707</a> - GLSM
+		"TypeError: Cannot read property 'mergeRequest' of null"
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/597">#597</a> - GitLab
+		self hosted error. Field 'userDiscussionsCount' and 'reviewers' doesn't exist on type
+		'MergeRequest'
+	</li>
 </ul>
+
 <h4 id="12_1_0">12.1.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds checks during onboarding for New Relic users to see if colleagues already have an organization on CodeStream</li>
+	<li>
+		Adds checks during onboarding for New Relic users to see if colleagues already have an
+		organization on CodeStream
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Bypass onboarding step for create/join organization if there are no organizations to join</li>
+	<li>Bypass onboarding step for create/join organization if there are no organizations to join</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/764">#764</a> - GitLab open merge request error field 'workInProgress'
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/764">#764</a> - GitLab
+		open merge request error field 'workInProgress'
+	</li>
+</ul>
+
+<h4 id="12_0_3">12.0.3</h4>
+<h5>Changed</h5>
+<ul>
+	<li>Prevent issue codemarks and permalinks when commenting on an error from New Relic</li>
+	<li>Display stack traces in errors even when they can't be parsed</li>
+</ul>
+<h5>Fixed</h5>
+<ul>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/752">#752</a> -
+		TestUrlHandlerAction is incompatible with 2021.3+
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/709">#709</a> -
+		Multi-line PR comments only showing last 4 lines
+	</li>
+	<li>
+		Fixes an issue with domain-based joining not working when signing up via GitHub, GitLab or
+		Bitbucket
+	</li>
+	<li>Fixes an issue where the activity feed is automatically scrolled to the first error</li>
+	<li>
+		Fixes an issue where closing the inline Entities menu in the Observability section collapses the
+		node
+	</li>
+	<li>
+		Fixes an issue where deleting a comment in an error via the editor gutter doesn't take effect
+		without a reload
+	</li>
+	<li>Fixes a windows-specific file path issue when parsing a stack trace</li>
 </ul>
 <h4 id="12_0_3">12.0.3</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Prevent issue codemarks and permalinks when commenting on an error from New Relic</li>
-    <li>Display stack traces in errors even when they can't be parsed</li>
+	<li>Modification to the script to grab unique pods for the Pixie dynamic logging</li>
+	<li>Add entity and account info to error groups without stack traces</li>
+	<li>Suppress "Copy Link" in ellipses menu if error group is still pending</li>
+	<li>Adds a "Learn More" link to the disconnected state of the Observability section</li>
+	<li>Use timestamp from payload to better query New Relic Metrics</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/752">#752</a> - TestUrlHandlerAction is  incompatible with 2021.3+
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/709">#709</a> - Multi-line PR comments only showing last 4 lines
-    <li>Fixes an issue with domain-based joining not working when signing up via GitHub, GitLab or Bitbucket</li>
-    <li>Fixes an issue where the activity feed is automatically scrolled to the first error</li>
-    <li>Fixes an issue where closing the inline Entities menu in the Observability section collapses the node</li>
-    <li>Fixes an issue where deleting a comment in an error via the editor gutter doesn't take effect without a reload</li>
-    <li>Fixes a windows-specific file path issue when parsing a stack trace</li>
-</ul>
-<h4 id="12_0_3">12.0.3</h4>
-<h5>Changed</h5>
-<ul>
-    <li>Modification to the script to grab unique pods for the Pixie dynamic logging</li>
-    <li>Add entity and account info to error groups without stack traces</li>
-    <li>Suppress "Copy Link" in ellipses menu if error group is still pending</li>
-    <li>Adds a "Learn More" link to the disconnected state of the Observability section</li>
-    <li>Use timestamp from payload to better query New Relic Metrics</li>
-</ul>
-<h5>Fixed</h5>
-<ul>
-    <li>Fixes an issue with an error group reloading after adding a comment</li>
-    <li>Fixes an issue with not being able to select a Slack channel for sharing</li>
-    <li>Fixes an issue with the "Try using a different email address" link not working when you sign up via a code host</li>
+	<li>Fixes an issue with an error group reloading after adding a comment</li>
+	<li>Fixes an issue with not being able to select a Slack channel for sharing</li>
+	<li>
+		Fixes an issue with the "Try using a different email address" link not working when you sign up
+		via a code host
+	</li>
 </ul>
 <h4 id="12_0_2">12.0.2</h4>
 <h5>Added</h5>
 <ul>
-    <li>Fixes an issue that prevented you from signing up with a webmail address</li>
-    <li>Fixes an issue that allowed you to share a pending error to Slack/MS Teams</li>
+	<li>Fixes an issue that prevented you from signing up with a webmail address</li>
+	<li>Fixes an issue that allowed you to share a pending error to Slack/MS Teams</li>
 </ul>
 <h4 id="12_0_0">12.0.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds an <a href="https://youtrack.jetbrains.com/issue/IDEA-273222">integration with New Relic One</a> that allows you to discover, investigate and collaborate on errors from your IDE, as well as dynamic logging in production using Pixie and the ability to instrument your projects right from your IDE</li>
+	<li>
+		Adds an
+		<a href="https://youtrack.jetbrains.com/issue/IDEA-273222">integration with New Relic One</a>
+		that allows you to discover, investigate and collaborate on errors from your IDE, as well as
+		dynamic logging in production using Pixie and the ability to instrument your projects right from
+		your IDE
+	</li>
 </ul>
 <h4 id="11_1_1">11.1.1</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue where some users couldn't switch to certain organizations</li>
+	<li>Fixes an issue where some users couldn't switch to certain organizations</li>
 </ul>
 <h4 id="11_1_0">11.1.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds support for allowing people to join your CodeStream organization when signing up with specific email domains</li>
-    <li>Adds the ability to filter the Activity Feed to just discussions about repos open in your IDE, or even specific folders (i.e. monorepo scenarios)</li>
+	<li>
+		Adds support for allowing people to join your CodeStream organization when signing up with
+		specific email domains
+	</li>
+	<li>
+		Adds the ability to filter the Activity Feed to just discussions about repos open in your IDE,
+		or even specific folders (i.e. monorepo scenarios)
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Eliminates the concept of a team on CodeStream, with everyone from a company now being in a single CodeStream organization</li>
-    <li>Replaces the My Team section of the sidebar with a My Organization menu at the top of the CodeStream pane</li>
-    <li>Eliminates invitation codes, with teammates now accepting invitations simply by signing up with the email address the invitation was sent to</li>
+	<li>
+		Eliminates the concept of a team on CodeStream, with everyone from a company now being in a
+		single CodeStream organization
+	</li>
+	<li>
+		Replaces the My Team section of the sidebar with a My Organization menu at the top of the
+		CodeStream pane
+	</li>
+	<li>
+		Eliminates invitation codes, with teammates now accepting invitations simply by signing up with
+		the email address the invitation was sent to
+	</li>
 </ul>
 <h4 id="11_0_16">11.0.16</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Workaround for <a href="https://youtrack.jetbrains.com/issue/IDEA-273222">issue with JCEF on Linux</a> that forces use of JxBrowser instead</li>
-    <li>Fixes an issue with CodeStream overriding GitLab defaults for "Squash commits" and "Delete source branch"</li>
+	<li>
+		Workaround for
+		<a href="https://youtrack.jetbrains.com/issue/IDEA-273222">issue with JCEF on Linux</a> that
+		forces use of JxBrowser instead
+	</li>
+	<li>
+		Fixes an issue with CodeStream overriding GitLab defaults for "Squash commits" and "Delete
+		source branch"
+	</li>
 </ul>
 <h4 id="11_0_14">11.0.14</h4>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/702">#702</a> - Text is duplicated when I do "Paste"
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/701">#701</a> - Failed to load MR list from Gitlab.com
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/681">#681</a> - Emojis don't load in jb PR names
-    <li>Fixes an issue with returning users not being able to accept updated TOS</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/702">#702</a> - Text is
+		duplicated when I do "Paste"
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/701">#701</a> - Failed to
+		load MR list from Gitlab.com
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/681">#681</a> - Emojis
+		don't load in jb PR names
+	</li>
+	<li>Fixes an issue with returning users not being able to accept updated TOS</li>
 </ul>
 <h4 id="11_0_13">11.0.13</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Custom merge request queries now use proper GitLab syntax</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/677">#677</a> - Merge Request Query for negate
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/661">#661</a> - MR integration doesn't work with project token
-    <li>No-reply email addresses, such as @users.noreply.github.com, are no longer suggested throughout CodeStream</li>
+	<li>Custom merge request queries now use proper GitLab syntax</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/677">#677</a> - Merge
+		Request Query for negate
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/661">#661</a> - MR
+		integration doesn't work with project token
+	</li>
+	<li>
+		No-reply email addresses, such as @users.noreply.github.com, are no longer suggested throughout
+		CodeStream
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/657">#657</a> - Plugin window is always Loading... in Intellij IDEA
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/690">#690</a> - CodeStream plugins fails to load in Android Studio Arctic Fox 2020.1.3
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/674">#674</a> - CodeStream is always loading，Restboot Android Studio is not available
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/693">#693</a> - Changing PR remote branch makes the branch unable to be found
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/673">#673</a> - Request codestream/reviews/create failed with message: Cannot create review. Payload exceeds 10MB
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/650">#650</a> - Code fences displayed as single line in Issue Codemarks
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/657">#657</a> - Plugin
+		window is always Loading... in Intellij IDEA
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/690">#690</a> -
+		CodeStream plugins fails to load in Android Studio Arctic Fox 2020.1.3
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/674">#674</a> -
+		CodeStream is always loading，Restboot Android Studio is not available
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/693">#693</a> - Changing
+		PR remote branch makes the branch unable to be found
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/673">#673</a> - Request
+		codestream/reviews/create failed with message: Cannot create review. Payload exceeds 10MB
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/650">#650</a> - Code
+		fences displayed as single line in Issue Codemarks
+	</li>
 </ul>
+
 <h4 id="11_0_12">11.0.12</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds the ability to <a href="https://guide.codestream.us/userguide/faq/custom-queries-gl/">filter GitLab custom issue queries</a> by project and group</li>
+	<li>
+		Adds the ability to
+		<a href="https://guide.codestream.us/userguide/faq/custom-queries-gl/"
+			>filter GitLab custom issue queries</a
+		>
+		by project and group
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/596">#596</a> - Error with renamed file in a PR review
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/490">#490</a> - Starting work on issue and creating branch does not update UI
-    <li>Fixes an issue where commenting outside of the changeset, but very close to it, in a PR results in an error</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/596">#596</a> - Error
+		with renamed file in a PR review
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/490">#490</a> - Starting
+		work on issue and creating branch does not update UI
+	</li>
+	<li>
+		Fixes an issue where commenting outside of the changeset, but very close to it, in a PR results
+		in an error
+	</li>
 </ul>
 <h4 id="11_0_11">11.0.11</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Brings back support for JXBrowser and Android Studio (v4.2 or later)</li>
-    <li>Auto-prompt for feedback requests can be turned off via toggle above the form even when committing from within the IDE</li>
-    <li>Changes to a pull requests's title and labels are immediately reflected in the Pull/Merge Request section after saving the changes</li>
-    <li>Fall back to using first intial for a headshot when headshots in pull requests aren't accessible</li>
-    <li>Clicking on images in pull requests now open the full-size image on the web</li>
+	<li>Brings back support for JXBrowser and Android Studio (v4.2 or later)</li>
+	<li>
+		Auto-prompt for feedback requests can be turned off via toggle above the form even when
+		committing from within the IDE
+	</li>
+	<li>
+		Changes to a pull requests's title and labels are immediately reflected in the Pull/Merge
+		Request section after saving the changes
+	</li>
+	<li>
+		Fall back to using first intial for a headshot when headshots in pull requests aren't accessible
+	</li>
+	<li>Clicking on images in pull requests now open the full-size image on the web</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes a "Cannot read property 'full' of undefined" error in the Merge Requests section</li>
-    <li>Fixes an issue with double quotes needing to be escaped when creating a custom PR filter for GitHub</li>
-    <li>Fixes an issue where you can't start a PR review when the commit selection is anything other than "Changes from all commits"</li>
-    <li>Fixes a "Registry key not defined error" with IntelliJ EAP</li>
+	<li>Fixes a "Cannot read property 'full' of undefined" error in the Merge Requests section</li>
+	<li>
+		Fixes an issue with double quotes needing to be escaped when creating a custom PR filter for
+		GitHub
+	</li>
+	<li>
+		Fixes an issue where you can't start a PR review when the commit selection is anything other
+		than "Changes from all commits"
+	</li>
+	<li>Fixes a "Registry key not defined error" with IntelliJ EAP</li>
 </ul>
 <h4 id="11_0_10">11.0.10</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Adds the ability to create a custom filer in the Issues section for GitLab</li>
-    <li>Adds confirmation when user cancels a pending pull/merge request review</li>
-    <li>Live View is now free for all teams</li>
-    <li>Adds copy to the Issues section when there are no results to display</li>
+	<li>Adds the ability to create a custom filer in the Issues section for GitLab</li>
+	<li>Adds confirmation when user cancels a pending pull/merge request review</li>
+	<li>Live View is now free for all teams</li>
+	<li>Adds copy to the Issues section when there are no results to display</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue with emoji not rendering in labels for pull requests</li>
+	<li>Fixes an issue with emoji not rendering in labels for pull requests</li>
 </ul>
 <h4 id="11_0_9">11.0.9</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Updated terms-of-service acceptance flow</li>
-    <li>Removed support for JXBrowser</li>
+	<li>Updated terms-of-service acceptance flow</li>
+	<li>Removed support for JXBrowser</li>
 </ul>
 <h4 id="11_0_8">11.0.8</h4>
 <h5>Changed</h5>
 <ul>
-    <li>You can now reply to any top-level comment in a merge request, regardless of whether or not it was started as a thread</li>
-    <li>Form that automatically pops up to request feedback when you commit is now dismissed after 15 minutes of inactivity</li>
-    <li>Changing branches while you have the feedback request form open no longer updates the form</li>
+	<li>
+		You can now reply to any top-level comment in a merge request, regardless of whether or not it
+		was started as a thread
+	</li>
+	<li>
+		Form that automatically pops up to request feedback when you commit is now dismissed after 15
+		minutes of inactivity
+	</li>
+	<li>
+		Changing branches while you have the feedback request form open no longer updates the form
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/595">#595</a> - Connectivity Issues Makes CodeStream Unusable
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/590">#590</a> - Commit selection is reset for a Gitlab MR after posting a comment
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/522">#522</a> - Support multi-line comments in GL MR
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/400">#400</a> - Agent is detected as a new process by Intego NetBarrier every time IntelliJ starts
-    <li>Fixes an issue with quote replies in a merge request where the reply text would get included in the quote</li>
-    <li>Fixes an unhandled exception when tail of file is collapsed</li>
-    <li>Fixes an issue where resolving a codemark or feedback request marks it as unread in the Codemarks/Feedback Requests section of the CodeStream pane</li>
-    <li>Fixes an issue with the Commits tab in a pull/merge request showing commits in the wrong order</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/595">#595</a> -
+		Connectivity Issues Makes CodeStream Unusable
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/590">#590</a> - Commit
+		selection is reset for a Gitlab MR after posting a comment
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/522">#522</a> - Support
+		multi-line comments in GL MR
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/400">#400</a> - Agent is
+		detected as a new process by Intego NetBarrier every time IntelliJ starts
+	</li>
+	<li>
+		Fixes an issue with quote replies in a merge request where the reply text would get included in
+		the quote
+	</li>
+	<li>Fixes an unhandled exception when tail of file is collapsed</li>
+	<li>
+		Fixes an issue where resolving a codemark or feedback request marks it as unread in the
+		Codemarks/Feedback Requests section of the CodeStream pane
+	</li>
+	<li>
+		Fixes an issue with the Commits tab in a pull/merge request showing commits in the wrong order
+	</li>
 </ul>
 <h4 id="11_0_7">11.0.7</h4>
 <h5>Changed</h5>
 <ul>
-    <li>Updated the UI for custom filters in the Issues section to be consistent with custom queries in the PRs section</li>
-    <li>Prevent diffs in feedback requests and pull requests from being displayed in Unified View since it isn't supported</li>
+	<li>
+		Updated the UI for custom filters in the Issues section to be consistent with custom queries in
+		the PRs section
+	</li>
+	<li>
+		Prevent diffs in feedback requests and pull requests from being displayed in Unified View since
+		it isn't supported
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/547">#547</a> - Reviewing Gitlab MR with a partial commit range shows invalid changesets
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/541">#541</a> - Suppress html comments in rendering of issues
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/537">#537</a> - Branch selection in dropdown of Codemarks section should automatically pick up branch change
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/522">#546</a> - Support multi-line comments in GL MR
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/547">#547</a> - Reviewing
+		Gitlab MR with a partial commit range shows invalid changesets
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/541">#541</a> - Suppress
+		html comments in rendering of issues
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/537">#537</a> - Branch
+		selection in dropdown of Codemarks section should automatically pick up branch change
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/522">#546</a> - Support
+		multi-line comments in GL MR
+	</li>
 </ul>
+
 <h4 id="11_0_6">11.0.6</h4>
 <h5>Added</h5>
 <ul>
-    <li>The Pull/Merge Requests section of the CodeStream pane now refreshes every 5 minutes to pick up changes</li>
+	<li>
+		The Pull/Merge Requests section of the CodeStream pane now refreshes every 5 minutes to pick up
+		changes
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/506">#506</a> - Don't reset scroll position when switching tabs in a PR
-    <li>Custom queries for either GitHub PRs or GitHub issues now requires [at least one qualifier](https://docs.codestream.com/userguide/faq/custom-queries/) that will prevent the query from return results across all of GitHub</li>
-    <li>The banner indicating connectivity issues has been replaced with the blanket that covers the entire CodeStream pane</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/506">#506</a> - Don't
+		reset scroll position when switching tabs in a PR
+	</li>
+	<li>
+		Custom queries for either GitHub PRs or GitHub issues now requires [at least one
+		qualifier](https://docs.codestream.com/userguide/faq/custom-queries/) that will prevent the
+		query from return results across all of GitHub
+	</li>
+	<li>
+		The banner indicating connectivity issues has been replaced with the blanket that covers the
+		entire CodeStream pane
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/546">#546</a> - Cannot open GitHub Enterprise 2.22 PRs
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/565">#565</a> - Toast notifications (and log) replace "this" with feedback request name
-    <li>Fixes an issue where creating an additional CodeStream team would result in an endless spinner</li>
-    <li>Fixes an IndexOutOfBoundsException exception</li>
-    <li>Fixes an issue where an @mention in a codemark shared to Slack would register twice in the count in the badge on the Activty Feed</li>
-    <li>Fixes an issue where adding an emoji to a merge request comment would sometimes add it at the start of the comment regardless of the cursor position</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/546">#546</a> - Cannot
+		open GitHub Enterprise 2.22 PRs
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/565">#565</a> - Toast
+		notifications (and log) replace "this" with feedback request name
+	</li>
+	<li>
+		Fixes an issue where creating an additional CodeStream team would result in an endless spinner
+	</li>
+	<li>Fixes an IndexOutOfBoundsException exception</li>
+	<li>
+		Fixes an issue where an @mention in a codemark shared to Slack would register twice in the count
+		in the badge on the Activty Feed
+	</li>
+	<li>
+		Fixes an issue where adding an emoji to a merge request comment would sometimes add it at the
+		start of the comment regardless of the cursor position
+	</li>
 </ul>
 <h4 id="11_0_5">11.0.5</h4>
 <h5>Added</h5>
 <ul>
-    <li>Provide feedback in the UI for on-prem customers when the api server can't communicate with the broadcaster</li>
+	<li>
+		Provide feedback in the UI for on-prem customers when the api server can't communicate with the
+		broadcaster
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Repo/branch names at the top of GitHub pull requests are now links to the appropriate branch on GitHub</li>
-    <li>Automatically restart the agent process if it crashes</li>
+	<li>
+		Repo/branch names at the top of GitHub pull requests are now links to the appropriate branch on
+		GitHub
+	</li>
+	<li>Automatically restart the agent process if it crashes</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/535">#535</a> - Invalid regular expression error
-    <li>Fixes an issue where an apostrophe would get added to the end of email addresses suggested as reviewers in feedback requests</li>
-    <li>Fixes an issue with the display of images in comments on a GitLab merge request</li>
-    <li>Fixes an issue preventing you from being able to paste when editing most content types on CodeStream</li>
-    <li>Fixes an issue where editing an MR comment and adding a code fence results in divs being displayed</li>
-    <li>Fixes an issue where the code block doesn't immediately show in the merge request timeline after adding a new comment</li>
-    <li>Fixes an issue where you couldn't edit a merge request comment from Diff Hunks view</li>
-    <li>Fixes an issue with the responsiveness of the display of the Merge and Pipeline boxes in a merge request</li>
-    <li>Fixes an issue with the Changed Files in a pull request not loading in IntelliJ</li>
-    <li>Fixes an "Illegal character in path" error in PyCharm</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/535">#535</a> - Invalid
+		regular expression error
+	</li>
+	<li>
+		Fixes an issue where an apostrophe would get added to the end of email addresses suggested as
+		reviewers in feedback requests
+	</li>
+	<li>Fixes an issue with the display of images in comments on a GitLab merge request</li>
+	<li>
+		Fixes an issue preventing you from being able to paste when editing most content types on
+		CodeStream
+	</li>
+	<li>
+		Fixes an issue where editing an MR comment and adding a code fence results in divs being
+		displayed
+	</li>
+	<li>
+		Fixes an issue where the code block doesn't immediately show in the merge request timeline after
+		adding a new comment
+	</li>
+	<li>Fixes an issue where you couldn't edit a merge request comment from Diff Hunks view</li>
+	<li>
+		Fixes an issue with the responsiveness of the display of the Merge and Pipeline boxes in a merge
+		request
+	</li>
+	<li>Fixes an issue with the Changed Files in a pull request not loading in IntelliJ</li>
+	<li>Fixes an "Illegal character in path" error in PyCharm</li>
 </ul>
 <h4 id="11_0_4">11.0.4</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds the ability to toggle the display of pull request descriptions in the Pull Requests section</li>
+	<li>
+		Adds the ability to toggle the display of pull request descriptions in the Pull Requests section
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Establish GitLab v12.10 as the minimum required version for merge-request support</li>
-    <li>Update the color of the sidebar in GitLab merge request to match the heading of the CodeStream pane</li>
+	<li>Establish GitLab v12.10 as the minimum required version for merge-request support</li>
+	<li>
+		Update the color of the sidebar in GitLab merge request to match the heading of the CodeStream
+		pane
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/502">#502</a> - Can't checkout to the branch in a merge request
-    <li>Fixes an issue where clicking on Diff Hunks view in a pull request would result in an error</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/454">#454</a> - Default headshot display to initials when gravatar/headshot can't be loaded for on-prem users
-    <li>Fixes an error when creating a codemark</li>
-    <li>Fixes an issue where trying to view a pull request via list/tree view results in an error</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/498">#498</a> - GitLab MR doesn't show commits created after MR is added
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/429">#429</a> - Incorrect user/repo listed at bottom of a PR
-    <li>Fixes an issue where the keyboard shortcut to add comment in a pull requeset often selects wrong line</li>
-    <li>Fixes an issue where hitting Esc to close the comment form in a pull request exits you out of the pull request completely</li>
-    <li>Fixes an issue where some loading/saving messages in pull requests don't go away after completion</li>
-    <li>Fixes an issue where merge requests created with unpushed branches lead to GraphQL error</li>
-    <li>Fixes an issue with the display of images in merge request descriptions</li>
-    <li>Fixes an issue replying to an existing comment in a merge request while there is a pending review</li>
-    <li>Fixes an issue deleting a pending review comment in a merge request</li>
-    <li>Fixes an issue with broken headshot display when adding a comment in a merge request</li>
-    <li>Fixes an issue where the "requested a review" banner in a pull request doesn't go away on submission of a review</li>
-    <li>Fixes an issue where WSL users can't select repo when creating a feedback reqest</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/502">#502</a> - Can't
+		checkout to the branch in a merge request
+	</li>
+	<li>
+		Fixes an issue where clicking on Diff Hunks view in a pull request would result in an error
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/454">#454</a> - Default
+		headshot display to initials when gravatar/headshot can't be loaded for on-prem users
+	</li>
+	<li>Fixes an error when creating a codemark</li>
+	<li>Fixes an issue where trying to view a pull request via list/tree view results in an error</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/498">#498</a> - GitLab MR
+		doesn't show commits created after MR is added
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/429">#429</a> - Incorrect
+		user/repo listed at bottom of a PR
+	</li>
+	<li>
+		Fixes an issue where the keyboard shortcut to add comment in a pull requeset often selects wrong
+		line
+	</li>
+	<li>
+		Fixes an issue where hitting Esc to close the comment form in a pull request exits you out of
+		the pull request completely
+	</li>
+	<li>
+		Fixes an issue where some loading/saving messages in pull requests don't go away after
+		completion
+	</li>
+	<li>Fixes an issue where merge requests created with unpushed branches lead to GraphQL error</li>
+	<li>Fixes an issue with the display of images in merge request descriptions</li>
+	<li>
+		Fixes an issue replying to an existing comment in a merge request while there is a pending
+		review
+	</li>
+	<li>Fixes an issue deleting a pending review comment in a merge request</li>
+	<li>Fixes an issue with broken headshot display when adding a comment in a merge request</li>
+	<li>
+		Fixes an issue where the "requested a review" banner in a pull request doesn't go away on
+		submission of a review
+	</li>
+	<li>Fixes an issue where WSL users can't select repo when creating a feedback reqest</li>
 </ul>
 <h4 id="11_0_3">11.0.3</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds the ability to edit a pending review comment in a GitLab merge request</li>
-    <li>Adds a roadblock to indicate that merge request support for GitLab Self Managed requires version 12.10.X or later</li>
+	<li>Adds the ability to edit a pending review comment in a GitLab merge request</li>
+	<li>
+		Adds a roadblock to indicate that merge request support for GitLab Self Managed requires version
+		12.10.X or later
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Ask user if they want to switch teams when clicking on a permalink for an item owned by a team other than the one you currently have selected</li>
-    <li>More efficient use of GitHub api points to prevent users from getting hit with rate-limit errors</li>
-    <li>Decrease the number of git operations being performed at extension startup</li>
-    <li>When going a quote reply in a pull/merge request, a blank line is automatically inserted before the cursor to prevent entered text from being included in the quote</li>
+	<li>
+		Ask user if they want to switch teams when clicking on a permalink for an item owned by a team
+		other than the one you currently have selected
+	</li>
+	<li>
+		More efficient use of GitHub api points to prevent users from getting hit with rate-limit errors
+	</li>
+	<li>Decrease the number of git operations being performed at extension startup</li>
+	<li>
+		When going a quote reply in a pull/merge request, a blank line is automatically inserted before
+		the cursor to prevent entered text from being included in the quote
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/514">#514</a> - Merge request not listed when using proxy
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/477">#477</a> - Add messaging when not all files in a large MR will be listed
-    <li>Fixes an issue where the issue you select via Start Work in one team, also appears in the Work In Progress section for all of your teams</li>
-    <li>Fixes an error when creating a pull request</li>
-    <li>Fixes an issue with the Open File buttons in the Changed Files section of a feedback request not working</li>
-    <li>Fixes an issue with creating a pull request on Bitbucket</li>
-    <li>Fixes an issue where collapsing/expanding sections in the Pull Requests section would cause all queries to refresh</li>
-    <li>Fixes an issue where clicking on a mention in a merge request opens a blank page</li>
-    <li>Fixes an issue where a local-changes warning would be shown when creating a pull request when there's weren't any local changes in the selected repository</li>
-    <li>Fixes an issue where clicking "Add Comment" from hover for icon in editor gutter results in the wrong code block being selected</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/514">#514</a> - Merge
+		request not listed when using proxy
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/477">#477</a> - Add
+		messaging when not all files in a large MR will be listed
+	</li>
+	<li>
+		Fixes an issue where the issue you select via Start Work in one team, also appears in the Work
+		In Progress section for all of your teams
+	</li>
+	<li>Fixes an error when creating a pull request</li>
+	<li>
+		Fixes an issue with the Open File buttons in the Changed Files section of a feedback request not
+		working
+	</li>
+	<li>Fixes an issue with creating a pull request on Bitbucket</li>
+	<li>
+		Fixes an issue where collapsing/expanding sections in the Pull Requests section would cause all
+		queries to refresh
+	</li>
+	<li>Fixes an issue where clicking on a mention in a merge request opens a blank page</li>
+	<li>
+		Fixes an issue where a local-changes warning would be shown when creating a pull request when
+		there's weren't any local changes in the selected repository
+	</li>
+	<li>
+		Fixes an issue where clicking "Add Comment" from hover for icon in editor gutter results in the
+		wrong code block being selected
+	</li>
 </ul>
 <h4 id="11_0_2">11.0.2</h4>
 <h5>Fixed</h5>
-<ul>    
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/486">#486</a> - Unexpected error clicking on a merge request after update to 11.0
+<ul>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/486">#486</a> -
+		Unexpected error clicking on a merge request after update to 11.0
+	</li>
 </ul>
+
 <h4 id="11_0_1">11.0.1</h4>
 <h5>Changed</h5>
 <ul>
-    <li>List of PRs in the Pull Requests section automatically refreshes after reconnecting to a previously disconnected service</li>
+	<li>
+		List of PRs in the Pull Requests section automatically refreshes after reconnecting to a
+		previously disconnected service
+	</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/488">#488</a> - Can't save custom MR query
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/486">#486</a> - Unexpected error clicking on a merge request after update to 11.0
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/483">#483</a> - Error loading git info when trying to ammend a feedback request
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/482">#482</a> - Gitlab open merge request error field 'approvalsRequired'
-    <li>Fixes field 'stages' doesn't exist on type 'Pipeline' on GitLab Self-Managed 13.2.3</li>
-    <li>Fixes field 'currentUser' doesn't exist on type 'Query' on GitLab Self-Managed 12.X and below</li>
-    <li>Fixes field 'approvalsLeft' doesn't exist on type 'MergeRequest'</li>
-    <li>Fixes field 'id' doesn't exist on type 'User' on GitLab Self-Managed 12.X and below</li>
-    <li>Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/470">#470</a> - Shouldn't be able to submit review with zero pending comments
-    <li>Fixes an issue with the Template dropdown incorrectly being displayed when creating a PR on GitHub</li>
-    <li>Fixes an issue with the display of the "source branch is X commit behind the target branch" copy in a merge request</li>
-    <li>Fixes an issue with line breaks getting lost in the description of a feedback request</li>
-    <li>Fixes an issue where you can't dismiss a feedback request when opening it via a toast notification on top of an open pull request
-    <li>Fixes an error clicking on the Files Changed tab of a pull request</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/488">#488</a> - Can't
+		save custom MR query
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/486">#486</a> -
+		Unexpected error clicking on a merge request after update to 11.0
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/483">#483</a> - Error
+		loading git info when trying to ammend a feedback request
+	</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/482">#482</a> - Gitlab
+		open merge request error field 'approvalsRequired'
+	</li>
+	<li>Fixes field 'stages' doesn't exist on type 'Pipeline' on GitLab Self-Managed 13.2.3</li>
+	<li>
+		Fixes field 'currentUser' doesn't exist on type 'Query' on GitLab Self-Managed 12.X and below
+	</li>
+	<li>Fixes field 'approvalsLeft' doesn't exist on type 'MergeRequest'</li>
+	<li>Fixes field 'id' doesn't exist on type 'User' on GitLab Self-Managed 12.X and below</li>
+	<li>
+		Addresses <a href="https://github.com/TeamCodeStream/CodeStream/issues/470">#470</a> - Shouldn't
+		be able to submit review with zero pending comments
+	</li>
+	<li>
+		Fixes an issue with the Template dropdown incorrectly being displayed when creating a PR on
+		GitHub
+	</li>
+	<li>
+		Fixes an issue with the display of the "source branch is X commit behind the target branch" copy
+		in a merge request
+	</li>
+	<li>Fixes an issue with line breaks getting lost in the description of a feedback request</li>
+	<li>
+		Fixes an issue where you can't dismiss a feedback request when opening it via a toast
+		notification on top of an open pull request
+	</li>
+	<li>Fixes an error clicking on the Files Changed tab of a pull request</li>
 </ul>
 <h4 id="11_0_0">11.0.0</h4>
 <h5>Added</h5>
 <ul>
-    <li>Adds support for <a href="http://www.codestream.com/blog/codestream-11-0-manage-gitlab-merge-requests-code-reviews-and-issues-in-vscode-jetbrains">managing and reviewing GitLab merge requests</a></li>
-    <li>Adds blue unread-message badges in the Feedback Requests and Codemarks sections when there are new replies</li>
+	<li>
+		Adds support for
+		<a
+			href="http://www.codestream.com/blog/codestream-11-0-manage-gitlab-merge-requests-code-reviews-and-issues-in-vscode-jetbrains"
+			>managing and reviewing GitLab merge requests</a
+		>
+	</li>
+	<li>
+		Adds blue unread-message badges in the Feedback Requests and Codemarks sections when there are
+		new replies
+	</li>
 </ul>
 <h5>Changed</h5>
 <ul>
-    <li>Replaced the "Reject" button in feedback requests with "Request Changes"</li>
-    <li>Renamed the "Needs Works" section in Feedback Requests to "Changes Requested"</li>
+	<li>Replaced the "Reject" button in feedback requests with "Request Changes"</li>
+	<li>Renamed the "Needs Works" section in Feedback Requests to "Changes Requested"</li>
 </ul>
 <h5>Fixed</h5>
 <ul>
-    <li>Fixes an issue that would cause blue badges to appear for codemarks/feedback requests even if they didn't have unread replies</li>
-    <li>Fixes an issue where Cmd + Enter submits a feedback request with no changes selected</li>
-    <li>Fixes an issue where you'd get prompted to review changes after changing branches</li>
-    <li>Fixes an issue where the Linear integration wasn't recognizing multiple teams</li>
-    <li>Fixes an issue where the assignees list wasn't complete when creating an issue on GitLab</li>
-    <li>Fixes an issue with an extraneous entry appearing in the branch dropdowns when creating a pull request</li>
-    <li>Fixes an issue with Shift+Click not working on Windows when trying to select a range of commits to review in a pull request</li>
-    <li>Fixes an issue with the Feedback menu item under the headshot menu not working</li>
+	<li>
+		Fixes an issue that would cause blue badges to appear for codemarks/feedback requests even if
+		they didn't have unread replies
+	</li>
+	<li>Fixes an issue where Cmd + Enter submits a feedback request with no changes selected</li>
+	<li>Fixes an issue where you'd get prompted to review changes after changing branches</li>
+	<li>Fixes an issue where the Linear integration wasn't recognizing multiple teams</li>
+	<li>Fixes an issue where the assignees list wasn't complete when creating an issue on GitLab</li>
+	<li>
+		Fixes an issue with an extraneous entry appearing in the branch dropdowns when creating a pull
+		request
+	</li>
+	<li>
+		Fixes an issue with Shift+Click not working on Windows when trying to select a range of commits
+		to review in a pull request
+	</li>
+	<li>Fixes an issue with the Feedback menu item under the headshot menu not working</li>
 </ul>
