@@ -1,5 +1,15 @@
 # Change Log
 
+## [13.0.1] - 2022-6-6
+
+### Added
+
+- Adds support for code-level metrics for .NET
+
+### Fixed
+
+- Fixes an issue preventing connections to Trello and Asana
+
 ## [13.0.0] - 2022-6-2
 
 ### Added
