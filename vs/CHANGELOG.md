@@ -1,5 +1,11 @@
 # Change Log
 
+## [13.0.2] - 2022-6-7
+
+### Changed
+
+- Override any existing New Relic environment variables when launching
+
 ## [13.0.1] - 2022-6-6
 
 ### Added
