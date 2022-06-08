@@ -53,6 +53,26 @@ export const saveReviews = (reviews: CSReview[]) =>
 export const updateReviews = (reviews: CSReview[]) =>
 	action(ReviewsActionsTypes.UpdateReviews, reviews);
 
+interface BaseSharingAttributes {
+	providerId: string;
+	providerTeamId: string;
+	providerTeamName?: string;
+	botUserId?: string;
+}
+
+type ChannelSharingAttributes = BaseSharingAttributes & {
+	type: "channel";
+	channelId: string;
+	channelName?: string;
+};
+
+type DirectSharingAttributes = BaseSharingAttributes & {
+	type: "direct";
+	userIds: string[];
+};
+
+type SharingAttributes = ChannelSharingAttributes | DirectSharingAttributes;
+
 export interface NewReviewAttributes {
 	title: string;
 	text: string;
@@ -78,14 +98,7 @@ export interface NewReviewAttributes {
 	}[];
 
 	accessMemberIds: string[];
-	sharingAttributes?: {
-		providerId: string;
-		providerTeamId: string;
-		providerTeamName?: string;
-		channelId: string;
-		channelName?: string;
-		botUserId?: string;
-	};
+	sharingAttributes?: SharingAttributes;
 	mentionedUserIds?: string[];
 	addedUsers?: string[];
 	entryPoint?: string;
@@ -119,11 +132,14 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 			if (attributes.sharingAttributes) {
 				const { sharingAttributes } = attributes;
 				try {
-					const { post, ts, permalink } = await HostApi.instance.send(
+					const { post, ts, permalink, channelId } = await HostApi.instance.send(
 						CreateThirdPartyPostRequestType,
 						{
 							providerId: attributes.sharingAttributes.providerId,
-							channelId: attributes.sharingAttributes.channelId,
+							channelId:
+								sharingAttributes.type === "channel" ? sharingAttributes.channelId : undefined,
+							memberIds:
+								sharingAttributes.type === "direct" ? sharingAttributes.userIds : undefined,
 							providerTeamId: attributes.sharingAttributes.providerTeamId,
 							providerServerTokenUserId: sharingAttributes.botUserId,
 							text: rest.text,
@@ -140,8 +156,13 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 									providerId: sharingAttributes.providerId,
 									teamId: sharingAttributes.providerTeamId,
 									teamName: sharingAttributes.providerTeamName || "",
-									channelId: sharingAttributes.channelId,
-									channelName: sharingAttributes.channelName || "",
+									channelId:
+										channelId ||
+										(sharingAttributes.type === "channel" ? sharingAttributes.channelId : ""),
+									channelName:
+										(sharingAttributes.type === "channel"
+											? sharingAttributes.channelName
+											: "Direct Message") || "",
 									postId: ts,
 									url: permalink || ""
 								}

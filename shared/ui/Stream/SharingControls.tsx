@@ -110,14 +110,25 @@ function useDataForTeam(providerId: string, providerTeamId: string = "") {
 	}, [teamData]);
 }
 
-export type SharingAttributes = Pick<
-	CreateThirdPartyPostRequest,
-	"providerId" | "providerTeamId" | "channelId"
-> & {
+type BaseSharingAttributes = {
+	providerId: string;
+	providerTeamId: string;
 	providerTeamName?: string;
-	channelName?: string;
 	botUserId?: string;
 };
+
+type ChannelSharingAttributes = BaseSharingAttributes & {
+	type: "channel";
+	channelId: string;
+	channelName?: string;
+};
+
+type DirectSharingAttributes = BaseSharingAttributes & {
+	type: "direct";
+	userIds: string[];
+};
+
+export type SharingAttributes = ChannelSharingAttributes | DirectSharingAttributes;
 
 const EMPTY_HASH = {};
 export const SharingControls = React.memo(
@@ -136,7 +147,7 @@ export const SharingControls = React.memo(
 			const defaultChannel = props.repoId && defaultChannels[props.repoId];
 
 			// this is what we've persisted in the server as the last selection the user made
-			const lastShareAttributes: SharingAttributes | undefined =
+			const lastShareAttributes: ChannelSharingAttributes | undefined =
 				preferencesForTeam.lastShareAttributes;
 
 			const shareTargets = getConnectedSharingTargets(state);
@@ -179,6 +190,16 @@ export const SharingControls = React.memo(
 		const [currentChannel, setCurrentChannel] = React.useState<ThirdPartyChannel | undefined>(
 			undefined
 		);
+		const [channelOrDirect, setChannelOrDirect] = React.useState<"channel" | "direct">("channel");
+		const [checkedUsers, setCheckedUsers] = React.useState<string[]>([]);
+
+		const toggleUserChecked = user => {
+			if (checkedUsers.includes(user)) {
+				setCheckedUsers(checkedUsers.filter(u => u !== user));
+			} else {
+				setCheckedUsers([...checkedUsers, user]);
+			}
+		};
 
 		useDidMount(() => {
 			if (
@@ -249,9 +270,18 @@ export const SharingControls = React.memo(
 							channelIdToSelect != undefined
 								? response.channels.find(c => c.id === channelIdToSelect)
 								: undefined;
+						let botUserId;
+						if (selectedShareTarget.providerId === "slack*com") {
+							const teamData = derivedState.slackServerProviderData
+								? derivedState.slackServerProviderData[selectedShareTarget.teamId]
+								: undefined;
+							botUserId = teamData ? teamData.bot_user_id : undefined;
+						}
+						const members = (response.members || []).filter(_ => _.id !== botUserId);
 						data.set(teamData => ({
 							...teamData,
 							channels: response.channels,
+							members: members,
 							lastSelectedChannel: channelToSelect || teamData.lastSelectedChannel
 						}));
 						setCurrentChannel(undefined);
@@ -282,7 +312,7 @@ export const SharingControls = React.memo(
 		React.useEffect(() => {
 			const shareTarget = derivedState.selectedShareTarget;
 
-			if (shareTarget && selectedChannel) {
+			if (shareTarget && channelOrDirect === "channel" && selectedChannel) {
 				let botUserId;
 				if (shareTarget.providerId === "slack*com") {
 					const teamData = derivedState.slackServerProviderData
@@ -291,6 +321,7 @@ export const SharingControls = React.memo(
 					botUserId = teamData ? teamData.bot_user_id : undefined;
 				}
 				props.onChangeValues({
+					type: "channel",
 					providerId: shareTarget.providerId,
 					providerTeamId: shareTarget.teamId,
 					providerTeamName: shareTarget.teamName,
@@ -305,10 +336,32 @@ export const SharingControls = React.memo(
 						providerTeamId: shareTarget.teamId
 					})
 				);
+			} else if (
+				shareTarget &&
+				channelOrDirect === "direct" &&
+				checkedUsers &&
+				checkedUsers.length
+			) {
+				let botUserId;
+				if (shareTarget.providerId === "slack*com") {
+					const teamData = derivedState.slackServerProviderData
+						? derivedState.slackServerProviderData[shareTarget.teamId]
+						: undefined;
+					botUserId = teamData ? teamData.bot_user_id : undefined;
+				}
+				props.onChangeValues({
+					type: "direct",
+					providerId: shareTarget.providerId,
+					providerTeamId: shareTarget.teamId,
+					providerTeamName: shareTarget.teamName,
+					userIds: checkedUsers,
+					botUserId
+				});
 			} else props.onChangeValues(undefined);
 		}, [
 			derivedState.selectedShareTarget && derivedState.selectedShareTarget.teamId,
 			selectedChannel && selectedChannel.id,
+			checkedUsers,
 			// hack[?] for asserting this hook runs after the data has changed.
 			// for some reason selectedChannel updating is not making this hook
 			// re-run
@@ -380,20 +433,57 @@ export const SharingControls = React.memo(
 				dataForTeam.channels.length > 5
 					? [{ type: "search", placeholder: "Search..." }, { label: "-" }]
 					: [];
+			const dmItems = dms && dms.length ? [{ label: "-" }, ...dms] : [];
+			const switchToDirect =
+				dataForTeam.members && dataForTeam.members.length
+					? [
+							{ label: "-" },
+							{
+								label: "Select DM Targets",
+								dontCloseOnSelect: true,
+								action: () => setChannelOrDirect("direct")
+							}
+					  ]
+					: [];
 
-			if (dms && dms.length) {
-				return [...search, ...others, { label: "-" }, ...dms];
-			} else {
-				return [...search, ...others];
-			}
-
+			return [...search, ...others, ...dmItems, ...switchToDirect];
 			// }, [data.get().channels]);
+		};
+
+		const getImMenuItems = () => {
+			const dataForTeam = data.get();
+			if (dataForTeam.members == undefined) return [];
+
+			const users = dataForTeam.members.map(user => ({
+				key: user.id,
+				label: user.name,
+				searchLabel: user.name,
+				checked: checkedUsers.includes(user.id),
+				disabled: checkedUsers.length >= 7 && !checkedUsers.includes(user.id),
+				action: () => toggleUserChecked(user.id)
+			}));
+
+			const search =
+				users.length > 5 ? [{ type: "search", placeholder: "Search..." }, { label: "-" }] : [];
+			const switchToChannels = [
+				{ label: "-" },
+				{ label: "Select a channel", action: () => setChannelOrDirect("channel") }
+			];
+
+			return [...search, ...users, ...switchToChannels];
 		};
 
 		const setChannel = channel => {
 			if (props.showToggle) setCheckbox(true);
 			setCurrentChannel(channel);
 			data.set(teamData => ({ ...teamData, lastSelectedChannel: channel }));
+		};
+
+		const getMenuItems = () => {
+			if (channelOrDirect === "channel") {
+				return getChannelMenuItems(channel => setChannel(channel));
+			}
+			return getImMenuItems();
 		};
 
 		const authenticateWithSlack = () => {
@@ -487,6 +577,22 @@ export const SharingControls = React.memo(
 			return data.get().channels.find(c => c.id == id);
 		};
 
+		const getSelectedTarget = () => {
+			if (channelOrDirect === "channel") {
+				return selectedChannel == undefined
+					? "select a channel"
+					: formatChannelName(selectedChannel);
+			}
+			const dataForTeam = data.get();
+			if (dataForTeam.members == undefined) return "select a channel";
+			return checkedUsers
+				.map(a => dataForTeam.members!.find(b => b.id === a))
+				.map(_ => _?.name)
+				.filter(Boolean)
+				.sort()
+				.join(", ");
+		};
+
 		const renderDefaultChannels = () => {
 			const { repos, defaultChannels } = derivedState;
 			return (
@@ -569,13 +675,15 @@ export const SharingControls = React.memo(
 					<Icon name={derivedState.selectedShareTarget!.icon} />{" "}
 					{derivedState.selectedShareTarget!.teamName}
 				</InlineMenu>{" "}
-				in{" "}
+				{channelOrDirect === "channel" ? "in " : "with "}
 				<InlineMenu
-					items={getChannelMenuItems(channel => setChannel(channel))}
+					items={getMenuItems()}
 					title="Post to..."
 					titleIcon={channelTitleIcon}
+					dontCloseOnSelect={channelOrDirect === "direct"}
+					isMultiSelect={channelOrDirect === "direct"}
 				>
-					{selectedChannel == undefined ? "select a channel" : formatChannelName(selectedChannel)}
+					{getSelectedTarget()}
 				</InlineMenu>
 			</Root>
 		);

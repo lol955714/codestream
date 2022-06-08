@@ -42,7 +42,8 @@ export interface CreateExternalPostRequest {
 }
 
 export interface CreateSharedExternalPostRequest {
-	channelId: string;
+	channelId?: string;
+	memberIds?: string[];
 	text: string;
 	mentionedUserIds?: string[];
 	parentPostId?: string;
@@ -124,6 +125,8 @@ export interface CreatePostResponse {
 	repos?: CSRepository[];
 	ts?: string;
 	permalink?: string;
+	channelId?: string;
+	channelName?: string;
 }
 export const CreatePostRequestType = new RequestType<
 	CreatePostRequest,

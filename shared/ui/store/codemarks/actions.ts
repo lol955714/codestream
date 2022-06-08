@@ -57,17 +57,30 @@ export interface BaseNewCodemarkAttributes {
 	files?: Attachment[];
 }
 
+interface BaseSharingAttributes {
+	providerId: string;
+	providerTeamId: string;
+	providerTeamName?: string;
+	botUserId?: string;
+}
+
+type ChannelSharingAttributes = BaseSharingAttributes & {
+	type: "channel";
+	channelId: string;
+	channelName?: string;
+};
+
+type DirectSharingAttributes = BaseSharingAttributes & {
+	type: "direct";
+	userIds: string[];
+};
+
+type SharingAttributes = ChannelSharingAttributes | DirectSharingAttributes;
+
 export interface SharingNewCodemarkAttributes extends BaseNewCodemarkAttributes {
 	accessMemberIds: string[];
 	remotes?: string[];
-	sharingAttributes?: {
-		providerId: string;
-		providerTeamId: string;
-		providerTeamName?: string;
-		channelId: string;
-		channelName?: string;
-		botUserId?: string;
-	};
+	sharingAttributes?: SharingAttributes;
 	textDocuments?: TextDocumentIdentifier[];
 	entryPoint?: string;
 	mentionedUserIds?: string[];
@@ -147,11 +160,14 @@ export const createCodemark = (attributes: SharingNewCodemarkAttributes) => asyn
 				if (attributes.sharingAttributes) {
 					const { sharingAttributes } = attributes;
 					try {
-						const { post, ts, permalink } = await HostApi.instance.send(
+						const { post, ts, permalink, channelId } = await HostApi.instance.send(
 							CreateThirdPartyPostRequestType,
 							{
 								providerId: sharingAttributes.providerId,
-								channelId: sharingAttributes.channelId,
+								channelId:
+									sharingAttributes.type === "channel" ? sharingAttributes.channelId : undefined,
+								memberIds:
+									sharingAttributes.type === "direct" ? sharingAttributes.userIds : undefined,
 								providerTeamId: sharingAttributes.providerTeamId,
 								providerServerTokenUserId: sharingAttributes.botUserId,
 								text: rest.text,
@@ -169,8 +185,13 @@ export const createCodemark = (attributes: SharingNewCodemarkAttributes) => asyn
 										providerId: sharingAttributes.providerId,
 										teamId: sharingAttributes.providerTeamId,
 										teamName: sharingAttributes.providerTeamName || "",
-										channelId: sharingAttributes.channelId,
-										channelName: sharingAttributes.channelName || "",
+										channelId:
+											channelId ||
+											(sharingAttributes.type === "channel" ? sharingAttributes.channelId : ""),
+										channelName:
+											(sharingAttributes.type === "channel"
+												? sharingAttributes.channelName
+												: "Direct Message") || "",
 										postId: ts,
 										url: permalink || ""
 									}

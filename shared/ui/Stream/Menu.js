@@ -670,7 +670,7 @@ export default class Menu extends Component {
 		// support functions as item actions
 		if (typeof item.action === "function" && !item.disabled) {
 			item.action();
-			if (this.props.dontCloseOnSelect) {
+			if (this.props.dontCloseOnSelect || item.dontCloseOnSelect) {
 				if (!this.props.repositionMinimally) this.repositionIfNecessary(item);
 			} else {
 				// invoke the action callback for entire menu so it can removed

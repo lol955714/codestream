@@ -145,8 +145,10 @@ export class SlackProvider extends ThirdPartyPostProviderBase<CSSlackProviderInf
 				}),
 			[_ => _.order, _ => _.name]
 		);
+		const members = streams.members || [];
 		return {
-			channels: channels
+			channels,
+			members
 		};
 	}
 

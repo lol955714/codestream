@@ -24,6 +24,7 @@ export interface ActiveIntegrationData {
 export type SlackV2IntegrationData = ActiveIntegrationData & {
 	[slackTeamId: string]: {
 		channels: { type: string; name: string; id: string }[];
+		members?: { id: string; name: string }[];
 		lastSelectedChannel?: { type: string; name: string; id: string };
 	};
 };

@@ -300,11 +300,31 @@ export class SlackSharingApiProvider {
 	})
 	async createExternalPost(request: CreateSharedExternalPostRequest): Promise<CreatePostResponse> {
 		let createdPostId;
+		let channelId = request.channelId;
+		const memberIds = request.memberIds;
 		try {
 			const userMaps = await this.ensureUserMaps();
-			const channelId = request.channelId;
 			let text = request.text;
 			const meMessage = meMessageRegex.test(text);
+
+			if (!channelId && (!memberIds || !memberIds.length || !request.providerServerTokenUserId)) {
+				throw new Error("No channelId found: cannot create external post");
+			}
+
+			if (!channelId) {
+				const openResponse = await this.slackApiCall("conversations.open", {
+					users: [...memberIds!, request.providerServerTokenUserId].join(",")
+				});
+				const {
+					ok: openOk,
+					error: openError,
+					channel: openData
+				} = openResponse as WebAPICallResult & {
+					channel: { id: string };
+				};
+				if (!openOk) throw new Error(openError);
+				channelId = openData.id;
+			}
 
 			const sleep = (miliseconds: number) => {
 				return new Promise(resolve => setTimeout(resolve, miliseconds));
@@ -467,14 +487,15 @@ export class SlackSharingApiProvider {
 			return {
 				post: post,
 				ts: ts,
-				permalink: thePermalink
+				permalink: thePermalink,
+				channelId: channelId
 			};
 		} finally {
 			if (createdPostId) {
 				this._codestream.trackProviderPost({
 					provider: "slack",
 					teamId: this._codestreamTeamId,
-					streamId: request.channelId,
+					streamId: channelId || memberIds?.join(",") || "",
 					postId: createdPostId
 				});
 			}
@@ -572,10 +593,10 @@ export class SlackSharingApiProvider {
 				CSChannelStream | CSDirectStream | CSObjectStream
 			>[] = [];
 
-			const [channels, groups, ims] = await Promise.all([
+			const [channels, groups] = await Promise.all([
 				this.fetchChannels(
 					// Filter out shared channels for now, until we can convert to the conversation apis
-					conversations.filter(c => c.is_channel),
+					conversations.filter(c => c.is_channel && !c.is_mpim && !c.is_shared),
 					undefined,
 					pendingRequestsQueue
 				),
@@ -585,12 +606,10 @@ export class SlackSharingApiProvider {
 					userMaps.slackUsernamesById,
 					undefined,
 					pendingRequestsQueue
-				),
-				// only going to take the top N im conversations as dictated by filterConversationsByIm
-				this.fetchIMs(imConversations, userMaps.slackUsernamesById, undefined, pendingRequestsQueue)
+				)
 			]);
 
-			const streams = channels.concat(...groups, ...ims);
+			const streams = channels.concat(...groups);
 			if (this.capabilities.providerSupportsRealtimeEvents && pendingRequestsQueue.length !== 0) {
 				this.processPendingStreamsQueue(pendingRequestsQueue);
 			}
@@ -603,7 +622,14 @@ export class SlackSharingApiProvider {
 				return { streams: streams.filter(s => request.types!.includes(s.type)) };
 			}
 
-			return { streams: streams };
+			const members = Array.from(userMaps.slackUsernamesById, ([id, name]) => ({
+				id,
+				name
+			}))
+				.filter(_ => _.id !== "USLACKBOT")
+				.filter(_ => _.id !== this._slackUserId);
+
+			return { streams: streams, members: members };
 		} catch (ex) {
 			Logger.error(ex, cc);
 			throw ex;

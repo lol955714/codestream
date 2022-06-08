@@ -217,7 +217,7 @@ export const UpdateThirdPartyStatusRequestType = new RequestType<
 export interface CreateThirdPartyPostRequest {
 	providerId: string;
 	providerTeamId: string;
-	channelId: string;
+	channelId?: string;
 	text: string;
 	attributes?: any;
 	memberIds?: any;
@@ -236,6 +236,8 @@ export interface CreateThirdPartyPostResponse {
 	post: any;
 	ts?: string;
 	permalink?: string;
+	channelId?: string;
+	channelName?: string;
 }
 
 export const CreateThirdPartyPostRequestType = new RequestType<
@@ -283,8 +285,14 @@ export interface ThirdPartyChannel {
 	type: string;
 }
 
+export interface ThirdPartyChannelMember {
+	id: string;
+	name: string;
+}
+
 export interface FetchThirdPartyChannelsResponse {
 	channels: ThirdPartyChannel[];
+	members?: ThirdPartyChannelMember[];
 }
 
 export interface ThirdPartyProviderUser {
