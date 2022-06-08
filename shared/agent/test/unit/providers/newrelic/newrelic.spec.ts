@@ -993,6 +993,10 @@ class NewRelicProviderStubBase extends NewRelicProvider {
 				{
 					guid: "123456",
 					name: "my-entity",
+					account: {
+						id: 1,
+						name: "name"
+					},
 					tags: [
 						{
 							key: "accountId",
@@ -1021,6 +1025,10 @@ class NewRelicProviderStubBase extends NewRelicProvider {
 								{
 									source: {
 										entity: {
+											account: {
+												id: 1,
+												name: "name"
+											},
 											name: "src-entity",
 											type: "APPLICATION",
 											tags: [
@@ -1033,6 +1041,10 @@ class NewRelicProviderStubBase extends NewRelicProvider {
 									},
 									target: {
 										entity: {
+											account: {
+												id: 1,
+												name: "name"
+											},
 											name: "target-entity",
 											type: "REPOSITORY",
 											tags: [
