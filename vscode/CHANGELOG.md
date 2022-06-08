@@ -8,6 +8,7 @@
 - Fixes an issue with the rendering of reactions to pull request comments
 - Fixes an issue with author name missing in pull request comments
 - Fixes an issue with duplicate entries appear in the selection of entities from New Relic
+- Fixes a console error bug where the PR conversation endpoint was being requested without proper ids
 
 ## [13.0.1] - 2022-6-6
 
