@@ -4,8 +4,8 @@
   "description": "CodeStream helps dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.",
   "main": "index.js",
   "scripts": {
-    "install": "echo \"Error: Please `cd` into one of [vs|vscode|atom|jb] directories and run `npm install`\" && exit 1",
-    "build": "echo \"Error: Please `cd` into one of [vs|vscode|atom|jb] directories and run `npm build`\" && exit 1"
+    "install": "echo \"Error: Please `cd` into one of [vs|vscode|jb] directories and run `npm install`\" && exit 1",
+    "build": "echo \"Error: Please `cd` into one of [vs|vscode|jb] directories and run `npm build`\" && exit 1"
   },
   "repository": {
     "type": "git",

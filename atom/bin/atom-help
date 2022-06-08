@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#desc# brief command summary
-
-dt-help $ATOM_TOP/bin

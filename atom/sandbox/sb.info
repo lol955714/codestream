@@ -1,5 +1,0 @@
-SB_TYPE=atom
-SB_PREFIX=ATOM
-GIT_ORIGIN=git@github.com:teamcodestream/atom-codestream
-SB_PROJECT_PATH=atom-codestream
-#SB_DEPS=a:b:c
