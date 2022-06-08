@@ -49,6 +49,10 @@ New-Module -ScriptBlock {
         Write-AssemblyInfo $version "CodeStream.VisualStudio.Core"
         Write-AssemblyInfo $version "CodeStream.VisualStudio.Shell.2017"
         Write-AssemblyInfo $version "CodeStream.VisualStudio.Shell.2019"
+        Write-AssemblyInfo $version "CodeStream.VisualStudio.CodeLens"
+        Write-AssemblyInfo $version "CodeStream.VisualStudio.Shared"
+        Write-AssemblyInfo $version "CodeStream.VisualStudio.Services"
+        
         #Write-VersionAppVeyor $version
         #Write-DirectoryBuildProps $version
         #Push-Location $rootDirectory

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core.Process;
 using CodeStream.VisualStudio.Core.Services;
 
@@ -12,7 +11,7 @@ namespace CodeStream.VisualStudio.Core.LanguageServer {
 		/// Creates the lsp server process object
 		/// </summary>
 		/// <returns></returns>
-		public System.Diagnostics.Process Create(ISettingsManager settingsManager, IHttpClientService httpClient) {
+		public System.Diagnostics.Process Create(ICodeStreamSettingsManager codeStreamSettingsManager, IHttpClientService httpClient) {
 			var assembly = Assembly.GetAssembly(typeof(LanguageServerClientProcess));
 			string arguments = null;
 			var exe = @"node.exe";
@@ -30,8 +29,8 @@ namespace CodeStream.VisualStudio.Core.LanguageServer {
 			var nrSettings = httpClient.GetNREnvironmentSettings();
 
 			StringDictionary additionalEnv = new StringDictionary {
-				{ "NODE_EXTRA_CA_CERTS", settingsManager.ExtraCertificates },
-				{ "NODE_TLS_REJECT_UNAUTHORIZED", settingsManager.DisableStrictSSL ? "0" : "1" }
+				{ "NODE_EXTRA_CA_CERTS", codeStreamSettingsManager.ExtraCertificates },
+				{ "NODE_TLS_REJECT_UNAUTHORIZED", codeStreamSettingsManager.DisableStrictSSL ? "0" : "1" }
 			};
 
 			if (nrSettings.HasValidSettings) {

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using CodeStream.VisualStudio.Core;
-using CodeStream.VisualStudio.Core.Controllers;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.LanguageServer;
@@ -28,7 +27,7 @@ namespace CodeStream.VisualStudio {
 		private readonly IWebviewUserSettingsService _webviewUserSettingsService;
 		private readonly ISessionService _sessionService;
 		private readonly ICodeStreamAgentService _codeStreamAgent;
-		private readonly ISettingsManager _settingsManager;
+		private readonly ICodeStreamSettingsManager _codeStreamSettingsManager;
 		private readonly IEventAggregator _eventAggregator;
 		private readonly IBrowserService _browserService;
 		private readonly IIdeService _ideService;
@@ -52,7 +51,7 @@ namespace CodeStream.VisualStudio {
 			_webviewUserSettingsService = webviewUserSettingsService;
 			_sessionService = sessionService;
 			_codeStreamAgent = codeStreamAgent;
-			_settingsManager = settingsServiceFactory.GetOrCreate(nameof(WebViewRouter));
+			_codeStreamSettingsManager = settingsServiceFactory.GetOrCreate(nameof(WebViewRouter));
 			_eventAggregator = eventAggregator;
 			_browserService = browserService;
 			_ideService = ideService;
@@ -99,190 +98,203 @@ namespace CodeStream.VisualStudio {
 							}
 						case IpcRoutes.Host: {
 								switch (message.Method) {
+									case RefreshEditorsCodeLensRequestType.MethodName: {
+										using (var scope = _browserService.CreateScope(message)) {
+
+											await CodeLevelMetricsCallbackService.RefreshAllCodeLensDataPointsAsync();
+
+											var response = new RefreshEditorsCodeLensResponse {
+												Success = true
+											};
+											scope.FulfillRequest(response.ToJToken());
+										}
+
+										break;
+									}
 									case ShellPromptFolderRequestType.MethodName: {
-											using (var scope = _browserService.CreateScope(message)) {
-												ShellPromptFolderResponse response = null;
-												string error = null;
-												try {
-													await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-													var request = message.Params.ToObject<ShellPromptFolderRequest>();
-													var dialog = _ideService.FolderPrompt(request?.Message);
-													if (dialog.ShowDialog() == DialogResult.OK) {
-														if (!dialog.SelectedPath.IsNullOrWhiteSpace()) {
-															response = new ShellPromptFolderResponse {
-																Path = dialog.SelectedPath
-															};
-														}
-													}
-												}
-												catch (Exception ex) {
-													Log.Warning(ex, $"Method={message.Method}");
-													error = ex.Message;
-												}
-												finally {
-													scope.FulfillRequest((response ?? new ShellPromptFolderResponse()).ToJToken(), error);
-												}
-											}
-
-											break;
-										}
-									case WebviewDidInitializeNotificationType.MethodName: {
-											// webview is ready!
-											_sessionService.WebViewDidInitialize = true;
-											_eventAggregator.Publish(new WebviewDidInitializeEvent());
-
-											Log.Debug(nameof(_sessionService.WebViewDidInitialize));
-											break;
-										}
-									case WebviewDidChangeContextNotificationType.MethodName: {
-											var @params = message.Params.ToObject<WebviewDidChangeContextNotification>();
-											if (@params != null) {
-												var panelStack = @params.Context?.PanelStack;
-												_sessionService.PanelStack = panelStack;
-												if (panelStack != null) {
-													var visible = panelStack.FirstOrDefault() == WebviewPanels.CodemarksForFile;
-													_sessionService.IsCodemarksForFileVisible = visible;
-													_sessionService.AreMarkerGlyphsVisible = !visible;
-
-													_eventAggregator.Publish(new MarkerGlyphVisibilityEvent { IsVisible = !visible });
-												}
-												_webviewUserSettingsService.SaveContext(_sessionService.SolutionName, @params.Context);
-											}
-											break;
-										}
-									case CompareMarkerRequestType.MethodName: {
-											using (_browserService.CreateScope(message)) {
-												try {
-													var marker = message.Params["marker"].ToObject<CsMarker>();
-													var documentFromMarker = await _codeStreamAgent.GetDocumentFromMarkerAsync(
-															new DocumentFromMarkerRequest(marker));
-
-													var fileUri = documentFromMarker.TextDocument.Uri.ToUri();
-													var filePath = fileUri.ToLocalPath();
-
-													await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-													var wpfTextView = await _ideService.OpenEditorAtLineAsync(fileUri, documentFromMarker.Range, true);
-													if (wpfTextView != null) {
-														var document = wpfTextView.GetDocument();
-														if (document != null) {
-															var text = wpfTextView.TextBuffer.CurrentSnapshot.GetText();
-															var span = wpfTextView.ToSpan(documentFromMarker.Range);
-															if (span.HasValue) {
-																if (document?.IsDirty == true) {
-																	var tempFile1 = _ideService.CreateTempFile(filePath, text);
-																	var tempFile2 = _ideService.CreateTempFile(filePath, text);
-																	_ideService.CompareFiles(tempFile1, tempFile2, wpfTextView.TextBuffer, span.Value,
-																		documentFromMarker.Marker.Code, isFile1Temp: true, isFile2Temp: true);
-																}
-																else {
-																	var tempFile2 = _ideService.CreateTempFile(filePath, text);
-																	_ideService.CompareFiles(filePath, tempFile2, wpfTextView.TextBuffer, span.Value,
-																		documentFromMarker.Marker.Code, isFile1Temp: false, isFile2Temp: true);
-																}
-															}
-														}
-													}
-												}
-												catch (Exception ex) {
-													Log.Error(ex, nameof(CompareMarkerRequestType.MethodName));
-												}
-											}
-											break;
-										}
-									case ApplyMarkerRequestType.MethodName: {
-											using (_browserService.CreateScope(message)) {
-												try {
-													var marker = message.Params["marker"].ToObject<CsMarker>();
-													var documentFromMarker = await _codeStreamAgent.GetDocumentFromMarkerAsync(new DocumentFromMarkerRequest(marker));
-													var fileUri = documentFromMarker.TextDocument.Uri.ToUri();
-
-													await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-													var wpfTextView = await _ideService.OpenEditorAtLineAsync(fileUri, documentFromMarker.Range, true);
-
-													if (wpfTextView != null) {
-														var span = wpfTextView.ToSpan(documentFromMarker.Range);
-														if (span.HasValue) {
-															wpfTextView.TextBuffer.Replace(span.Value, documentFromMarker.Marker.Code);
-														}
-													}
-												}
-												catch (Exception ex) {
-													Log.Error(ex, nameof(ApplyMarkerRequestType.MethodName));
-												}
-											}
-											break;
-										}
-									case BootstrapInHostRequestType.MethodName: {
+										using (var scope = _browserService.CreateScope(message)) {
+											ShellPromptFolderResponse response = null;
+											string error = null;
 											try {
-												string errorResponse = null;
-												JToken @params = null;
-
-												using (var scope = _browserService.CreateScope(message)) {
-													try {
-														@params = await _codeStreamAgent.GetBootstrapAsync(_settingsManager.GetSettings(), _sessionService.State, _sessionService.IsReady);
-													}
-													catch (Exception ex) {
-														Log.Debug(ex, nameof(BootstrapInHostRequestType));
-														errorResponse = ex.Message;
-													}
-													finally {
-														scope.FulfillRequest(@params, errorResponse);
+												await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+												var request = message.Params.ToObject<ShellPromptFolderRequest>();
+												var dialog = _ideService.FolderPrompt(request?.Message);
+												if (dialog.ShowDialog() == DialogResult.OK) {
+													if (!dialog.SelectedPath.IsNullOrWhiteSpace()) {
+														response = new ShellPromptFolderResponse {
+															Path = dialog.SelectedPath
+														};
 													}
 												}
 											}
 											catch (Exception ex) {
-												Log.Error(ex, nameof(BootstrapInHostRequestType));
+												Log.Warning(ex, $"Method={message.Method}");
+												error = ex.Message;
 											}
-											break;
+											finally {
+												scope.FulfillRequest((response ?? new ShellPromptFolderResponse()).ToJToken(), error);
+											}
 										}
-									case LogoutRequestType.MethodName: {
-											await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-											using (_browserService.CreateScope(message)) {
-												if (_authenticationServiceFactory != null) {
-													var authenticationService = _authenticationServiceFactory.Create();
-													if (authenticationService != null) {
-														var @params = message.Params.ToObject<LogoutRequest>();
-														var reason = @params?.Reason == LogoutReason1.Reauthenticating ?
-															SessionSignedOutReason.ReAuthenticating
-															: SessionSignedOutReason.UserSignedOutFromWebview;
 
-														await authenticationService.LogoutAsync(reason, @params.NewServerUrl, @params.NewEnvironment, null);
-													}
-												}
+										break;
+									}
+									case WebviewDidInitializeNotificationType.MethodName: {
+										// webview is ready!
+										_sessionService.WebViewDidInitialize = true;
+										_eventAggregator.Publish(new WebviewDidInitializeEvent());
+
+										Log.Debug(nameof(_sessionService.WebViewDidInitialize));
+										break;
+									}
+									case WebviewDidChangeContextNotificationType.MethodName: {
+										var @params = message.Params.ToObject<WebviewDidChangeContextNotification>();
+										if (@params != null) {
+											var panelStack = @params.Context?.PanelStack;
+											_sessionService.PanelStack = panelStack;
+											if (panelStack != null) {
+												var visible = panelStack.FirstOrDefault() == WebviewPanels.CodemarksForFile;
+												_sessionService.IsCodemarksForFileVisible = visible;
+												_sessionService.AreMarkerGlyphsVisible = !visible;
+
+												_eventAggregator.Publish(new MarkerGlyphVisibilityEvent { IsVisible = !visible });
 											}
-											break;
+											_webviewUserSettingsService.SaveContext(_sessionService.SolutionName, @params.Context);
 										}
-									case GetActiveEditorContextRequestType.MethodName: {
-											using (var scope = _browserService.CreateScope(message)) {
-												scope.FulfillRequest(new GetActiveEditorContextResponse(_editorService.GetEditorContext()).ToJToken());
-											}
-											break;
-										}
-									case EditorSelectRangeRequestType.MethodName: {
-											using (var scope = _browserService.CreateScope(message)) {
-												bool result = false;
-												try {
-													var @params = message.Params.ToObject<EditorSelectRangeRequest>();
-													if (@params != null) {
-														var uri = @params.Uri.ToUri();
-														await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-														var editorResponse = await _ideService.OpenEditorAtLineAsync(uri, @params.Selection.ToRange(), true);
-														if (editorResponse != null) {
-															result = new ActiveTextEditor(editorResponse, uri.ToLocalPath(), uri, editorResponse.TextSnapshot?.LineCount)
-															  .SelectRange(@params.Selection, @params.PreserveFocus == false);
-															if (!result) {
-																Log.Warning($"SelectRange result is false");
+										break;
+									}
+									case CompareMarkerRequestType.MethodName: {
+										using (_browserService.CreateScope(message)) {
+											try {
+												var marker = message.Params["marker"].ToObject<CsMarker>();
+												var documentFromMarker = await _codeStreamAgent.GetDocumentFromMarkerAsync(
+														new DocumentFromMarkerRequest(marker));
+
+												var fileUri = documentFromMarker.TextDocument.Uri.ToUri();
+												var filePath = fileUri.ToLocalPath();
+
+												await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+												var wpfTextView = await _ideService.OpenEditorAtLineAsync(fileUri, documentFromMarker.Range, true);
+												if (wpfTextView != null) {
+													var document = wpfTextView.GetDocument();
+													if (document != null) {
+														var text = wpfTextView.TextBuffer.CurrentSnapshot.GetText();
+														var span = wpfTextView.ToSpan(documentFromMarker.Range);
+														if (span.HasValue) {
+															if (document?.IsDirty == true) {
+																var tempFile1 = _ideService.CreateTempFile(filePath, text);
+																var tempFile2 = _ideService.CreateTempFile(filePath, text);
+																_ideService.CompareFiles(tempFile1, tempFile2, wpfTextView.TextBuffer, span.Value,
+																	documentFromMarker.Marker.Code, isFile1Temp: true, isFile2Temp: true);
+															}
+															else {
+																var tempFile2 = _ideService.CreateTempFile(filePath, text);
+																_ideService.CompareFiles(filePath, tempFile2, wpfTextView.TextBuffer, span.Value,
+																	documentFromMarker.Marker.Code, isFile1Temp: false, isFile2Temp: true);
 															}
 														}
 													}
 												}
-												catch (Exception ex) {
-													Log.Warning(ex, nameof(EditorSelectRangeRequestType.MethodName));
-												}
-												scope.FulfillRequest(new EditorSelectRangeResponse { Success = result }.ToJToken());
-												break;
+											}
+											catch (Exception ex) {
+												Log.Error(ex, nameof(CompareMarkerRequestType.MethodName));
 											}
 										}
+										break;
+									}
+									case ApplyMarkerRequestType.MethodName: {
+										using (_browserService.CreateScope(message)) {
+											try {
+												var marker = message.Params["marker"].ToObject<CsMarker>();
+												var documentFromMarker = await _codeStreamAgent.GetDocumentFromMarkerAsync(new DocumentFromMarkerRequest(marker));
+												var fileUri = documentFromMarker.TextDocument.Uri.ToUri();
+
+												await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+												var wpfTextView = await _ideService.OpenEditorAtLineAsync(fileUri, documentFromMarker.Range, true);
+
+												if (wpfTextView != null) {
+													var span = wpfTextView.ToSpan(documentFromMarker.Range);
+													if (span.HasValue) {
+														wpfTextView.TextBuffer.Replace(span.Value, documentFromMarker.Marker.Code);
+													}
+												}
+											}
+											catch (Exception ex) {
+												Log.Error(ex, nameof(ApplyMarkerRequestType.MethodName));
+											}
+										}
+										break;
+									}
+									case BootstrapInHostRequestType.MethodName: {
+										try {
+											string errorResponse = null;
+											JToken @params = null;
+
+											using (var scope = _browserService.CreateScope(message)) {
+												try {
+													@params = await _codeStreamAgent.GetBootstrapAsync(_codeStreamSettingsManager.GetSettings(), _sessionService.State, _sessionService.IsReady);
+												}
+												catch (Exception ex) {
+													Log.Debug(ex, nameof(BootstrapInHostRequestType));
+													errorResponse = ex.Message;
+												}
+												finally {
+													scope.FulfillRequest(@params, errorResponse);
+												}
+											}
+										}
+										catch (Exception ex) {
+											Log.Error(ex, nameof(BootstrapInHostRequestType));
+										}
+										break;
+									}
+									case LogoutRequestType.MethodName: {
+										await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+										using (_browserService.CreateScope(message)) {
+											if (_authenticationServiceFactory != null) {
+												var authenticationService = _authenticationServiceFactory.Create();
+												if (authenticationService != null) {
+													var @params = message.Params.ToObject<LogoutRequest>();
+													var reason = @params?.Reason == LogoutReason1.Reauthenticating ?
+														SessionSignedOutReason.ReAuthenticating
+														: SessionSignedOutReason.UserSignedOutFromWebview;
+
+													await authenticationService.LogoutAsync(reason, @params.NewServerUrl, @params.NewEnvironment, null);
+												}
+											}
+										}
+										break;
+									}
+									case GetActiveEditorContextRequestType.MethodName: {
+										using (var scope = _browserService.CreateScope(message)) {
+											scope.FulfillRequest(new GetActiveEditorContextResponse(_editorService.GetEditorContext()).ToJToken());
+										}
+										break;
+									}
+									case EditorSelectRangeRequestType.MethodName: {
+										using (var scope = _browserService.CreateScope(message)) {
+											bool result = false;
+											try {
+												var @params = message.Params.ToObject<EditorSelectRangeRequest>();
+												if (@params != null) {
+													var uri = @params.Uri.ToUri();
+													await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+													var editorResponse = await _ideService.OpenEditorAtLineAsync(uri, @params.Selection.ToRange(), true);
+													if (editorResponse != null) {
+														result = new ActiveTextEditor(editorResponse, uri.ToLocalPath(), uri, editorResponse.TextSnapshot?.LineCount)
+														  .SelectRange(@params.Selection, @params.PreserveFocus == false);
+														if (!result) {
+															Log.Warning($"SelectRange result is false");
+														}
+													}
+												}
+											}
+											catch (Exception ex) {
+												Log.Warning(ex, nameof(EditorSelectRangeRequestType.MethodName));
+											}
+											scope.FulfillRequest(new EditorSelectRangeResponse { Success = result }.ToJToken());
+											break;
+										}
+									}
 									case EditorHighlightRangeRequestType.MethodName: {
 											using (var scope = _browserService.CreateScope(message)) {
 												bool result = false;
@@ -395,7 +407,7 @@ namespace CodeStream.VisualStudio {
 #if DEBUG
 												Log.LocalWarning(message.ToJson());
 #endif
-												//using (var scope = SettingsScope.Create(_settingsManager))
+												//using (var scope = SettingsScope.Create(_codeStreamSettingsManager))
 												//{
 												//    var @params = message.Params.ToObject<UpdateConfigurationRequest>();
 												//    if (@params.Name == "showMarkerGlyphs")
@@ -412,9 +424,9 @@ namespace CodeStream.VisualStudio {
 												try {
 													var @params = message.Params.ToObject<UpdateServerUrlRequest>();
 													Log.Debug($"{nameof(UpdateServerUrlRequestType)} ServerUrl={@params.ServerUrl}");
-													using (var settingsScope = SettingsScope.Create(_settingsManager, true)) {
-														settingsScope.SettingsManager.ServerUrl = @params.ServerUrl;
-														settingsScope.SettingsManager.DisableStrictSSL = @params.DisableStrictSSL ?? false;
+													using (var settingsScope = SettingsScope.Create(_codeStreamSettingsManager, true)) {
+														settingsScope.CodeStreamSettingsManager.ServerUrl = @params.ServerUrl;
+														settingsScope.CodeStreamSettingsManager.DisableStrictSSL = @params.DisableStrictSSL ?? false;
 													}
 
 													await _codeStreamAgent.SetServerUrlAsync(@params.ServerUrl, @params.DisableStrictSSL, @params.Environment);

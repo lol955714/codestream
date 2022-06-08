@@ -623,6 +623,11 @@ export const Observability = React.memo((props: Props) => {
 			};
 		});
 
+		// didn't find any checked items, check the first
+		if (items.length && !items.find(_ => _.checked)) {
+			items[0].checked = true;
+		}
+
 		if (items.length >= 5) {
 			items.unshift({ label: "-" });
 			items.unshift({ type: "search", placeholder: "Search...", action: "search" });

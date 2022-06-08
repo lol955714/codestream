@@ -439,5 +439,32 @@ namespace CodeStream.VisualStudio.Services {
 				ReviewId = reviewId
 			});
 		}
+
+		public Task<GetFileLevelTelemetryResponse> GetFileLevelTelemetryAsync(
+			string filePath,
+			string languageId,
+			bool resetCache,
+			string codeNamespace,
+			string functionName,
+			bool includeThroughput,
+			bool includeAverageDuration,
+			bool includeErrorRate) {
+
+			return SendCoreAsync<GetFileLevelTelemetryResponse>(GetFileLevelTelemetryRequestType.MethodName,
+				new GetFileLevelTelemetryRequest {
+					FilePath = filePath,
+					LanguageId = languageId,
+					ResetCache = resetCache,
+					Locator = new FileLevelTelemetryFunctionLocator {
+						FunctionName = functionName,
+						Namespace = codeNamespace
+					},
+					Options = new FileLevelTelemetryRequestOptions {
+						IncludeAverageDuration = includeAverageDuration,
+						IncludeErrorRate = includeErrorRate,
+						IncludeThroughput = includeThroughput
+					}
+				});
+		}
 	}
 }

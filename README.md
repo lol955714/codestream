@@ -10,7 +10,7 @@ CodeStream turns conversation into documentation by capturing all of the discuss
 
 # Install CodeStream
 
-Install CodeStream for [VS Code](https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream), [Jetbrains](https://plugins.jetbrains.com/plugin/12206-codestream), [Visual Studio](https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs) or [Atom](https://atom.io/packages/codestream).
+Install CodeStream for [VS Code](https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream), [Jetbrains](https://plugins.jetbrains.com/plugin/12206-codestream), [Visual Studio](https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs).
 
 Support for more IDEs is on the way.
 
@@ -34,5 +34,7 @@ Interesting in CodeStream development? Check the development guides for [VS Code
 
 A big thanks to the members of the community that have contributed to CodeStream:
 
+- Josh Coleman ([@JcolemanNR](https://github.com/JcolemanNR)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=JcolemanNR)
 - Takuya N ([@tnir](https://github.com/tnir)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=tnir) 
 - Karen Rodriguez ([@kleyla](https://github.com/kleyla)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=kleyla)
+- TalkySafe143([@TalkySafe143](https://github.com/TalkySafe143)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=TalkySafe143)

@@ -1,5 +1,31 @@
 # Change Log
 
+## [13.1.0] - 2022-6-8
+
+### Fixed
+
+- Fixes an issue where the CodeStream agent dies after unhandled exception in RT message resolution
+- Fixes an issue with the rendering of reactions to pull request comments
+- Fixes an issue with author name missing in pull request comments
+- Fixes an issue with duplicate entries appear in the selection of entities from New Relic
+- Fixes a console error bug where the PR conversation endpoint was being requested without proper ids
+
+## [13.0.2] - 2022-6-7
+
+### Changed
+
+- Override any existing New Relic environment variables when launching
+
+## [13.0.1] - 2022-6-6
+
+### Added
+
+- Adds support for code-level metrics for .NET
+
+### Fixed
+
+- Fixes an issue preventing connections to Trello and Asana
+
 ## [13.0.0] - 2022-6-2
 
 ### Added

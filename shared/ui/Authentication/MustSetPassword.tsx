@@ -54,7 +54,10 @@ export const MustSetPassword = (props: MustSetPasswordProps) => {
 				<fieldset className="form-body">
 					<BoxedContent title="Set a password">
 						<p>
-							<FormattedMessage id="signUp.email.enterPasswordBelow" defaultMessage="Enter a password below." />
+							<FormattedMessage
+								id="mustSetPassword.enterPassword"
+								defaultMessage="Enter a password below."
+							/>
 						</p>
 						<div id="controls">
 							<div className="control-group">

@@ -1,7 +1,8 @@
 "use strict";
-import { MessageType, RawRTMessage } from "../api/apiProvider";
-import { SessionContainer } from "../container";
+import { RawRTMessage } from "../api/apiProvider";
+import { Container, SessionContainer } from "../container";
 import { Logger } from "../logger";
+import { ReportingMessageType } from "../protocol/agent.protocol";
 import { CSEntity, CSMarkerLocations } from "../protocol/api.protocol.models";
 import { CodeStreamSession } from "../session";
 import { debug, log } from "../system";
@@ -93,30 +94,45 @@ export abstract class ManagerBase<T> {
 
 		const resolved = await Promise.all(
 			message.data.map(async (data: any) => {
-				if (!data) return undefined;
+				try {
+					if (!data) return undefined;
 
-				const criteria = this.fetchCriteria(data as T);
-				const cached = await this.cacheGet(criteria);
+					const criteria = this.fetchCriteria(data as T);
+					const cached = await this.cacheGet(criteria);
 
-				const action = getCacheUpdateAction(data, cached);
-				// We need to return the cached item still until the UI handles updates via api calls the same as notifications
-				if (action === "skip") return onlyIfNeeded ? undefined : cached;
-				if (action === "update") {
-					// TODO: Should we fall-through to query if we don't have the cached data, but we do have a full object?
-					const updatedEntity: T = cached == null ? data : resolve<T>(cached as any, data);
-					return this.cacheSet(updatedEntity, cached);
-				}
+					const action = getCacheUpdateAction(data, cached);
+					// We need to return the cached item still until the UI handles updates via api calls the same as notifications
+					if (action === "skip") return onlyIfNeeded ? undefined : cached;
+					if (action === "update") {
+						// TODO: Should we fall-through to query if we don't have the cached data, but we do have a full object?
+						const updatedEntity: T = cached == null ? data : resolve<T>(cached as any, data);
+						return this.cacheSet(updatedEntity, cached);
+					}
 
-				// Fall-through to query for the data
-				let entity: T;
-				if (this.forceFetchToResolveOnCacheMiss || isDirective(data)) {
-					entity = await this.fetch(criteria);
-				} else {
-					entity = data;
-				}
+					// Fall-through to query for the data
+					let entity: T;
+					if (this.forceFetchToResolveOnCacheMiss || isDirective(data)) {
+						entity = await this.fetch(criteria);
+					} else {
+						entity = data;
+					}
 
-				if (entity != null) {
-					return this.cacheSet(entity);
+					if (entity != null) {
+						return this.cacheSet(entity);
+					}
+				} catch (e) {
+					Logger.error(e);
+					Container.instance().errorReporter.reportMessage({
+						source: "agent",
+						type: ReportingMessageType.Error,
+						message: "Error resolving RT message",
+						extra: {
+							data,
+							error: e,
+							type: message.type,
+							entityName: this.getEntityName()
+						}
+					});
 				}
 
 				return undefined;

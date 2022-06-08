@@ -91,12 +91,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\AuthenticationServiceFactory.cs" />
+    <Compile Include="Services\CodeLevelMetricsCallbackService.cs" />
     <Compile Include="Services\CodeStreamAgentService.cs" />
     <Compile Include="Services\CodeStreamAgentServiceFactory.cs" />
     <Compile Include="Services\CodeStreamService.cs" />
     <Compile Include="Services\CredentialsService.cs" />
     <Compile Include="Services\CredentialsServiceBase.cs" />
-    <Compile Include="Services\DiffViewerService.cs" />
     <Compile Include="Services\DotNetBrowserService.cs" />
     <Compile Include="Services\EditorService.cs" />
     <Compile Include="Services\EventAggregator.cs" />
@@ -114,7 +114,6 @@
     <Compile Include="Services\UserSettingsService.cs" />
     <Compile Include="Services\WebviewUserSettingsService.cs" />
     <Compile Include="Services\WpfTextViewCache.cs" />
-    <Compile Include="UI\DiffViewCreationListener.cs" />
     <Compile Include="UI\DocumentMarkerManager.cs" />
     <Compile Include="UI\Extensions\AnimationExtensions.cs" />
     <Compile Include="UI\Glyphs\DocumentMarkGlyphFactory.cs" />
@@ -143,6 +142,10 @@
     <Compile Include="UI\Taggers\DocumentMarkTagger.cs" />
     <Compile Include="UI\Taggers\DocumentMarkTaggerProvider.cs" />
     <Compile Include="UI\TextViewCreationListener.cs" />
+    <Compile Include="UI\ToolWindows\CodeLevelMetricsDetails.xaml.cs">
+      <DependentUpon>CodeLevelMetricsDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ToolWindows\CodeLevelMetricsDetailsViewFactory.cs" />
     <Compile Include="UI\ToolWindows\WebViewControl.xaml.cs">
       <DependentUpon>WebViewControl.xaml</DependentUpon>
     </Compile>
@@ -304,6 +307,7 @@
     <ContentManifest Include="ContentManifest.json" />
     <None Include="packages.config" />
     <None Include="Post-Build.ps1" />
+    <None Include="Pre-Build.ps1" />
     <None Include="Resources\Assets\README.md" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -603,9 +607,24 @@
     <Content Include="UI\WebViews\index.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CodeStream.VisualStudio.CodeLens\CodeStream.VisualStudio.CodeLens.csproj">
+      <Project>{31eb1b96-34e8-4e37-872d-4ed7363c95d9}</Project>
+      <Name>CodeStream.VisualStudio.CodeLens</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
     <ProjectReference Include="..\CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj">
       <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Services\CodeStream.VisualStudio.Services.csproj">
+      <Project>{31BD46B5-C00E-4C79-9F9D-03768DAB918D}</Project>
+      <Name>CodeStream.VisualStudio.Services</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.csproj">
+      <Project>{89A17DFF-415D-4DAF-A489-1F3C25AF0C35}</Project>
+      <Name>CodeStream.VisualStudio.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\CodeStream.VisualStudio.Shell.2017\CodeStream.VisualStudio.Shell.2017.csproj">
       <Project>{689F3AA3-DE22-4675-A461-C92F1E1EE2FB}</Project>
@@ -620,13 +639,15 @@
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="UI\Margins\DocumentMark.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\ToolWindows\CodeLevelMetricsDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\ToolWindows\WebViewControl.xaml">
       <Generator>MSBuild:Compile</Generator>

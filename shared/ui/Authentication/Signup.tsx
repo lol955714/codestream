@@ -571,7 +571,9 @@ export const Signup = (props: Props) => {
 								</OnPremWrapper>
 								{showOr && showEmailForm && (
 									<div className="separator-label">
-										<span className="or">or</span>
+										<span className="or">
+											<FormattedMessage id="signUp.or" defaultMessage="or" />
+										</span>
 									</div>
 								)}
 							</div>
@@ -585,7 +587,10 @@ export const Signup = (props: Props) => {
 						<div className="border-bottom-box">
 							{wasInvited && (
 								<p className="explainer">
-									Create an account to join the <strong>{props.teamName}</strong> team.
+									<FormattedMessage
+										id="signUp.joinTeam"
+										defaultMessage={`Create an account to join the <strong>${props.teamName}</strong> team.`}
+									/>
 								</p>
 							)}
 							{!wasInvited && <div className="small-spacer" />}
@@ -606,7 +611,7 @@ export const Signup = (props: Props) => {
 								)}
 								{inviteConflict && (
 									<div className="error-message form-error">
-										Invitation conflict.{" "}
+										<FormattedMessage id="signUp.conflict" defaultMessage="Invitation conflict." />{" "}
 										<FormattedMessage id="contactSupport" defaultMessage="Contact support">
 											{text => <Link href="mailto:support@codestream.com">{text}</Link>}
 										</FormattedMessage>
@@ -614,7 +619,9 @@ export const Signup = (props: Props) => {
 									</div>
 								)}
 								<div className="control-group">
-									<label>Work Email</label>
+									<label>
+										<FormattedMessage id="signUp.workEmail" defaultMessage="Work Email" />
+									</label>
 									<TextInput
 										name="email"
 										value={email}

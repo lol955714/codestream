@@ -287,7 +287,13 @@ export const EmailConfirmation = (connect() as any)((props: Props) => {
 							<div>
 								{props.confirmationType === "signup" && (
 									<p>
-										Already have an account? <Link onClick={onClickGoToLogin}>Sign In</Link>
+										<FormattedMessage
+											id="emailConfirmation.alreadyAccount"
+											defaultMessage="Already have an account?"
+										/>{" "}
+										<Link onClick={onClickGoToLogin}>
+											<FormattedMessage id="emailConfirmation.signIn" defaultMessage="Sign In" />
+										</Link>
 									</p>
 								)}
 								{props.confirmationType === "login" && (

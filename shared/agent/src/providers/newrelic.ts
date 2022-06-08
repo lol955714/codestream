@@ -812,24 +812,16 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 								relatedResult?.source?.entity?.type === "APPLICATION" &&
 								relatedResult?.target?.entity?.type === "REPOSITORY"
 							) {
-								const tags = relatedResult.target.entity.tags;
-								if (!tags) continue;
+								// we can't use the target.tags.account since the Repo entity might have been
+								// created in _another_ account (under the same trustedAccountId).
 
-								const accountIdTag = tags.find(_ => _.key === "accountId");
-								if (!accountIdTag || !accountIdTag.values) continue;
-
-								const accountIdString = accountIdTag.values[0];
-
-								uniqueEntities.push({
-									account: {
-										id: parseInt(accountIdString || "0", 10),
-										name: tags.find(_ => _.key === "account")?.values[0] || "Account"
-									},
-									guid: relatedResult.source.entity.guid,
-									name: relatedResult.source.entity.name,
-									alertSeverity: relatedResult.source.entity.alertSeverity,
-									domain: relatedResult.source.entity.domain
-								});
+								// When a repo entity is created, it is tied to the account where it was created.
+								// if it tied to another entity (in another account but still under the same trustedAccount),
+								// it's tag.account data will retain the origin account data
+								if (!relatedResult?.source?.entity?.account) {
+									continue;
+								}
+								uniqueEntities.push(relatedResult.source.entity);
 							}
 						}
 					}
@@ -908,33 +900,30 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 					if (repositoryEntitiesResponse?.entities?.length) {
 						const entityFilter = request.filters?.find(_ => _.repoId === repo.id!);
 						for (const entity of repositoryEntitiesResponse.entities) {
-							const accountIdTag = entity.tags?.find(_ => _.key === "accountId");
-							if (!accountIdTag) {
+							if (!entity.account) {
 								ContextLogger.warn("count not find accountId for repo entity", {
 									entityGuid: entity.guid
 								});
 								continue;
 							}
-
-							const accountIdValue = parseInt(accountIdTag.values[0] || "0", 10);
-							const urlTag = entity.tags?.find(_ => _.key === "url");
-							const urlValue = urlTag?.values[0];
-
 							const relatedEntities = await this.findRelatedEntityByRepositoryGuid(entity.guid);
 
-							let builtFromApplications = relatedEntities.actor.entity.relatedEntities.results.filter(
-								r => r.type === "BUILT_FROM"
+							const builtFromApplications = relatedEntities.actor.entity.relatedEntities.results.filter(
+								r =>
+									r.type === "BUILT_FROM" &&
+									(entityFilter?.entityGuid
+										? r.source?.entity.guid === entityFilter.entityGuid
+										: true)
 							);
-							if (entityFilter && entityFilter.entityGuid) {
-								builtFromApplications = builtFromApplications.filter(
-									_ => _.source?.entity.guid === entityFilter.entityGuid
-								);
-							}
+
+							const urlValue = entity.tags?.find(_ => _.key === "url")?.values[0];
 							for (const application of builtFromApplications) {
-								if (!application.source.entity.guid) continue;
+								if (!application.source.entity.guid || !application.source.entity.account?.id) {
+									continue;
+								}
 
 								const errorTraces = await this.findFingerprintedErrorTraces(
-									accountIdValue,
+									application.source.entity.account.id,
 									application.source.entity.guid,
 									application.source.entity.entityType
 								);
@@ -2829,6 +2818,10 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 		  entities {
 			guid
 			name
+			account {
+				id
+				name
+			}
 			tags {
 			  key
 			  values
@@ -2982,6 +2975,10 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 				  results {
 					source {
 					  entity {
+						account {
+							name
+							id
+						}
 						domain
 						name
 						guid
@@ -3032,6 +3029,10 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 				  results {
 					source {
 					  entity {
+						account {
+							id
+							name
+						}
 						alertSeverity
 						name
 						guid

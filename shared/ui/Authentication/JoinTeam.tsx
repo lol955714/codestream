@@ -159,10 +159,20 @@ export const JoinTeam = (props: React.PropsWithChildren<JoinTeamProps>) => {
 		<div className="standard-form" style={{ padding: "0 0 0 0" }}>
 			<fieldset className="form-body" style={{ padding: 0 }}>
 				<div className="border-bottom-box">
-					<h3>Is your team already on CodeStream?</h3>
+					<h3>
+						<FormattedMessage
+							id="joinTeam.alreadyTeam"
+							defaultMessage="Is your team already on CodeStream?"
+						/>
+					</h3>
 					<div id="controls">
 						<div className="control-group">
-							<p>Use your invitation code to connect with your teammates.</p>
+							<p>
+								<FormattedMessage
+									id="joinTeam.invitationCode"
+									defaultMessage="Use your invitation code to connect with your teammates."
+								/>
+							</p>
 							{component()}
 						</div>
 					</div>

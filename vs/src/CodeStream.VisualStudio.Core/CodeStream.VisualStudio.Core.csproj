@@ -100,15 +100,20 @@
     <Compile Include="Logging\Sanitizer\TextProcessor.cs" />
     <Compile Include="Logging\TraceLevel.cs" />
     <Compile Include="Models\CodeStreamDiffUri.cs" />
+    <Compile Include="Models\EntityAccount.cs" />
+    <Compile Include="Models\Agent.Protocol.CodeLevelMetrics.cs" />
     <Compile Include="Models\Host.Protocol.Review.cs" />
     <Compile Include="Models\IOptions.cs" />
     <Compile Include="Models\IVirtualTextDocument.cs" />
+    <Compile Include="Models\MetricTimesliceNameMapping.cs" />
     <Compile Include="Models\NREnvironmentSettings.cs" />
     <Compile Include="Models\OpenEditorResult.cs" />
     <Compile Include="Models\Placement.cs" />
     <Compile Include="Models\Position.cs" />
+    <Compile Include="Models\RepoInfo.cs" />
     <Compile Include="Models\SessionSignedOutReason.cs" />
     <Compile Include="Models\VirtualTextDocument.cs" />
+    <Compile Include="Models\Webview.Protocol.CodeLevelMetrics.cs" />
     <Compile Include="Models\Webview.Protocol.Shell.cs" />
     <Compile Include="Packages\ToolWindowProvider.cs" />
     <Compile Include="Process\Node.cs" />
@@ -202,7 +207,7 @@
     <Compile Include="Services\IEditorService.cs" />
     <Compile Include="Services\IIdeService.cs" />
     <Compile Include="Services\ISessionService.cs" />
-    <Compile Include="Services\ISettingsManager.cs" />
+    <Compile Include="Services\ICodeStreamSettingsManager.cs" />
     <Compile Include="Services\ISettingsServiceFactory.cs" />
     <Compile Include="Services\IWpfTextViewCache.cs" />
     <Compile Include="Services\UserSettingsKeys.cs" />
@@ -383,9 +388,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.192\analyzers\cs\Microsoft.VisualStudio.Threading.Analyzers.dll" />
   </ItemGroup>
