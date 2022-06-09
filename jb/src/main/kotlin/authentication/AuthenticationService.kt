@@ -60,16 +60,16 @@ class AuthenticationService(val project: Project) {
      * other reasons such as an error retrieving the token, it will log the reason but still return true.
      */
     suspend fun autoSignIn(): Boolean {
-        val settings = project.settingsService
-            ?: return true.also { logger.warn("Auto sign-in failed: settings service not available") }
-        if (!appSettings.autoSignIn)
-            return true.also { logger.warn("Auto sign-in failed: auto sign-in disabled") }
-        val tokenStr = PasswordSafe.instance.getPassword(appSettings.credentialAttributes)
-            ?: return true.also { logger.warn("Auto sign-in failed: unable to retrieve token from password safe") }
-        val agent = project.agentService?.agent
-            ?: return true.also { logger.warn("Auto sign-in failed: agent service not available") }
-
         try {
+            val settings = project.settingsService
+                ?: return true.also { logger.warn("Auto sign-in failed: settings service not available") }
+            if (!appSettings.autoSignIn)
+                return true.also { logger.warn("Auto sign-in failed: auto sign-in disabled") }
+            val tokenStr = PasswordSafe.instance.getPassword(appSettings.credentialAttributes)
+                ?: return true.also { logger.warn("Auto sign-in failed: unable to retrieve token from password safe") }
+            val agent = project.agentService?.agent
+                ?: return true.also { logger.warn("Auto sign-in failed: agent service not available") }
+
             val token = gson.fromJson<JsonObject>(tokenStr)
             val loginResult =
                 agent.loginToken(

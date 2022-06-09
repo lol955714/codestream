@@ -249,15 +249,9 @@ class ApplicationSettingsService : PersistentStateComponent<ApplicationSettingsS
 
     val credentialAttributes: CredentialAttributes
         get() {
-            // https://youtrack.jetbrains.com/issue/IDEA-223257?p=WI-48781
-            val constructor = CredentialAttributes::class.constructors.first()
             val serviceName = generateServiceName("CodeStream", state.serverUrl)
             val userName = state.email
-            return if (constructor.parameters.size == 4) {
-                constructor.call(serviceName, userName, null, false)
-            } else {
-                constructor.call(serviceName, userName, null, false, true)
-            }
+            return CredentialAttributes(serviceName, userName)
         }
 
     val webViewConfigs
