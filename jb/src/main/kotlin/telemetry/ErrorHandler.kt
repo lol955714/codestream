@@ -33,7 +33,7 @@ class ErrorHandler : ErrorReportSubmitter() {
 
         private fun initSentry() {
             synchronized(ErrorHandler.javaClass) {
-                Sentry.init("https://7c34949981cc45848fc4e3548363bb17@sentry.io/1314159?environment=$environment")
+                Sentry.init("https://7c34949981cc45848fc4e3548363bb17@sentry.io/1314159?environment=$environment&uncaught.handler.enabled=false")
                 Sentry.getContext().addTag("platform", platform.name)
                 Sentry.getContext().addTag("ide", Ide.name)
                 Sentry.getContext().addTag("ideVersion", Ide.version)
