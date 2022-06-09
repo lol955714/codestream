@@ -518,6 +518,12 @@ export default class Menu extends Component {
 						this.renderItem(item, parentItem, grandParentItem, grandGrandParentItem, keys, index)
 					)}
 				</ul>
+				{this.props.footer && (
+					<ul className="compact">
+						{this.renderItem({ label: "-" }, undefined, undefined, undefined, [0, 1], 0)}
+						{this.renderItem(this.props.footer, undefined, undefined, undefined, [0, 1], 1)}
+					</ul>
+				)}
 				<button
 					className="focus-button"
 					style={{ position: "absolute", left: "-10000px" }}

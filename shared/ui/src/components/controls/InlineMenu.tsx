@@ -42,6 +42,8 @@ export interface InlineMenuProps {
 	dontCloseOnSelect?: boolean;
 	/** if true, render a multiselect menu */
 	isMultiSelect?: boolean;
+	/** render item as a fixed position footer */
+	footer?: MenuItem;
 	onChevronClick?: Function;
 	preventMenuStopPropagation?: boolean;
 }
@@ -122,6 +124,7 @@ export function InlineMenu(props: InlineMenuProps) {
 					focusOnSelect={props.noFocusOnSelect ? null : buttonRef.current}
 					dontCloseOnSelect={props.dontCloseOnSelect}
 					isMultiSelect={props.isMultiSelect}
+					footer={props.footer}
 				/>
 			)}
 			<TextButton

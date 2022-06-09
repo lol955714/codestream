@@ -434,19 +434,8 @@ export const SharingControls = React.memo(
 					? [{ type: "search", placeholder: "Search..." }, { label: "-" }]
 					: [];
 			const dmItems = dms && dms.length ? [{ label: "-" }, ...dms] : [];
-			const switchToDirect =
-				dataForTeam.members && dataForTeam.members.length
-					? [
-							{ label: "-" },
-							{
-								label: "Select DM Targets",
-								dontCloseOnSelect: true,
-								action: () => setChannelOrDirect("direct")
-							}
-					  ]
-					: [];
 
-			return [...search, ...others, ...dmItems, ...switchToDirect];
+			return [...search, ...others, ...dmItems];
 			// }, [data.get().channels]);
 		};
 
@@ -454,23 +443,27 @@ export const SharingControls = React.memo(
 			const dataForTeam = data.get();
 			if (dataForTeam.members == undefined) return [];
 
-			const users = dataForTeam.members.map(user => ({
+			const mapUserToMenuItem = user => ({
 				key: user.id,
 				label: user.name,
 				searchLabel: user.name,
 				checked: checkedUsers.includes(user.id),
 				disabled: checkedUsers.length >= 7 && !checkedUsers.includes(user.id),
 				action: () => toggleUserChecked(user.id)
-			}));
+			});
+
+			const selectedUsers = dataForTeam.members
+				.filter(user => checkedUsers.includes(user.id))
+				.map(mapUserToMenuItem);
+			const unselectedUsers = dataForTeam.members
+				.filter(user => !checkedUsers.includes(user.id))
+				.map(mapUserToMenuItem);
+			const users = [...selectedUsers, ...unselectedUsers];
 
 			const search =
 				users.length > 5 ? [{ type: "search", placeholder: "Search..." }, { label: "-" }] : [];
-			const switchToChannels = [
-				{ label: "-" },
-				{ label: "Select a channel", action: () => setChannelOrDirect("channel") }
-			];
 
-			return [...search, ...users, ...switchToChannels];
+			return [...search, ...users];
 		};
 
 		const setChannel = channel => {
@@ -484,6 +477,20 @@ export const SharingControls = React.memo(
 				return getChannelMenuItems(channel => setChannel(channel));
 			}
 			return getImMenuItems();
+		};
+
+		const getMenuFooter = () => {
+			const dataForTeam = data.get();
+			if (channelOrDirect === "channel") {
+				return dataForTeam.members && dataForTeam.members.length
+					? {
+							label: "Select users to DM",
+							dontCloseOnSelect: true,
+							action: () => setChannelOrDirect("direct")
+					  }
+					: undefined;
+			}
+			return { label: "Select a channel", action: () => setChannelOrDirect("channel") };
 		};
 
 		const authenticateWithSlack = () => {
@@ -585,6 +592,7 @@ export const SharingControls = React.memo(
 			}
 			const dataForTeam = data.get();
 			if (dataForTeam.members == undefined) return "select a channel";
+			if (checkedUsers.length === 0) return "select users";
 			return checkedUsers
 				.map(a => dataForTeam.members!.find(b => b.id === a))
 				.map(_ => _?.name)
@@ -682,6 +690,7 @@ export const SharingControls = React.memo(
 					titleIcon={channelTitleIcon}
 					dontCloseOnSelect={channelOrDirect === "direct"}
 					isMultiSelect={channelOrDirect === "direct"}
+					footer={getMenuFooter()}
 				>
 					{getSelectedTarget()}
 				</InlineMenu>
