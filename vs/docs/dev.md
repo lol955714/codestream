@@ -143,3 +143,4 @@ Scripts:
 Extensions: 
 
 - https://marketplace.visualstudio.com/items?itemName=MadsKristensen.ExtensibilityTools (Clearing MEF cache, VSCT support)
+- https://marketplace.visualstudio.com/items?itemName=PaulHarrington.SettingsStoreExplorer (Browse all VS settings in treeview format)
