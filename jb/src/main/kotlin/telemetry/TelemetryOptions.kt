@@ -38,11 +38,16 @@ class WebviewTelemetryOptions(
 class AgentTelemetryOptions(
     val telemetryEndpoint: String,
     val licenseIngestKey: String
-) {
-    fun environment(): Map<String, String> = mapOf(
-        "NEW_RELIC_HOST" to telemetryEndpoint,
+)
+
+fun AgentTelemetryOptions?.environment(): Map<String, String> {
+    val env = mutableMapOf(
         "NEW_RELIC_LOG_ENABLED" to "false",
-        "NEW_RELIC_APP_NAME" to "lsp-agent",
-        "NEW_RELIC_LICENSE_KEY" to licenseIngestKey
+        "NEW_RELIC_APP_NAME" to "lsp-agent"
     )
+    this?.let {
+        env["NEW_RELIC_HOST"] = telemetryEndpoint
+        env["NEW_RELIC_LICENSE_KEY"] = licenseIngestKey
+    }
+    return env
 }
