@@ -14,4 +14,3 @@ codestream-*.info
 *~
 stats*.json
 stats-*.json
-newrelic_agent.log
