@@ -127,7 +127,7 @@ export const ConfigureOAuthOrPATPanel = (props: {
 
 	const connectWithOAuthMsg = derivedState.isVSCGitHub
 		? "Connect with VSCode's Connection"
-		: "Connect With OAuth";
+		: "Connect with OAuth";
 	return (
 		<Root className="full-height-codemark-form">
 			<h2 style={{ textAlign: "center" }}>Connect to {displayName}</h2>
