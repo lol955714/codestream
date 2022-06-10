@@ -37,7 +37,7 @@ export const ConfigureOAuthOrPATPanel = (props: {
 }) => {
 	const dispatch = useDispatch();
 	const derivedState = useSelector((state: CodeStreamState) => {
-		const { providers } = state;
+		const { providers, ide, capabilities } = state;
 		const provider = providers[props.providerId];
 		const userProviderInfo = getUserProviderInfoFromState(provider.name, state) as CSProviderInfo;
 		const accessTokenError = { accessTokenError: undefined };
@@ -45,11 +45,14 @@ export const ConfigureOAuthOrPATPanel = (props: {
 			isConnected(state, { name: provider.name }, undefined, accessTokenError) &&
 			!accessTokenError.accessTokenError &&
 			!userProviderInfo.pendingVerification;
+		const isVSCGitHub =
+			ide.name === "VSC" && provider.name === "github" && capabilities.vsCodeGithubSignin;
 		return {
 			providers: state.providers,
 			userProviderInfo,
 			verificationError: accessTokenError.accessTokenError,
-			didConnect
+			didConnect,
+			isVSCGitHub
 		};
 	});
 
@@ -122,6 +125,9 @@ export const ConfigureOAuthOrPATPanel = (props: {
 		dispatch(closePanel());
 	};
 
+	const connectWithOAuthMsg = derivedState.isVSCGitHub
+		? "Connect with VSCode's Connection"
+		: "Connect with OAuth";
 	return (
 		<Root className="full-height-codemark-form">
 			<h2 style={{ textAlign: "center" }}>Connect to {displayName}</h2>
@@ -156,7 +162,7 @@ export const ConfigureOAuthOrPATPanel = (props: {
 								<span className="app-or">or</span>
 							</div>
 						</div>
-						<h3 style={{ marginTop: "20px" }}>Connect with OAuth</h3>
+						<h3 style={{ marginTop: "20px" }}>{connectWithOAuthMsg}</h3>
 						<Provider onClick={connectWithOAuth}>
 							{icon && <Icon name={icon} />}Connect to {displayName}
 						</Provider>
