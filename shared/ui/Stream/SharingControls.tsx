@@ -27,6 +27,7 @@ import { useDidMount, useUpdates } from "../utilities/hooks";
 import { setUserPreference } from "./actions";
 import { Modal } from "./Modal";
 import { InlineMenu } from "../src/components/controls/InlineMenu";
+import { Tabs, Tab } from "../src/components/Tabs";
 import { CSTeamSettings } from "@codestream/protocols/api";
 
 const TextButton = styled.span`
@@ -405,6 +406,43 @@ export const SharingControls = React.memo(
 			return targetItems;
 		}, [derivedState.shareTargets, derivedState.slackConfig, derivedState.msTeamsConfig]);
 
+		const getMenuTabBar = () => [
+			{
+				fragment: (
+					<Tabs style={{ margin: "10px 0 0 0" }}>
+						<Tab
+							onClick={() => setChannelOrDirect("channel")}
+							active={channelOrDirect === "channel"}
+							style={{
+								flex: 1,
+								textAlign: "center",
+								borderBottom:
+									channelOrDirect === "channel"
+										? "2px solid var(--text-color)"
+										: "1px solid var(--text-color-subtle)"
+							}}
+						>
+							Channel
+						</Tab>
+						<Tab
+							onClick={() => setChannelOrDirect("direct")}
+							active={channelOrDirect === "direct"}
+							style={{
+								flex: 1,
+								textAlign: "center",
+								borderBottom:
+									channelOrDirect === "direct"
+										? "2px solid var(--text-color)"
+										: "1px solid var(--text-color-subtle)"
+							}}
+						>
+							DM
+						</Tab>
+					</Tabs>
+				)
+			}
+		];
+
 		const getChannelMenuItems = action => {
 			// return React.useMemo(() => {
 			if (derivedState.selectedShareTarget == undefined) return [];
@@ -412,6 +450,8 @@ export const SharingControls = React.memo(
 			const dataForTeam = data.get();
 			if (dataForTeam.channels == undefined) return [];
 
+			const tabBar =
+				dataForTeam.members && dataForTeam.members.length ? getMenuTabBar() : [{ label: "-" }];
 			const { dms, others } = dataForTeam.channels.reduce(
 				(group, channel) => {
 					const channelName = formatChannelName(channel);
@@ -431,11 +471,11 @@ export const SharingControls = React.memo(
 			);
 			const search =
 				dataForTeam.channels.length > 5
-					? [{ type: "search", placeholder: "Search..." }, { label: "-" }]
+					? [{ type: "search", placeholder: "Search channels..." }]
 					: [];
 			const dmItems = dms && dms.length ? [{ label: "-" }, ...dms] : [];
 
-			return [...search, ...others, ...dmItems];
+			return [...search, ...tabBar, ...others, ...dmItems];
 			// }, [data.get().channels]);
 		};
 
@@ -452,6 +492,8 @@ export const SharingControls = React.memo(
 				action: () => toggleUserChecked(user.id)
 			});
 
+			const tabBar = getMenuTabBar();
+
 			const selectedUsers = dataForTeam.members
 				.filter(user => checkedUsers.includes(user.id))
 				.map(mapUserToMenuItem);
@@ -460,10 +502,9 @@ export const SharingControls = React.memo(
 				.map(mapUserToMenuItem);
 			const users = [...selectedUsers, ...unselectedUsers];
 
-			const search =
-				users.length > 5 ? [{ type: "search", placeholder: "Search..." }, { label: "-" }] : [];
+			const search = users.length > 5 ? [{ type: "search", placeholder: "Search users..." }] : [];
 
-			return [...search, ...users];
+			return [...search, ...tabBar, ...users];
 		};
 
 		const setChannel = channel => {
@@ -477,20 +518,6 @@ export const SharingControls = React.memo(
 				return getChannelMenuItems(channel => setChannel(channel));
 			}
 			return getImMenuItems();
-		};
-
-		const getMenuFooter = () => {
-			const dataForTeam = data.get();
-			if (channelOrDirect === "channel") {
-				return dataForTeam.members && dataForTeam.members.length
-					? {
-							label: "Select users to DM",
-							dontCloseOnSelect: true,
-							action: () => setChannelOrDirect("direct")
-					  }
-					: undefined;
-			}
-			return { label: "Select a channel", action: () => setChannelOrDirect("channel") };
 		};
 
 		const authenticateWithSlack = () => {
@@ -690,7 +717,6 @@ export const SharingControls = React.memo(
 					titleIcon={channelTitleIcon}
 					dontCloseOnSelect={channelOrDirect === "direct"}
 					isMultiSelect={channelOrDirect === "direct"}
-					footer={getMenuFooter()}
 				>
 					{getSelectedTarget()}
 				</InlineMenu>

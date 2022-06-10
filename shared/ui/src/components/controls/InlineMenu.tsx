@@ -20,6 +20,7 @@ export interface MenuItem {
 	noHover?: boolean;
 	disabled?: boolean;
 	searchLabel?: string;
+	tabs?: MenuItem[];
 }
 
 export interface InlineMenuProps {
