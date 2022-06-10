@@ -42,6 +42,7 @@ import {
 import { EditorScrollToNotificationType } from "../ipc/webview.protocol";
 import { Range, Position } from "vscode-languageserver-types";
 import { useDidMount } from "../utilities/hooks";
+import { isEmpty } from "lodash-es";
 
 const PRBranchContainer = styled.div`
 	display: inline-block;
@@ -112,6 +113,7 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 	const [isResolving, setIsResolving] = useState(false);
 	const [currentRepoRoot, setCurrentRepoRoot] = useState("");
 	const [pendingLineNavigation, setPendingLineNavigation] = useState(false);
+	const [pendingLineNavigationAndUriChange, setPendingLineNavigationAndUriChange] = useState(false);
 	const [commentRange, setCommentRange] = useState({});
 
 	useDidMount(() => {
@@ -121,32 +123,6 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 			myRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 		}
 	});
-
-	useEffect(() => {
-		async function navigateToLineNumber() {
-			const { textEditorUri } = derivedState;
-			const isDiff = textEditorUri?.startsWith("codestream-diff://");
-			if (textEditorUri && isDiff && commentRange) {
-				// await HostApi.instance.send(EditorHighlightRangeRequestType, {
-				// 	uri: textEditorUri,
-				// 	//@ts-ignore
-				// 	range: commentRange,
-				// 	highlight: true
-				// });
-
-				await HostApi.instance.notify(EditorScrollToNotificationType, {
-					uri: textEditorUri,
-					//@ts-ignore
-					position: Position.create(commentRange?.start?.line, 0)
-				});
-			}
-			setPendingLineNavigation(false);
-		}
-
-		if (pendingLineNavigation) {
-			navigateToLineNumber();
-		}
-	}, [pendingLineNavigation]);
 
 	useEffect(() => {
 		if (
@@ -163,34 +139,52 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 		}
 	}, [derivedState.documentMarkers]);
 
-	const doneEditingComment = id => {
-		setEditingComments({ ...editingComments, [id]: false });
-	};
+	//This hook and the one below it are similar.  This one handles
+	//navigating to a new line after a diff click if the uri is already
+	//open/doesn't change in the IDE.  Will not hit the navigate-to-line endpoint
+	//unless all conditionals are met, and sets pendingLineNavigation to false
+	//regardless.
+	useEffect(() => {
+		async function navigateToLineNumber() {
+			const { textEditorUri } = derivedState;
+			const isDiff = textEditorUri?.startsWith("codestream-diff://");
+			if (textEditorUri && isDiff && !isEmpty(commentRange)) {
+				await HostApi.instance.notify(EditorScrollToNotificationType, {
+					uri: textEditorUri,
+					//@ts-ignore
+					position: Position.create(commentRange?.start?.line, 0)
+				});
+				setPendingLineNavigationAndUriChange(false);
+			}
+			setPendingLineNavigation(false);
+		}
 
-	const handleTextInputFocus = async (databaseCommentId: number) => {
-		setOpenComments({
-			...openComments,
-			[databaseCommentId]: true
-		});
-	};
+		if (pendingLineNavigation) {
+			navigateToLineNumber();
+		}
+	}, [pendingLineNavigation]);
 
-	const setEditingComment = (comment, value) => {
-		setEditingComments({
-			...editingComments,
-			[comment.id]: value
-		});
-		setPendingComments({
-			...pendingComments,
-			[comment.id]: value ? comment.body : ""
-		});
-	};
+	//This hook and the one above it are similar.  This one handles
+	//navigating to a new line after a diff click if the uri is not open/changes
+	//from a different one in the IDE
+	useEffect(() => {
+		async function navigateToLineNumber() {
+			const { textEditorUri } = derivedState;
+			const isDiff = textEditorUri?.startsWith("codestream-diff://");
+			if (textEditorUri && isDiff && !isEmpty(commentRange)) {
+				await HostApi.instance.notify(EditorScrollToNotificationType, {
+					uri: textEditorUri,
+					//@ts-ignore
+					position: Position.create(commentRange?.start?.line, 0)
+				});
+				setPendingLineNavigationAndUriChange(false);
+			}
+		}
 
-	const expandComment = id => {
-		setExpandedComments({
-			...expandedComments,
-			[id]: !expandedComments[id]
-		});
-	};
+		if (pendingLineNavigationAndUriChange) {
+			navigateToLineNumber();
+		}
+	}, [derivedState.textEditorUri, commentRange]);
 
 	const handleDiffClick = async () => {
 		const request = {
@@ -221,9 +215,8 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 			Host: pr && pr.providerId
 		});
 
-		setTimeout(() => {
-			setPendingLineNavigation(true);
-		}, 1000);
+		setPendingLineNavigation(true);
+		setPendingLineNavigationAndUriChange(true);
 	};
 
 	const handleOpenFile = async () => {
@@ -367,6 +360,35 @@ export const PullRequestFileCommentCard = (props: PropsWithChildren<Props>) => {
 			/>
 		);
 	}
+
+	const doneEditingComment = id => {
+		setEditingComments({ ...editingComments, [id]: false });
+	};
+
+	const handleTextInputFocus = async (databaseCommentId: number) => {
+		setOpenComments({
+			...openComments,
+			[databaseCommentId]: true
+		});
+	};
+
+	const setEditingComment = (comment, value) => {
+		setEditingComments({
+			...editingComments,
+			[comment.id]: value
+		});
+		setPendingComments({
+			...pendingComments,
+			[comment.id]: value ? comment.body : ""
+		});
+	};
+
+	const expandComment = id => {
+		setExpandedComments({
+			...expandedComments,
+			[id]: !expandedComments[id]
+		});
+	};
 
 	return (
 		<div ref={myRef} id={`comment_card_${comment.id}`}>
