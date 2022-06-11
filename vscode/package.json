@@ -660,7 +660,7 @@
 		"circular-dependency-plugin": "5.2.2",
 		"cpy": "^9.0.1",
 		"css-loader": "6.5.1",
-		"esbuild": "^0.14.39",
+		"esbuild": "^0.14.43",
 		"eslint": "6.8.0",
 		"eslint-loader": "4.0.2",
 		"eslint-plugin-import": "2.20.0",
