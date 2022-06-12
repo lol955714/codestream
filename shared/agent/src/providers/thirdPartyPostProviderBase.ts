@@ -6,13 +6,12 @@ import {
 } from "./provider";
 import { ThirdPartyProviderBase } from "./thirdPartyProviderBase";
 
-export abstract class ThirdPartyPostProviderBase<TProviderInfo extends CSProviderInfos>
-	extends ThirdPartyProviderBase<TProviderInfo>
-	implements ThirdPartyPostProvider {
+export abstract class ThirdPartyPostProviderBase<
+	TProviderInfo extends CSProviderInfos = CSProviderInfos
+> extends ThirdPartyProviderBase<TProviderInfo> implements ThirdPartyPostProvider {
 	supportsSharing(): this is ThirdPartyPostProvider & ThirdPartyProviderSupportsPosts {
 		return ThirdPartyPostProvider.supportsSharing(this);
 	}
-
 	supportsStatus(): this is ThirdPartyPostProvider & ThirdPartyProviderSupportsStatus {
 		return ThirdPartyPostProvider.supportsStatus(this);
 	}

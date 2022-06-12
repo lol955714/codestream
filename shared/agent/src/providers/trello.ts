@@ -2,8 +2,6 @@
 import * as qs from "querystring";
 import {
 	CreateThirdPartyCardRequest,
-	FetchAssignableUsersAutocompleteRequest,
-	FetchAssignableUsersResponse,
 	FetchThirdPartyBoardsRequest,
 	FetchThirdPartyBoardsResponse,
 	FetchThirdPartyCardsRequest,

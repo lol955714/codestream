@@ -18,6 +18,7 @@ import {
 	ProviderPullRequestInfo,
 	PullRequestComment
 } from "./provider";
+
 import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 interface BitbucketServerRepo {

@@ -922,7 +922,7 @@ describe("NewRelicProvider", () => {
 
 		// console.log(JSON.stringify(results, null, 4));
 		// NOTE: this data is not quite correct, but we're testing to assert that we will use whatever is in `code.function`
-		expect(results[0].functionName).to.eq("SuperheroBySlug");
+		expect(results[0].functionName).toEqual("SuperheroBySlug");
 	});
 });
 

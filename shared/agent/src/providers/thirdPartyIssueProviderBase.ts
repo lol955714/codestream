@@ -10,20 +10,21 @@ import {
 	FetchAssignableUsersResponse
 } from "../protocol/agent.protocol.providers";
 import { CSProviderInfos } from "../protocol/api.protocol.models";
+import { log } from "../system/decorators/log";
 import {
 	ProviderCreatePullRequestRequest,
+	ProviderVersion,
 	PullRequestComment,
 	ThirdPartyIssueProvider,
 	ThirdPartyProviderSupportsCreatingPullRequests,
 	ThirdPartyProviderSupportsIssues,
 	ThirdPartyProviderSupportsViewingPullRequests
 } from "./provider";
-import { ProviderVersion } from "./types";
 import { ThirdPartyProviderBase } from "./thirdPartyProviderBase";
 
-export abstract class ThirdPartyIssueProviderBase<TProviderInfo extends CSProviderInfos>
-	extends ThirdPartyProviderBase<TProviderInfo>
-	implements ThirdPartyIssueProvider {
+export abstract class ThirdPartyIssueProviderBase<
+	TProviderInfo extends CSProviderInfos = CSProviderInfos
+> extends ThirdPartyProviderBase<TProviderInfo> implements ThirdPartyIssueProvider {
 	private _pullRequestDocumentMarkersCache = new Map<
 		string,
 		{ documentVersion: number; promise: Promise<DocumentMarker[]> }
@@ -36,17 +37,14 @@ export abstract class ThirdPartyIssueProviderBase<TProviderInfo extends CSProvid
 	supportsIssues(): this is ThirdPartyIssueProvider & ThirdPartyProviderSupportsIssues {
 		return ThirdPartyIssueProvider.supportsIssues(this);
 	}
-
 	supportsViewingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsViewingPullRequests {
 		return ThirdPartyIssueProvider.supportsViewingPullRequests(this);
 	}
-
 	supportsCreatingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsCreatingPullRequests {
 		return ThirdPartyIssueProvider.supportsCreatingPullRequests(this);
 	}
-
 	protected createDescription(request: ProviderCreatePullRequestRequest): string | undefined {
 		if (
 			!request ||
@@ -261,7 +259,7 @@ export abstract class ThirdPartyIssueProviderBase<TProviderInfo extends CSProvid
 		};
 	}
 
-	// @log()
+	@log()
 	async getAssignableUsersAutocomplete(
 		request: FetchAssignableUsersAutocompleteRequest
 	): Promise<FetchAssignableUsersResponse> {

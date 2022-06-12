@@ -2,8 +2,7 @@
 import { parsePatch } from "diff";
 import { print } from "graphql";
 import { GraphQLClient } from "graphql-request";
-import { merge } from "lodash";
-import { groupBy } from "lodash";
+import { groupBy, merge } from "lodash";
 import { Response } from "node-fetch";
 import * as qs from "querystring";
 import semver from "semver";

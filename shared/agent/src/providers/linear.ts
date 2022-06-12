@@ -2,8 +2,6 @@
 import { GraphQLClient } from "graphql-request";
 import {
 	CreateThirdPartyCardRequest,
-	FetchAssignableUsersAutocompleteRequest,
-	FetchAssignableUsersResponse,
 	FetchThirdPartyBoardsRequest,
 	FetchThirdPartyBoardsResponse,
 	FetchThirdPartyCardsRequest,

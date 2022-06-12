@@ -2,15 +2,12 @@
 import * as qs from "querystring";
 import { Logger } from "../logger";
 import {
-	AzureDevOpsCard,
 	AzureDevOpsCreateCardRequest,
 	AzureDevOpsCreateCardResponse,
 	AzureDevOpsProject,
 	AzureDevOpsTeam,
 	AzureDevOpsUser,
 	CreateThirdPartyCardRequest,
-	FetchAssignableUsersAutocompleteRequest,
-	FetchAssignableUsersResponse,
 	FetchThirdPartyBoardsRequest,
 	FetchThirdPartyBoardsResponse,
 	FetchThirdPartyCardsRequest,

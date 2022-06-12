@@ -40,7 +40,7 @@
 		"test-apiserver": "jest test/api_server/**/*.spec.ts",
 		"test-integration": "jest test/integration/**/*.spec.ts",
 		"test-integration-ci": "npm run test-integration",
-		"test-unit": "jest test/unit/**/*.spec.ts",
+		"test-unit": "npx jest test/unit/**/*.spec.ts",
 		"test-unit-watch": "jest test/unit/**/*.spec.ts --watch",
 		"test-unit-with-coverage": "npm run test-unit -- --coverage"
 	},

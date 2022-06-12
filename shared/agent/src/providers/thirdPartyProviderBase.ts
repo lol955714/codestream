@@ -18,25 +18,14 @@ import {
 } from "../protocol/agent.protocol.providers";
 import { CSMe, CSProviderInfos } from "../protocol/api.protocol.models";
 import { CodeStreamSession } from "../session";
-// import { log } from "../system/decorators/log";
+import { log } from "../system/decorators/log";
 import { Functions } from "../system/function";
 import { Strings } from "../system/string";
-import { ApiResponse, ThirdPartyProvider } from "./provider";
-import { ProviderVersion } from "./types";
+import { ApiResponse, isRefreshable, ProviderVersion, ThirdPartyProvider } from "./provider";
 
-interface RefreshableProviderInfo {
-	expiresAt: number;
-	refreshToken: string;
-}
-
-function isRefreshable<TProviderInfo extends CSProviderInfos>(
-	providerInfo: TProviderInfo
-): providerInfo is TProviderInfo & RefreshableProviderInfo {
-	return typeof (providerInfo as any).expiresAt === "number";
-}
-
-export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInfos>
-	implements ThirdPartyProvider {
+export abstract class ThirdPartyProviderBase<
+	TProviderInfo extends CSProviderInfos = CSProviderInfos
+> implements ThirdPartyProvider {
 	private _readyPromise: Promise<void> | undefined;
 	protected _ensuringConnection: Promise<void> | undefined;
 	protected _providerInfo: TProviderInfo | undefined;
@@ -54,11 +43,8 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 	async ensureInitialized() {}
 
 	abstract get displayName(): string;
-
 	abstract get name(): string;
-
 	abstract get headers(): { [key: string]: string };
-
 	get icon() {
 		return this.name;
 	}
@@ -170,7 +156,6 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 
 		this._readyPromise = this.onConnected(this._providerInfo);
 		await this._readyPromise;
-		this.resetReady();
 	}
 
 	protected async onConnected(providerInfo?: TProviderInfo) {
@@ -214,7 +199,7 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 		return false;
 	}
 
-	// @log()
+	@log()
 	async configure(config: ProviderConfigurationData, verify?: boolean): Promise<boolean> {
 		if (verify) {
 			config.pendingVerification = true;
@@ -262,23 +247,24 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 			providerId: this.providerConfig.id,
 			providerTeamId: request && request.providerTeamId
 		}));
-		this._readyPromise = this._providerInfo = undefined;
+		this._readyPromise = this._providerInfo = this._ensuringConnection = undefined;
 		await this.onDisconnected(request);
 	}
 
 	protected async onDisconnected(request?: ThirdPartyDisconnect) {}
 
 	async ensureConnected(request?: { providerTeamId?: string }) {
-		if (this._readyPromise !== undefined) return this._readyPromise;
+		if (this._readyPromise !== undefined) {
+			await this._readyPromise;
+		}
 
 		if (this._providerInfo !== undefined) {
 			await this.refreshToken(request);
-			return;
 		}
 		if (this._ensuringConnection === undefined) {
 			this._ensuringConnection = this.ensureConnectedCore(request);
 		}
-		void (await this._ensuringConnection);
+		await this._ensuringConnection;
 	}
 
 	async refreshToken(request?: { providerTeamId?: string }) {
@@ -312,8 +298,6 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 		await this.refreshToken(request);
 		this._readyPromise = this.onConnected(this._providerInfo);
 		await this._readyPromise;
-		this.resetReady();
-		this._ensuringConnection = undefined;
 	}
 
 	protected async delete<R extends object>(
@@ -339,9 +323,12 @@ export abstract class ThirdPartyProviderBase<TProviderInfo extends CSProviderInf
 	protected async get<R extends object>(
 		url: string,
 		headers: { [key: string]: string } = {},
-		options: { [key: string]: any } = {}
+		options: { [key: string]: any } = {},
+		ensureConnected = true
 	): Promise<ApiResponse<R>> {
-		await this.ensureConnected();
+		if (ensureConnected) {
+			await this.ensureConnected();
+		}
 		return this.fetch<R>(
 			url,
 			{

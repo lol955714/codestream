@@ -26,11 +26,6 @@ const postBuildCopy: CopyStuff[] = [
 		to: path.resolve(__dirname, "../../vscode/dist/")
 	},
 	{
-		from: `${outputDir}/agent.*`,
-		// TODO: Use environment variable if exists
-		to: path.resolve(__dirname, "../../atom/dist/")
-	},
-	{
 		from: `${outputDir}/agent-pkg.js`,
 		// TODO: Use environment variable if exists
 		to: path.resolve(__dirname, "../../vs/src/CodeStream.VisualStudio/dist"),
