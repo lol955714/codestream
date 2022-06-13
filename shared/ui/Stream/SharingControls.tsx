@@ -418,8 +418,8 @@ export const SharingControls = React.memo(
 								textAlign: "center",
 								borderBottom:
 									channelOrDirect === "channel"
-										? "2px solid var(--text-color)"
-										: "1px solid var(--text-color-subtle)"
+										? "1px solid var(--text-color)"
+										: "1px solid rgba(127, 127, 127, 0.2)"
 							}}
 						>
 							Channel
@@ -432,8 +432,8 @@ export const SharingControls = React.memo(
 								textAlign: "center",
 								borderBottom:
 									channelOrDirect === "direct"
-										? "2px solid var(--text-color)"
-										: "1px solid var(--text-color-subtle)"
+										? "1px solid var(--text-color)"
+										: "1px solid rgba(127, 127, 127, 0.2)"
 							}}
 						>
 							DM

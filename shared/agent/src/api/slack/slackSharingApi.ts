@@ -602,7 +602,7 @@ export class SlackSharingApiProvider {
 				),
 				this.fetchGroups(
 					// Filter out shared channels for now, until we can convert to the conversation apis
-					conversations.filter(c => c.is_group && !c.is_shared),
+					conversations.filter(c => c.is_group && !c.is_mpim && !c.is_shared),
 					userMaps.slackUsernamesById,
 					undefined,
 					pendingRequestsQueue
