@@ -59,6 +59,7 @@ import com.codestream.protocols.agent.getPullRequestFilesParams
 import com.codestream.settings.ApplicationSettingsService
 import com.codestream.system.Platform
 import com.codestream.system.platform
+import com.codestream.telemetry.environment
 import com.codestream.telemetryService
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.JsonArray
@@ -224,9 +225,7 @@ class AgentService(private val project: Project) : Disposable {
             agentEnv["NODE_EXTRA_CA_CERTS"] = it
         }
 
-        project.telemetryService?.telemetryOptions?.agentOptions()?.let {
-            agentEnv.putAll(it.environment())
-        }
+        agentEnv.putAll(project.telemetryService?.telemetryOptions?.agentOptions().environment())
 
         return Collections.unmodifiableMap(agentEnv)
     }

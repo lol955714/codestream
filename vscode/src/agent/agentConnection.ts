@@ -1166,6 +1166,15 @@ export class CodeStreamAgentConnection implements Disposable {
 			Logger.warn(`no NewRelic telemetry - ${ex.message}`);
 		}
 
+		// always disable logging -- this is to prevent the newrelic agent log from appearing
+		this._serverOptions.run.options = this._serverOptions.run.options || {};
+		this._serverOptions.run.options.env = this._serverOptions.run.options.env || {};
+		this._serverOptions.run.options.env.NEW_RELIC_LOG_ENABLED = false;
+
+		this._serverOptions.debug.options = this._serverOptions.debug.options || {};
+		this._serverOptions.debug.options.env = this._serverOptions.debug.options.env || {};
+		this._serverOptions.debug.options.env.NEW_RELIC_LOG_ENABLED = false;
+
 		this._client = new LanguageClient(
 			"codestream",
 			"CodeStream",

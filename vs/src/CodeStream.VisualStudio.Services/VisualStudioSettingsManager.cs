@@ -42,15 +42,23 @@ namespace CodeStream.VisualStudio.Services {
 			return value;
 		}
 
-		public bool IsCodeLevelMetricsEnabled() {
-			var isCodeLevelMetricsDisabled = GetSetting<string[]>(VisualStudioSetting.CodeLensDisabledProviders)
-				.Any(x => x.Equals(Constants.CodeLevelMetrics.Provider.Id));
+		public ISettingsSubset GetPropertyToMonitor(VisualStudioSetting setting) {
+			var attribute = setting.GetAttribute();
 
-			return IsCodeLensEnabled() && !isCodeLevelMetricsDisabled;
+			return _roamingSettingsManager.GetSubset(attribute.Path);
+		}
+
+		public bool IsCodeLevelMetricsEnabled() {
+			return IsCodeLensEnabled() && !IsCodeLevelMetricsDisabled();
 		}
 
 		public bool IsCodeLensEnabled() {
 			return GetSetting<bool>(VisualStudioSetting.IsCodeLensEnabled);
+		}
+
+		private bool IsCodeLevelMetricsDisabled() {
+			return GetSetting<string[]>(VisualStudioSetting.CodeLensDisabledProviders)
+				.Any(x => x.Equals(Constants.CodeLevelMetrics.Provider.Id));
 		}
 	}
 }

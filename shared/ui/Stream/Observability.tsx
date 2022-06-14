@@ -48,6 +48,7 @@ import { Provider } from "./IntegrationsPanel";
 import { Link } from "./Link";
 import Timestamp from "./Timestamp";
 import Tooltip from "./Tooltip";
+import { WarningBox } from "./WarningBox";
 
 interface Props {
 	paneState: PaneState;
@@ -188,7 +189,10 @@ export const Observability = React.memo((props: Props) => {
 			sessionStart: state.context.sessionStart,
 			newRelicIsConnected,
 			hiddenPaneNodes,
-			observabilityRepoEntities: preferences.observabilityRepoEntities || EMPTY_ARRAY
+			observabilityRepoEntities: preferences.observabilityRepoEntities || EMPTY_ARRAY,
+			showGoldenSignalsInEditor: state.configs.showGoldenSignalsInEditor,
+			isVS: state.ide.name === "VS",
+			hideCodeLevelMetricsInstructions: state.preferences.hideCodeLevelMetricsInstructions
 		};
 	}, shallowEqual);
 
@@ -699,6 +703,26 @@ export const Observability = React.memo((props: Props) => {
 												</Button>
 											</NoEntitiesWrapper>
 										)}
+										{!loadingEntities &&
+											!derivedState.hideCodeLevelMetricsInstructions &&
+											!derivedState.showGoldenSignalsInEditor &&
+											derivedState.isVS &&
+											observabilityRepos?.find(_ => _.hasCodeLevelMetricSpanData) && (
+												<WarningBox
+													style={{ margin: "20px" }}
+													items={[
+														{
+															message: `Enable CodeLenses to see code-level metrics. 
+														Go to Tools > Options > Text Editor > All Languages > CodeLens or [learn more about code-level metrics]`,
+															helpUrl:
+																"https://docs.newrelic.com/docs/codestream/how-use-codestream/performance-monitoring#code-level"
+														}
+													]}
+													dismissCallback={e => {
+														dispatch(setUserPreference(["hideCodeLevelMetricsInstructions"], true));
+													}}
+												/>
+											)}
 										{hasEntities && renderAssignments()}
 										{observabilityRepos.length == 0 && (
 											<>

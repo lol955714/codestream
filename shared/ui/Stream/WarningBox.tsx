@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import styled from "styled-components";
 import { WarningOrError } from "../protocols/agent/agent.protocol.nr";
 import Icon from "./Icon";
@@ -20,15 +20,24 @@ export const WarningBoxRoot = styled.div`
 	.message {
 		margin-left: 10px;
 	}
+	.icon.dismiss {
+		display: inline-block;
+		margin-top: -35px;
+	}
+	.icon.dismiss:hover {
+		cursor: pointer;
+	}
 `;
 
 interface Props {
 	items: WarningOrError[];
+	dismissCallback?: (event: React.SyntheticEvent<Element, Event>) => any;
+	style?: any;
 }
 
 export const WarningBox = (props: Props) => {
 	return (
-		<WarningBoxRoot>
+		<WarningBoxRoot style={props.style}>
 			<Icon name="alert" className="alert" />
 			<div className="message">
 				{props.items.map(_ => {
@@ -63,6 +72,7 @@ export const WarningBox = (props: Props) => {
 					});
 				})}
 			</div>
+			{props.dismissCallback && <Icon name="x" className="dismiss" onClick={props.dismissCallback} />}
 		</WarningBoxRoot>
 	);
 };
