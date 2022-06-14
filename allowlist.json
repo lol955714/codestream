@@ -1,0 +1,108 @@
+{
+  "Email address": {
+    "patterns": [
+      "(?i)@newrelic.com",
+      "(?i)@codestream.com",
+      "(?i)noreply@",
+      "(?i)test@",
+      "(?i)@unknown.com.*",
+      "(?i)git@github.com.*",
+      "(?i)newhire@acme.com.*",
+      "(?i)marcelo.farias@gmail.com.*",
+      "(?i)ppezaris@gmail.com.*",
+      "(?i)maniac@softwaremaniacs.org.*",
+      "(?i)eamodio@gmail.com.*",
+      "(?i)cheese@cheese.com.*",
+      "(?i)kpdecker@gmail.com",
+      "(?i)bob@builder.com.*"
+    ],
+    "paths": [
+      "(?i)authors",
+      "(?i)contributors",
+      "(?i)license",
+      "(?i)maintainers",
+      "(?i)third_party_notices",
+      "(?i)spec\\.(t|j)sx?",
+      ".*CodeStream.VisualStudio/dist/.*",
+      "vscode/assets/.*",
+      "(?i)jb/webview/webview.js",
+      "(?i)vs/src/CodeStream\\.VisualStudio2022/dist/.*",
+      "(?i)shared/ui/dist/.*",
+      "ThirdPartyNotices.txt",
+      "(?i)shared/agent/test/acceptance/.*",
+      "(?i)shared/ui/\\.mailmap",
+      "(?i)vscode/\\.mailmap",
+      "(?i)shared/agent/\\.mailmap",
+      "(?i)vs/tools/Performance/PerfView\\.exe",
+      "(?i)vs/src/Resources/dist/.*"
+    ]
+  },
+  "Account ID": {
+    "patterns": [
+      "(?i)accountId, 10",
+      "(?i)accountId: 1",
+      "(?i)accountId = \\d{1,4}$",
+      "(?i)AccountId \\?: 0",
+      "(?i)accountId || 0",
+      "(?i)accountId || 1"
+    ],
+    "paths": [
+      "(?i)vs/src/CodeStream\\.VisualStudio2022/dist/.*",
+      "(?i)shared/agent/test/.*"
+    ]
+  },
+  "Credentials in absolute URL": {
+    "patterns": [
+      "(?i)(https?://)?user:pass(word)?@"
+    ]
+  },
+  "New Relic API Key Service Key (new format)": {
+    "patterns": [
+      "NRAK-123456789ABCDEFGHIJKLMNOPQR"
+    ]
+  },
+  "Generic API Key": {
+    "patterns": [
+      "(?i)sanitizeAPIKeyForLogging",
+      "APIKey\\(LookupAPIKeyRequest\\)"
+    ],
+    "paths": [
+      "(?i)shared/agent/test/.*",
+      "(?i)vs/src/Resources/dist/.*"
+    ]
+  },
+  "Slack Token": {
+    "patterns": [],
+    "paths": [
+      "(?i)shared/agent/test/acceptance/.*"
+    ]
+  },
+  "New Relic License Key": {
+    "patterns": [
+      "(?i)bootstrap_newrelic_admin_license_key",
+      "(?i)xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "(?i)__YOUR_NEW_RELIC_LICENSE_KEY__LICENSE__",
+      "(?i)YOUR_NEW_RELIC_APPLICATION_TOKEN",
+      "(?i)ENTER-YOUR-NEW_RELIC_LICENSE_KEY-HERE"
+    ]
+  },
+  "Generic Secret": {
+    "patterns": [
+      "(?i)secret:NewRelicLicenseKeySecret"
+    ],
+    "paths": [
+      "(?i)vs/src/CodeStream\\.VisualStudio2022/dist/.*",
+      "(?i)shared/agent/test/acceptance/.*",
+      "(?i)vs/src/Resources/dist/.*"
+    ]
+  },
+  "<GLOBAL>": [
+    "(?i)example",
+    "(?i)fake",
+    "(?i)replace",
+    "(?i)deadbeef",
+    "(?i)ABCDEFGHIJKLMNOPQRSTUVWX",
+    "1234567890"
+  ]
+}
+
