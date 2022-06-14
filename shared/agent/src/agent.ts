@@ -85,6 +85,10 @@ export class CodeStreamAgent implements Disposable {
 		this._session && this._session.dispose();
 	}
 
+	get agentOptions() {
+		return this._agentOptions;
+	}
+
 	get connection() {
 		return this._connection;
 	}
@@ -319,7 +323,7 @@ export class CodeStreamAgent implements Disposable {
 		}
 	}
 
-	private createNewRelicCustomAttributes() {
+	createNewRelicCustomAttributes() {
 		const that = this;
 		try {
 			const session = that._session || { teamId: "", userId: "", email: "", environment: "" };
@@ -329,6 +333,8 @@ export class CodeStreamAgent implements Disposable {
 
 				extensionBuildEnv: that._agentOptions?.extension?.buildEnv,
 				extensionVersion: that._agentOptions?.extension?.version,
+				// this is used in Errors Inbox
+				"service.version": that._agentOptions?.extension?.version,
 
 				ideDetail: that._agentOptions?.ide?.detail,
 				ideName: that._agentOptions?.ide?.name,

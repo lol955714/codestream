@@ -17,6 +17,7 @@ import { lsp, lspHandler, Strings } from "./system";
 import { Logger } from "./logger";
 import * as NewRelic from "newrelic";
 import md5 = Strings.md5;
+import { CodeStreamAgent } from "./agent";
 
 interface IErrorReporterProvider {
 	reportMessage(request: ReportMessageRequest): void;
@@ -33,11 +34,11 @@ abstract class ErrorReporterProviderBase {
 export class ErrorReporter {
 	private readonly _errorProviders: IErrorReporterProvider[];
 
-	constructor(session: CodeStreamSession) {
+	constructor(agent: CodeStreamAgent, session: CodeStreamSession) {
 		// use both error providers for now
 		this._errorProviders = [
 			new SentryErrorReporterProvider(session),
-			new NewRelicErrorReporterProvider(session)
+			new NewRelicErrorReporterProvider(agent, session)
 		];
 	}
 
@@ -171,16 +172,8 @@ class SentryErrorReporterProvider extends ErrorReporterProviderBase
 
 class NewRelicErrorReporterProvider extends ErrorReporterProviderBase
 	implements IErrorReporterProvider {
-	private customAttributes: any;
-	constructor(session: CodeStreamSession) {
+	constructor(private agent: CodeStreamAgent, session: CodeStreamSession) {
 		super(session);
-		this.customAttributes = {
-			platform: os.platform(),
-			ide: session.versionInfo.ide.name,
-			ideDetail: session.versionInfo.ide.detail,
-			ideVersion: session.versionInfo.ide.version,
-			source: "agent"
-		};
 	}
 
 	reportMessage(request: ReportMessageRequest) {
@@ -195,17 +188,26 @@ class NewRelicErrorReporterProvider extends ErrorReporterProviderBase
 		}
 
 		this._errorCache.add(key);
-		NewRelic.noticeError(request.error || new Error(request.message), {
-			...this.customAttributes,
-			type: request.type,
-			source: request.source
-		});
+
+		try {
+			NewRelic.noticeError(request.error || new Error(request.message), {
+				...((this.agent.createNewRelicCustomAttributes() as any) || {}),
+				extra:
+					typeof request.extra === "object" ? JSON.stringify(request.extra) : request.extra || "",
+				type: request.type,
+				source: request.source || "agent"
+			});
+		} catch (ex) {
+			Logger.warn("Failed to reportMessage", {
+				error: ex
+			});
+		}
 	}
 
 	webviewError(request: WebviewErrorRequest): void {
 		// try {
 		// 	NewRelic.noticeError(new Error(request.error.message), {
-		// 		...this.customAttributes,
+		// 		...this.agent.createNewRelicCustomAttributes,
 		// 		stack: request.error.stack
 		// 	});
 		// } catch (e) {
