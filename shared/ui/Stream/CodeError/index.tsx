@@ -801,7 +801,7 @@ export const BaseCodeErrorHeader = (props: PropsWithChildren<BaseCodeErrorHeader
 										>
 											<BaseCodeErrorMenu
 												codeError={codeError}
-												post={post}
+												post={props.post}
 												errorGroup={props.errorGroup}
 												collapsed={collapsed}
 												setIsEditing={props.setIsEditing}
