@@ -19,6 +19,7 @@
 		"classnames": "2.2.6",
 		"code-prettify": "https://github.com/TeamCodeStream/code-prettify.git#62943684566f616b403ac354a1b5a094344c85bc",
 		"copy-to-clipboard": "3.3.1",
+		"d3-color": "3.1.0",
 		"emoji-mart": "2.11.1",
 		"ignore": "3.3.10",
 		"lodash-es": "4.17.21",
