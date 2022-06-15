@@ -994,9 +994,6 @@ export const OpenPullRequests = React.memo((props: Props) => {
 										))}
 									</span>
 								)}
-							{!derivedState.hideDescriptions && (
-								<span className="subtle">{pr.bodyText || pr.body}</span>
-							)}
 						</div>
 						<div className="icons">
 							<span
