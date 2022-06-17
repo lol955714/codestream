@@ -634,6 +634,11 @@ export class Commands implements Disposable {
 					Language: parsedArgs.languageId
 				});
 			}
+			if (parsedArgs.error?.type === "NO_SPANS") {
+				// no-op
+				return;
+			}
+
 			await Container.webview.viewMethodLevelTelemetry(parsedArgs);
 		} catch (ex) {
 			Logger.error(ex);

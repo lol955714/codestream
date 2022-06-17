@@ -1,4 +1,4 @@
-import React, { Dispatch, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	CartesianGrid,
@@ -36,10 +36,14 @@ import {
 	RefreshEditorsCodeLensRequestType,
 	UpdateConfigurationRequestType
 } from "@codestream/webview/ipc/host.protocol";
-import { ALERT_SEVERITY_COLORS } from "../CodeError";
 import { closeAllPanels } from "@codestream/webview/store/context/actions";
 import { EntityAssociator } from "../EntityAssociator";
 import { DropdownButton } from "../DropdownButton";
+import {
+	MissingPythonExtension,
+	MissingRubyExtension,
+	RubyPluginLanguageServer
+} from "./MissingExtension";
 
 const Root = styled.div``;
 
@@ -199,46 +203,13 @@ export const MethodLevelTelemetryPanel = () => {
 		);
 	}
 
-	if (
-		derivedState.currentMethodLevelTelemetry.error &&
-		derivedState.currentMethodLevelTelemetry.error.type === "NO_RUBY_VSCODE_EXTENSION"
-	) {
-		return (
-			<Root className="full-height-codemark-form">
-				<div
-					style={{
-						display: "flex",
-						alignItems: "center",
-						width: "100%"
-					}}
-				>
-					<div
-						style={{ marginLeft: "auto", marginRight: "13px", whiteSpace: "nowrap", flexGrow: 0 }}
-					>
-						<CancelButton onClick={() => dispatch(closePanel())} />
-					</div>
-				</div>
-
-				<div className="embedded-panel" style={{ marginLeft: "40px" }}>
-					<h3>Code-Level Metrics</h3>
-					<p style={{ marginTop: 0 }}>
-						To see code-level metrics you'll need to install one of the following extensions for VS
-						Code that allow CodeStream to identify the methods in your Ruby code.
-					</p>
-					<br />
-					<div>
-						<Link href={"vscode:extension/rebornix.Ruby"}>
-							Ruby Plugin
-						</Link>
-					</div>
-					<div>
-						<Link href={"vscode:extension/castwide.solargraph"}>
-							Ruby Solargraph Plugin
-						</Link>
-					</div>
-				</div>
-			</Root>
-		);
+	switch (derivedState.currentMethodLevelTelemetry?.error?.type) {
+		case "NO_RUBY_VSCODE_EXTENSION":
+			return <MissingRubyExtension />;
+		case "NO_PYTHON_VSCODE_EXTENSION":
+			return <MissingPythonExtension />;
+		case "RUBY_PLUGIN_NO_LANGUAGE_SERVER":
+			return <RubyPluginLanguageServer />;
 	}
 
 	return (
@@ -362,10 +333,10 @@ export const MethodLevelTelemetryPanel = () => {
 										<b>Repo:</b> {derivedState.currentMethodLevelTelemetry.repo?.name}
 									</div>
 									{derivedState?.currentMethodLevelTelemetry.relativeFilePath && (
-                                        <div>
-                                            <b>File:</b> {derivedState?.currentMethodLevelTelemetry.relativeFilePath}
-                                        </div>
-                                    )}
+										<div>
+											<b>File:</b> {derivedState?.currentMethodLevelTelemetry.relativeFilePath}
+										</div>
+									)}
 									<div>
 										<br />
 										{telemetryResponse &&

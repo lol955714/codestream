@@ -1,5 +1,6 @@
 import * as assert from "assert";
 import { InstrumentationCodeLensProvider } from "../../providers/instrumentationCodeLensProvider";
+import sinon, { SinonSpy } from "sinon";
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
@@ -48,6 +49,14 @@ const documentFactory = (
 };
 
 suite("InstrumentationCodeLensProvider Test Suite", () => {
+	let stubbedExtension: sinon.SinonStub | undefined;
+	let stubbedConfig: sinon.SinonStub | undefined;
+
+	teardown(function() {
+		stubbedExtension?.restore();
+		stubbedConfig?.restore();
+	});
+
 	test("Smoke test", async () => {
 		const observabilityService = {
 			getFileLevelTelemetry: function(
@@ -87,6 +96,13 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 			observabilityService,
 			{ track: function() {} } as any
 		);
+
+		stubbedExtension = sinon.stub(vscode.extensions, "getExtension").returns((<
+			Partial<vscode.Extension<any>>
+		>{
+			id: "ms-python.vscode-pylance",
+			isActive: true
+		}) as vscode.Extension<any>);
 
 		const codeLenses = await provider.provideCodeLenses(
 			documentFactory("app.py", "app.py", "python"),
@@ -132,6 +148,13 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 			{ track: function() {} } as any
 		);
 
+		stubbedExtension = sinon.stub(vscode.extensions, "getExtension").returns((<
+			Partial<vscode.Extension<any>>
+		>{
+			id: "ms-python.vscode-pylance",
+			isActive: true
+		}) as vscode.Extension<any>);
+
 		const codeLenses = await provider.provideCodeLenses(
 			documentFactory("app.py", "app.py", "python"),
 			new CancellationTokenSource().token
@@ -142,6 +165,43 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 			codeLenses[0].command!.tooltip,
 			"Associate this repository with an entity from New Relic so that you can see golden signals right in your editor"
 		);
+	});
+
+	test("NO_PYTHON_VSCODE_EXTENSION", async () => {
+		const observabilityService = {
+			getFileLevelTelemetry: function(
+				filePath: string,
+				languageId: string,
+				resetCache?: boolean,
+				locator?: FunctionLocator,
+				options?: FileLevelTelemetryRequestOptions | undefined
+			): Promise<GetFileLevelTelemetryResponse> {
+				return new Promise(resolve => {
+					return resolve({} as GetFileLevelTelemetryResponse);
+				});
+			}
+		};
+
+		const provider = new InstrumentationCodeLensProvider(
+			"anythingHere",
+			new MockSymbolLocator(),
+			observabilityService,
+			{ track: function() {} } as any
+		);
+
+		const codeLenses = await provider.provideCodeLenses(
+			documentFactory("app.py", "app.py", "python"),
+			new CancellationTokenSource().token
+		);
+		assert.strictEqual(codeLenses.length, 1);
+		assert.strictEqual(codeLenses[0].command!.title!.indexOf("Click to configure") > -1, true);
+		assert.strictEqual(
+			codeLenses[0].command!.tooltip,
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code..."
+		);
+		const args = JSON.parse(codeLenses[0].command?.arguments![0]);
+
+		assert.strictEqual(args.error.type, "NO_PYTHON_VSCODE_EXTENSION");
 	});
 
 	test("NO_RUBY_VSCODE_EXTENSION", async () => {
@@ -176,5 +236,125 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 			codeLenses[0].command!.tooltip,
 			"To see code-level metrics you'll need to install one of the following extensions for VS Code..."
 		);
+		const args = JSON.parse(codeLenses[0].command?.arguments![0]);
+
+		assert.strictEqual(args.error.type, "NO_RUBY_VSCODE_EXTENSION");
+	});
+
+	test("RUBY_PLUGIN_NO_LANGUAGE_SERVER", async () => {
+		const observabilityService = {
+			getFileLevelTelemetry: function(
+				filePath: string,
+				languageId: string,
+				resetCache?: boolean,
+				locator?: FunctionLocator,
+				options?: FileLevelTelemetryRequestOptions | undefined
+			): Promise<GetFileLevelTelemetryResponse> {
+				return new Promise(resolve => {});
+			}
+		};
+
+		const provider = new InstrumentationCodeLensProvider(
+			"anythingHere",
+			new MockSymbolLocator(),
+			observabilityService,
+			{ track: function() {} } as any
+		);
+
+		const mockGetConfig: Partial<vscode.WorkspaceConfiguration> = {
+			get: (section: string) => {
+				return false;
+			}
+		};
+
+		stubbedExtension = sinon.stub(vscode.extensions, "getExtension").returns((<
+			Partial<vscode.Extension<any>>
+		>{
+			id: "rebornix.Ruby",
+			isActive: true
+		}) as vscode.Extension<any>);
+
+		stubbedConfig = sinon
+			.stub(vscode.workspace, "getConfiguration")
+			.returns(mockGetConfig as vscode.WorkspaceConfiguration);
+
+		const codeLenses = await provider.provideCodeLenses(
+			documentFactory("agents_controller.rb", "agents_controller.rb", "ruby"),
+			new CancellationTokenSource().token
+		);
+		assert.strictEqual(codeLenses.length, 1);
+		assert.strictEqual(
+			codeLenses[0].command!.title!,
+			"Click to configure golden signals from New Relic"
+		);
+		const args = JSON.parse(codeLenses[0].command?.arguments![0]);
+
+		assert.strictEqual(args.error.type, "RUBY_PLUGIN_NO_LANGUAGE_SERVER");
+	});
+
+	test("NO_SPANS", async () => {
+		const observabilityService = {
+			getFileLevelTelemetry: function(
+				filePath: string,
+				languageId: string,
+				resetCache?: boolean,
+				locator?: FunctionLocator,
+				options?: FileLevelTelemetryRequestOptions | undefined
+			): Promise<GetFileLevelTelemetryResponse> {
+				return new Promise(resolve => {
+					return resolve({
+						repo: {
+							id: "123",
+							name: "repo",
+							remote: "remote"
+						},
+						relativeFilePath: "/hello/agents_controller.rb",
+						newRelicAccountId: 1,
+						newRelicEntityGuid: "123",
+						newRelicEntityAccounts: [] as any,
+						codeNamespace: "fooNamespace",
+						averageDuration: []
+					} as GetFileLevelTelemetryResponse);
+				});
+			}
+		};
+
+		const provider = new InstrumentationCodeLensProvider(
+			"anythingHere",
+			new MockSymbolLocator(),
+			observabilityService,
+			{ track: function() {} } as any
+		);
+
+		const mockGetConfig: Partial<vscode.WorkspaceConfiguration> = {
+			get: (section: string) => {
+				return true;
+			}
+		};
+
+		stubbedExtension = sinon.stub(vscode.extensions, "getExtension").returns((<
+			Partial<vscode.Extension<any>>
+		>{
+			id: "rebornix.Ruby",
+			isActive: true
+		}) as vscode.Extension<any>);
+
+		stubbedConfig = sinon
+			.stub(vscode.workspace, "getConfiguration")
+			.returns(mockGetConfig as vscode.WorkspaceConfiguration);
+
+		const codeLenses = await provider.provideCodeLenses(
+			documentFactory("agents_controller.rb", "agents_controller.rb", "ruby"),
+			new CancellationTokenSource().token
+		);
+		assert.strictEqual(codeLenses.length, 1);
+		assert.strictEqual(
+			codeLenses[0].command!.title!,
+			"No golden signal metrics found for this file"
+		);
+		// console.info("***+++---=== codeLenses[0].command?.arguments![0] " + codeLenses[0].command?.arguments![0]);
+		const args = JSON.parse(codeLenses[0].command?.arguments![0]);
+
+		assert.strictEqual(args.error.type, "NO_SPANS");
 	});
 });
