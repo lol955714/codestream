@@ -51,7 +51,6 @@ export default {
 	"providerAuth.failed": "Fallo en el inicio de sesión",
 	"providerAuth.timeOut": "Se ha agotado el tiempo de inicio de sesión",
 	"providerAuth.please": "Porfavor",
-	"providerAuth.tryAgain": "Intente de nuevo",
 	"providerAuth.wrong": "¿Algo salió mal? ",
 	"providerAuth.contact": "Contacte a soporte",
 	"providerAuth.or": "o ",
