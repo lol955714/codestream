@@ -337,6 +337,7 @@ export class SlackSharingApiProvider {
 			if (meMessage) {
 				const response = await this.slackApiCall("chat.meMessage", {
 					channel: channelId,
+					thread_ts: request.parentPostId,
 					text: text
 				});
 

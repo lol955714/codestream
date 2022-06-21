@@ -1120,6 +1120,7 @@ export const setReviewStatus = (reviewId: string, status: CSReviewStatus) => asy
 		});
 		if (post && post.sharedTo && post.sharedTo.length > 0) {
 			for (const target of post.sharedTo) {
+				if (target.providerId === "slack*com") continue;
 				await HostApi.instance.send(CreateThirdPartyPostRequestType, {
 					providerId: target.providerId,
 					channelId: target.channelId,
