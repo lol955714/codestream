@@ -602,22 +602,40 @@ export const reactToPost = (post: CSPost, emoji: string, value: boolean) => asyn
 	}
 };
 
-export const deletePost = (
-	streamId: string,
-	postId: string,
-	sharedTo?: ShareTarget[]
-) => async dispatch => {
+export const deletePost = (streamId: string, postId: string, sharedTo?: ShareTarget[]) => async (
+	dispatch,
+	getState
+) => {
 	try {
 		const { post } = await HostApi.instance.send(DeletePostRequestType, { streamId, postId });
 		try {
 			if (sharedTo) {
 				for (const shareTarget of sharedTo) {
-					await HostApi.instance.send(DeleteThirdPartyPostRequestType, {
-						providerId: shareTarget.providerId,
-						channelId: shareTarget.channelId,
-						providerPostId: shareTarget.postId,
-						providerTeamId: shareTarget.teamId
-					});
+					try {
+						await HostApi.instance.send(DeleteThirdPartyPostRequestType, {
+							providerId: shareTarget.providerId,
+							channelId: shareTarget.channelId,
+							providerPostId: shareTarget.postId,
+							providerTeamId: shareTarget.teamId
+						});
+						HostApi.instance.track("Shared Post", {
+							Destination: capitalize(
+								getConnectedProviders(getState()).find(
+									config => config.id === shareTarget.providerId
+								)!.name
+							),
+							"Post Status": "Deleted"
+						});
+					} catch (error) {
+						try {
+							await HostApi.instance.send(SharePostViaServerRequestType, {
+								postId,
+								providerId: shareTarget.providerId
+							});
+						} catch (error2) {
+							logError(`Error deleting a shared post: ${error2}`);
+						}
+					}
 				}
 			}
 		} catch (error) {

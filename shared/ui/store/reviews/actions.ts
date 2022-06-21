@@ -175,7 +175,8 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 								config => config.id === attributes.sharingAttributes!.providerId
 							)!.name
 						),
-						"Review Status": "New"
+						"Review Status": "New",
+						"Conversation Type": sharingAttributes.type === "channel" ? "Channel" : "Group DM"
 					});
 				} catch (error) {
 					logError("Error sharing a review", { message: error.toString() });

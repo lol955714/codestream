@@ -204,7 +204,8 @@ export const createCodemark = (attributes: SharingNewCodemarkAttributes) => asyn
 									config => config.id === attributes.sharingAttributes!.providerId
 								)!.name
 							),
-							"Codemark Status": "New"
+							"Codemark Status": "New",
+							"Conversation Type": sharingAttributes.type === "channel" ? "Channel" : "Group DM"
 						});
 					} catch (error) {
 						logError("Error sharing a codemark", { message: error.toString() });
