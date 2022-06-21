@@ -23,15 +23,13 @@ import {
 	FetchProviderDefaultPullRequestsType,
 	ThirdPartyProviderConfig,
 	UpdateTeamSettingsRequestType,
-	FetchThirdPartyPullRequestPullRequest,
 	SwitchBranchRequestType,
 	GetReposScmRequestType
 } from "@codestream/protocols/agent";
 import {
-	NewPullRequestNotificationType,
-	OpenUrlRequestType,
 	WebviewPanels,
-	EditorRevealRangeRequestType
+	ReviewCloseDiffRequestType,
+	OpenUrlRequestType
 } from "@codestream/protocols/webview";
 import { Button } from "../src/components/Button";
 import {
@@ -47,9 +45,7 @@ import { setUserPreference, openPanel } from "./actions";
 import { PROVIDER_MAPPINGS } from "./CrossPostIssueControls/types";
 import { confirmPopup } from "./Confirm";
 import { ConfigurePullRequestQuery } from "./ConfigurePullRequestQuery";
-
 import { PullRequestExpandedSidebar } from "./PullRequestExpandedSidebar";
-
 import { PullRequestQuery } from "@codestream/protocols/api";
 import { configureAndConnectProvider } from "../store/providers/actions";
 import {
@@ -489,6 +485,10 @@ export const OpenPullRequests = React.memo((props: Props) => {
 		}
 		setPullRequestGroups(newGroups);
 	}, [derivedState.myPullRequests]);
+
+	useEffect(() => {
+		HostApi.instance.send(ReviewCloseDiffRequestType, {});
+	}, [derivedState.expandedPullRequestId]);
 
 	useEffect(() => {
 		if (!mountedRef.current) return;
