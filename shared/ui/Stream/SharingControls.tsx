@@ -443,7 +443,7 @@ export const SharingControls = React.memo(
 			}
 		];
 
-		const getChannelMenuItems = action => {
+		const getChannelMenuItems = (action, showTabBar: boolean) => {
 			// return React.useMemo(() => {
 			if (derivedState.selectedShareTarget == undefined) return [];
 
@@ -451,7 +451,9 @@ export const SharingControls = React.memo(
 			if (dataForTeam.channels == undefined) return [];
 
 			const tabBar =
-				dataForTeam.members && dataForTeam.members.length ? getMenuTabBar() : [{ label: "-" }];
+				showTabBar && dataForTeam.members && dataForTeam.members.length
+					? getMenuTabBar()
+					: [{ label: "-" }];
 			const { dms, others } = dataForTeam.channels.reduce(
 				(group, channel) => {
 					const channelName = formatChannelName(channel);
@@ -515,7 +517,7 @@ export const SharingControls = React.memo(
 
 		const getMenuItems = () => {
 			if (channelOrDirect === "channel") {
-				return getChannelMenuItems(channel => setChannel(channel));
+				return getChannelMenuItems(channel => setChannel(channel), true);
 			}
 			return getImMenuItems();
 		};
@@ -659,12 +661,14 @@ export const SharingControls = React.memo(
 											</td>
 											<td>
 												<InlineMenu
-													items={getChannelMenuItems(channel =>
-														setDefaultChannel(
-															key,
-															derivedState.selectedShareTarget!.teamId,
-															channel.id
-														)
+													items={getChannelMenuItems(
+														channel =>
+															setDefaultChannel(
+																key,
+																derivedState.selectedShareTarget!.teamId,
+																channel.id
+															),
+														false
 													)}
 													title={`Default Channel for ${repos[key].name}`}
 												>
