@@ -431,12 +431,6 @@ export const createPost = (
 							]
 						});
 					}
-					HostApi.instance.track("Shared Post", {
-						Destination: capitalize(
-							getConnectedProviders(getState()).find(config => config.id === sharedTo.providerId)!
-								.name
-						)
-					});
 				} catch (error) {
 					try {
 						await HostApi.instance.send(SharePostViaServerRequestType, {
@@ -551,14 +545,6 @@ export const editPost = (
 							mentionedUserIds
 						}
 					);
-					HostApi.instance.track("Shared Post", {
-						Destination: capitalize(
-							getConnectedProviders(getState()).find(
-								config => config.id === shareTarget.providerId
-							)!.name
-						),
-						"Post Status": "Edited"
-					});
 				} catch (error) {
 					try {
 						await HostApi.instance.send(SharePostViaServerRequestType, {
@@ -617,14 +603,6 @@ export const deletePost = (streamId: string, postId: string, sharedTo?: ShareTar
 							channelId: shareTarget.channelId,
 							providerPostId: shareTarget.postId,
 							providerTeamId: shareTarget.teamId
-						});
-						HostApi.instance.track("Shared Post", {
-							Destination: capitalize(
-								getConnectedProviders(getState()).find(
-									config => config.id === shareTarget.providerId
-								)!.name
-							),
-							"Post Status": "Deleted"
 						});
 					} catch (error) {
 						try {
