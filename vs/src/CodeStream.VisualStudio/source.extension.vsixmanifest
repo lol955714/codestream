@@ -30,7 +30,6 @@
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="CodeStream.VisualStudio.pkgdef" />
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
         <Asset Type="Microsoft.VisualStudio.CodeLensComponent" d:Source="Project" d:ProjectName="%CurrentProject%.CodeLens" Path="|CodeStream.VisualStudio.CodeLens|" />
-        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%.Services" Path="|CodeStream.VisualStudio.Services|" />
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%.Shell.2019" Path="|CodeStream.VisualStudio.Shell.2019|" />
     </Assets>
 </PackageManifest>

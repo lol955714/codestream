@@ -23,8 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.CodeLens", "CodeStream.VisualStudio.CodeLens\CodeStream.VisualStudio.CodeLens.csproj", "{31EB1B96-34E8-4E37-872D-4ED7363C95D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Services", "CodeStream.VisualStudio.Services\CodeStream.VisualStudio.Services.csproj", "{31BD46B5-C00E-4C79-9F9D-03768DAB918D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.UnitTests", "CodeStream.VisualStudio.UnitTests\CodeStream.VisualStudio.UnitTests.csproj", "{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Framework", "CodeStream.VisualStudio.Framework\CodeStream.VisualStudio.Framework.csproj", "{89A17DFF-415D-4DAF-A489-1F3C25AF0C35}"
@@ -72,14 +70,6 @@ Global
 		{31EB1B96-34E8-4E37-872D-4ED7363C95D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31EB1B96-34E8-4E37-872D-4ED7363C95D9}.Release|x86.ActiveCfg = Release|x86
 		{31EB1B96-34E8-4E37-872D-4ED7363C95D9}.Release|x86.Build.0 = Release|x86
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Debug|x86.ActiveCfg = Debug|x86
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Debug|x86.Build.0 = Debug|x86
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|x86.ActiveCfg = Release|Any CPU
-		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|x86.Build.0 = Release|Any CPU
 		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.ActiveCfg = Debug|x86
 		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.Build.0 = Debug|x86

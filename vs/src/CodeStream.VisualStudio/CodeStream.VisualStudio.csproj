@@ -71,72 +71,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CodeStreamPackage.vsct</DependentUpon>
     </Compile>
-    <Compile Include="Controllers\ConfigurationController.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\AuthenticationService.cs" />
-    <Compile Include="Services\AuthenticationServiceFactory.cs" />
-    <Compile Include="Services\CodeLevelMetricsCallbackService.cs" />
-    <Compile Include="Services\CodeStreamAgentService.cs" />
-    <Compile Include="Services\CodeStreamAgentServiceFactory.cs" />
-    <Compile Include="Services\CodeStreamService.cs" />
-    <Compile Include="Services\CredentialsService.cs" />
-    <Compile Include="Services\CredentialsServiceBase.cs" />
-    <Compile Include="Services\DotNetBrowserService.cs" />
-    <Compile Include="Services\EditorService.cs" />
-    <Compile Include="Services\EventAggregator.cs" />
-    <Compile Include="Services\HttpClientService.cs" />
-    <Compile Include="Services\IdeService.cs" />
-    <Compile Include="Services\LiveShare\CollaborationHostService.cs" />
-    <Compile Include="Services\LiveShare\CollaborationHostServiceFactory.cs" />
-    <Compile Include="Services\Providers\ShellSettingsProvider.cs" />
-    <Compile Include="Services\ServiceFactory.cs" />
-    <Compile Include="Services\ServiceProviderExtensions.cs" />
-    <Compile Include="Services\SessionService.cs" />
-    <Compile Include="Services\SettingsService.cs" />
-    <Compile Include="Services\SolutionEventsListener.cs" />
-    <Compile Include="Services\ThemeEventsService.cs" />
-    <Compile Include="Services\UserSettingsService.cs" />
-    <Compile Include="Services\WebviewUserSettingsService.cs" />
-    <Compile Include="Services\WpfTextViewCache.cs" />
-    <Compile Include="UI\DocumentMarkerManager.cs" />
-    <Compile Include="UI\Extensions\AnimationExtensions.cs" />
-    <Compile Include="UI\Glyphs\DocumentMarkGlyphFactory.cs" />
-    <Compile Include="UI\Glyphs\DocumentMarkGlyphFactoryProvider.cs" />
-    <Compile Include="UI\Glyphs\DocumentMarkGlyphTag.cs" />
-    <Compile Include="UI\InfoBarProvider.cs" />
-    <Compile Include="UI\Margins\CodeStreamMarginExtensions.cs" />
-    <Compile Include="UI\Margins\DocumentMark.xaml.cs">
-      <DependentUpon>DocumentMark.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Margins\DocumentMarkMargin.cs" />
-    <Compile Include="UI\Margins\DocumentMarkMarginProvider.cs" />
-    <Compile Include="UI\Margins\DocumentMarkScrollbar.cs" />
-    <Compile Include="UI\Margins\DocumentMarkScrollbarFormat.cs" />
-    <Compile Include="UI\Margins\DocumentMarkScrollbarMarkersEnabledOption.cs" />
-    <Compile Include="UI\Margins\DocumentMarkScrollbarProvider.cs" />
-    <Compile Include="UI\Margins\DocumentMarkViewModel.cs" />
-    <Compile Include="UI\Margins\ICodeStreamMarginProvider.cs" />
-    <Compile Include="UI\Margins\IGlyphMetadata.cs" />
-    <Compile Include="UI\PredefinedCodestreamNames.cs" />
-    <Compile Include="UI\Settings\OptionsDialogPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\SuggestedActions\CodemarkSuggestedActionsSource.cs" />
-    <Compile Include="UI\SuggestedActions\CodemarkSuggestedActionsSourceProvider.cs" />
-    <Compile Include="UI\Taggers\DocumentMarkTagger.cs" />
-    <Compile Include="UI\Taggers\DocumentMarkTaggerProvider.cs" />
-    <Compile Include="UI\TextViewCreationListener.cs" />
-    <Compile Include="UI\ToolWindows\CodeLevelMetricsDetails.xaml.cs">
-      <DependentUpon>CodeLevelMetricsDetails.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ToolWindows\CodeLevelMetricsDetailsViewFactory.cs" />
-    <Compile Include="UI\ToolWindows\WebViewControl.xaml.cs">
-      <DependentUpon>WebViewControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ToolWindows\WebViewToolWindowPane.cs" />
-    <Compile Include="UI\Wpf\KeyChordGesture.cs" />
-    <Compile Include="WebViewRouter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="dist\webview\newrelic-browser.js">
@@ -254,9 +189,6 @@
     <Content Include="Resources\Assets\marker-trap-purple.svg" />
     <Content Include="Resources\Assets\marker-trap-red.svg" />
     <Content Include="Resources\Assets\marker-trap-yellow.svg" />
-    <Content Include="UI\WebViews\index.html" />
-    <Content Include="UI\WebViews\theme.css" />
-    <Content Include="UI\WebViews\waiting.html" />
     <None Include="CodeStream.VisualStudio.Settings.json" />
     <Content Include="CHANGELOG.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -277,9 +209,6 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
-    <None Include="UI\WebViews\styles\ui-variables.less" />
-    <None Include="UI\WebViews\styles\webview.less" />
-    <None Include="UI\WebViews\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CodeStream.VisualStudio.pkgdef" />
@@ -358,9 +287,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="UI\WebViews\index.ts" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CodeStream.VisualStudio.CodeLens\CodeStream.VisualStudio.CodeLens.csproj">
       <Project>{31eb1b96-34e8-4e37-872d-4ed7363c95d9}</Project>
       <Name>CodeStream.VisualStudio.CodeLens</Name>
@@ -373,12 +299,6 @@
     <ProjectReference Include="..\CodeStream.VisualStudio.Framework\CodeStream.VisualStudio.Framework.csproj">
       <Project>{89a17dff-415d-4daf-a489-1f3c25af0c35}</Project>
       <Name>CodeStream.VisualStudio.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CodeStream.VisualStudio.Services\CodeStream.VisualStudio.Services.csproj">
-      <Project>{31BD46B5-C00E-4C79-9F9D-03768DAB918D}</Project>
-      <Name>CodeStream.VisualStudio.Services</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\CodeStream.VisualStudio.Shell.2019\CodeStream.VisualStudio.Shell.2019.csproj">
       <Project>{e45e73e2-3442-464f-a54f-a5b8a8e48084}</Project>
@@ -633,20 +553,6 @@
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="UI\Margins\DocumentMark.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\ToolWindows\CodeLevelMetricsDetails.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\ToolWindows\WebViewControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Assets\codestream.svg" />

@@ -131,10 +131,10 @@
     <value>Resources\CodestreamPackage.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="theme" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>ui\webviews\theme.css;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>..\CodeStream.VisualStudio.Shared\ui\webviews\theme.css;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="waiting" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>ui\webviews\waiting.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>..\CodeStream.VisualStudio.Shared\ui\webviews\waiting.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="webview" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>dist\webview\webview.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
