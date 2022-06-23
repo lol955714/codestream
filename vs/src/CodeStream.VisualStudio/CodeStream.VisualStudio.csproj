@@ -71,22 +71,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CodeStreamPackage.vsct</DependentUpon>
     </Compile>
-    <Compile Include="Commands\AddCodemarkCommandBase.cs" />
-    <Compile Include="Commands\AddCodemarkCommands.cs" />
-    <Compile Include="Commands\AuthenticationCommand.cs" />
-    <Compile Include="Commands\StartWorkCommand.cs" />
-    <Compile Include="Commands\RequestCodeReviewCommand.cs" />
-    <Compile Include="Commands\UserCommand.cs" />
-    <Compile Include="Commands\WebViewDevToolsCommand.cs" />
-    <Compile Include="Commands\WebViewReloadCommand.cs" />
-    <Compile Include="Commands\WebViewToggleCommand.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Packages\AsyncPackageHelper.cs" />
-    <Compile Include="Packages\SettingsPackage.cs" />
-    <Compile Include="Packages\ProtocolHandlerPackage.cs" />
-    <Compile Include="Packages\CommandsPackage.cs" />
-    <Compile Include="Packages\WebViewPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\AuthenticationServiceFactory.cs" />

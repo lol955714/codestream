@@ -4,11 +4,10 @@ using System;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Models;
 using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.Vssdk.Commands;
 using Serilog;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace CodeStream.VisualStudio.Commands {
+namespace CodeStream.VisualStudio.Shared.Commands {
 	public class UserCommand : VsCommandBase {
 		private static readonly ILogger Log = LogManager.ForContext<UserCommand>();
 

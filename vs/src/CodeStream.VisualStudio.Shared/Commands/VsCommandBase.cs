@@ -2,7 +2,7 @@
 using System.ComponentModel.Design;
 using Microsoft.VisualStudio.Shell;
 
-namespace CodeStream.VisualStudio.Core.Vssdk.Commands {
+namespace CodeStream.VisualStudio.Shared.Commands {
 	/// <summary>
 	/// Base class for <see cref="VsCommand"/> and <see cref="VsCommand{TParam}"/>.
 	/// </summary>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.Design;
 using CodeStream.VisualStudio.Core.Extensions;
 
-namespace CodeStream.VisualStudio.Core.Vssdk.Commands {
+namespace CodeStream.VisualStudio.Shared.Commands {
 	/// <summary>
 	/// Extension methods for <see cref="IMenuCommandService"/>.
 	/// </summary>

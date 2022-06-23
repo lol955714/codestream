@@ -2,11 +2,10 @@
 using System;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.Vssdk.Commands;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Serilog;
 
-namespace CodeStream.VisualStudio.Commands {
+namespace CodeStream.VisualStudio.Shared.Commands {
 	internal sealed class WebViewReloadCommand : VsCommandBase {
 		private static readonly ILogger Log = LogManager.ForContext<WebViewReloadCommand>();
 		private readonly ISessionService _sessionService;

@@ -3,7 +3,7 @@ using System.Windows.Input;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 
-namespace CodeStream.VisualStudio.Core.Vssdk.Commands
+namespace CodeStream.VisualStudio.Shared.Commands
 {
     /// <summary>
     /// Implements <see cref="ICommand"/> for <see cref="OleMenuCommand"/>s that don't accept a

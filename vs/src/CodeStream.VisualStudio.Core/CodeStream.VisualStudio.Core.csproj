@@ -191,11 +191,6 @@
     <Compile Include="UI\Extensions\TextViewExtensions.cs" />
     <Compile Include="UI\PropertyNames.cs" />
     <Compile Include="UI\TextViewRoles.cs" />
-    <Compile Include="Vssdk\Commands\IVsCommand.cs" />
-    <Compile Include="Vssdk\Commands\IVsCommandBase.cs" />
-    <Compile Include="Vssdk\Commands\MenuCommandServiceExtensions.cs" />
-    <Compile Include="Vssdk\Commands\VsCommand.cs" />
-    <Compile Include="Vssdk\Commands\VsCommandBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LanguageServer\FileExtensionExclusions.txt" />

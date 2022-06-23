@@ -7,7 +7,7 @@ using System.Threading;
 using CodeStream.VisualStudio.Core.Models;
 using CodeStream.VisualStudio.Core.Services;
 
-namespace CodeStream.VisualStudio.Commands {
+namespace CodeStream.VisualStudio.Shared.Commands {
 	internal class AddCodemarkCommentCommand : AddCodemarkCommandBase {
 		public AddCodemarkCommentCommand(ISessionService sessionService, Guid commandSet) : base(sessionService, commandSet, PackageIds.AddCodemarkCommentCommandId) { }
 		protected override CodemarkType CodemarkType => CodemarkType.Comment;
