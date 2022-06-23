@@ -204,6 +204,43 @@ suite("InstrumentationCodeLensProvider Test Suite", () => {
 		assert.strictEqual(args.error.type, "NO_PYTHON_VSCODE_EXTENSION");
 	});
 
+	test("NO_CSHARP_VSCODE_EXTENSION", async () => {
+		const observabilityService = {
+			getFileLevelTelemetry: function(
+				filePath: string,
+				languageId: string,
+				resetCache?: boolean,
+				locator?: FunctionLocator,
+				options?: FileLevelTelemetryRequestOptions | undefined
+			): Promise<GetFileLevelTelemetryResponse> {
+				return new Promise(resolve => {
+					return resolve({} as GetFileLevelTelemetryResponse);
+				});
+			}
+		};
+
+		const provider = new InstrumentationCodeLensProvider(
+			"anythingHere",
+			new MockSymbolLocator(),
+			observabilityService,
+			{ track: function() {} } as any
+		);
+
+		const codeLenses = await provider.provideCodeLenses(
+			documentFactory("Controller.cs", "Controller.cs", "csharp"),
+			new CancellationTokenSource().token
+		);
+		assert.strictEqual(codeLenses.length, 1);
+		assert.strictEqual(codeLenses[0].command!.title!.indexOf("Click to configure") > -1, true);
+		assert.strictEqual(
+			codeLenses[0].command!.tooltip,
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code..."
+		);
+		const args = JSON.parse(codeLenses[0].command?.arguments![0]);
+
+		assert.strictEqual(args.error.type, "NO_CSHARP_VSCODE_EXTENSION");
+	});
+
 	test("NO_RUBY_VSCODE_EXTENSION", async () => {
 		const observabilityService = {
 			getFileLevelTelemetry: function(

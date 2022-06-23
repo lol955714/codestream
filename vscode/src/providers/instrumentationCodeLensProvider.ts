@@ -97,6 +97,27 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 			: this.missingPythonExtensionCodelens();
 	}
 
+	private checkCsharpPlugin(): vscode.CodeLens[] | undefined {
+		return extensions.getExtension("ms-dotnettools.csharp")?.isActive
+			? undefined
+			: this.missingCsharpExtensionCodelens();
+	}
+
+	private checkPlugin(languageId: string): vscode.CodeLens[] | undefined {
+		switch (languageId) {
+			case "ruby": {
+				return this.checkRubyPlugin();
+			}
+			case "python": {
+				return this.checkPythonPlugin();
+			}
+			case "csharp": {
+				return this.checkCsharpPlugin();
+			}
+		}
+		return undefined;
+	}
+
 	private rubyPluginConfigCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
 		return this.errorCodelens(
 			"RUBY_PLUGIN_NO_LANGUAGE_SERVER",
@@ -135,6 +156,16 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		);
 	}
 
+	private missingCsharpExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"NO_CSHARP_VSCODE_EXTENSION",
+			"csharp",
+			"Click to configure golden signals from New Relic",
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
+			newRelicAccountId
+		);
+	}
+
 	private errorCodelens(
 		errorCode: string,
 		languageId: string,
@@ -165,18 +196,9 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		let codeLenses: vscode.CodeLens[] = [];
 		let instrumentableSymbols: InstrumentableSymbol[] = [];
 
-		if (document.languageId === "ruby") {
-			const checkPluginResult = this.checkRubyPlugin();
-			if (checkPluginResult) {
-				return checkPluginResult;
-			}
-		}
-
-		if (document.languageId === "python") {
-			const checkPluginResult = this.checkPythonPlugin();
-			if (checkPluginResult) {
-				return checkPluginResult;
-			}
+		const checkPluginResult = this.checkPlugin(document.languageId);
+		if (checkPluginResult) {
+			return checkPluginResult;
 		}
 
 		try {
@@ -294,7 +316,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 				allEmpty([
 					fileLevelTelemetryResponse.throughput,
 					fileLevelTelemetryResponse.averageDuration,
-					fileLevelTelemetryResponse?.errorRate
+					fileLevelTelemetryResponse.errorRate
 				])
 			) {
 				return this.noSpanCodelens(document.languageId);

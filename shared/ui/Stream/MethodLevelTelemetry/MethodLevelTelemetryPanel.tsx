@@ -40,6 +40,7 @@ import { closeAllPanels } from "@codestream/webview/store/context/actions";
 import { EntityAssociator } from "../EntityAssociator";
 import { DropdownButton } from "../DropdownButton";
 import {
+	MissingCsharpExtension,
 	MissingPythonExtension,
 	MissingRubyExtension,
 	RubyPluginLanguageServer
@@ -208,6 +209,8 @@ export const MethodLevelTelemetryPanel = () => {
 			return <MissingRubyExtension />;
 		case "NO_PYTHON_VSCODE_EXTENSION":
 			return <MissingPythonExtension />;
+		case "NO_CSHARP_VSCODE_EXTENSION":
+			return <MissingCsharpExtension />;
 		case "RUBY_PLUGIN_NO_LANGUAGE_SERVER":
 			return <RubyPluginLanguageServer />;
 	}
