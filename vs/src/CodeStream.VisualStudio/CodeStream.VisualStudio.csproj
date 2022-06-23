@@ -133,9 +133,7 @@
     <Compile Include="UI\Margins\ICodeStreamMarginProvider.cs" />
     <Compile Include="UI\Margins\IGlyphMetadata.cs" />
     <Compile Include="UI\PredefinedCodestreamNames.cs" />
-    <Compile Include="UI\Settings\OptionsDialogPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="UI\Settings\OptionsDialogPage.cs" />
     <Compile Include="UI\SuggestedActions\CodemarkSuggestedActionsSource.cs" />
     <Compile Include="UI\SuggestedActions\CodemarkSuggestedActionsSourceProvider.cs" />
     <Compile Include="UI\Taggers\DocumentMarkTagger.cs" />

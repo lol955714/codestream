@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5BFDF0EC-9F77-4ED8-A7C9-BDED85BD3239}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.UnitTests", "CodeStream.VisualStudio.UnitTests\CodeStream.VisualStudio.UnitTests.csproj", "{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Shell.2019", "CodeStream.VisualStudio.Shell.2019\CodeStream.VisualStudio.Shell.2019.csproj", "{E45E73E2-3442-464F-A54F-A5B8A8E48084}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Core", "CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj", "{1A29B558-C55A-4769-AD37-69F903ED6EB3}"
@@ -29,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Services", "CodeStream.VisualStudio.Services\CodeStream.VisualStudio.Services.csproj", "{31BD46B5-C00E-4C79-9F9D-03768DAB918D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.UnitTests", "CodeStream.VisualStudio.UnitTests\CodeStream.VisualStudio.UnitTests.csproj", "{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,13 +44,6 @@ Global
 		{EB360D87-8769-44A4-B837-8BC3279070C9}.Release|Any CPU.ActiveCfg = Release|x86
 		{EB360D87-8769-44A4-B837-8BC3279070C9}.Release|x86.ActiveCfg = Release|x86
 		{EB360D87-8769-44A4-B837-8BC3279070C9}.Release|x86.Build.0 = Release|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|Any CPU.Build.0 = Debug|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.ActiveCfg = Debug|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.Build.0 = Debug|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|Any CPU.ActiveCfg = Release|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|x86.ActiveCfg = Release|x86
-		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|x86.Build.0 = Release|x86
 		{E45E73E2-3442-464F-A54F-A5B8A8E48084}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{E45E73E2-3442-464F-A54F-A5B8A8E48084}.Debug|Any CPU.Build.0 = Debug|x86
 		{E45E73E2-3442-464F-A54F-A5B8A8E48084}.Debug|x86.ActiveCfg = Debug|x86
@@ -89,6 +82,12 @@ Global
 		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|x86.ActiveCfg = Release|Any CPU
 		{31BD46B5-C00E-4C79-9F9D-03768DAB918D}.Release|x86.Build.0 = Release|Any CPU
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.ActiveCfg = Debug|x86
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Debug|x86.Build.0 = Debug|x86
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|Any CPU.ActiveCfg = Release|x86
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|x86.ActiveCfg = Release|x86
+		{5170B4CF-9657-4AB1-BC9E-F91D90076DF3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
