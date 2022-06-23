@@ -140,7 +140,7 @@ namespace CodeStream.VisualStudio.Core.LanguageServer {
 
 				SessionService.SetAgentDisconnected();
 
-				EventAggregator?.Publish(new LanguageServerDisconnectedEvent(e.LastMessage, e.Description, e.Reason.ToString(), e.Exception) {
+				EventAggregator?.Publish(new LanguageServerDisconnectedEvent(e.LastMessage.ToString(), e.Description, e.Reason.ToString(), e.Exception) {
 					IsReloading = isReloading
 				});
 			}
