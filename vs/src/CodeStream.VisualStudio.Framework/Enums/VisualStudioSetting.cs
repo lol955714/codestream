@@ -1,6 +1,6 @@
-﻿using CodeStream.VisualStudio.Shared.Attributes;
+﻿using CodeStream.VisualStudio.Framework.Attributes;
 
-namespace CodeStream.VisualStudio.Shared.Enums {
+namespace CodeStream.VisualStudio.Framework.Enums {
 	public enum VisualStudioSetting {
 		[VisualStudioSetting("TextEditorGlobalOptions.IsCodeLensEnabled")]
 		IsCodeLensEnabled,

@@ -7,7 +7,7 @@ using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Packages;
 using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Framework.Models;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Serilog;

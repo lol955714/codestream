@@ -6,7 +6,6 @@ using System.Linq;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Shared;
 using Microsoft.VisualStudio.Language.CodeLens;
 using Microsoft.VisualStudio.Utilities;
 using Serilog;
@@ -17,10 +16,11 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 using System.Threading.Tasks;
-using CodeStream.VisualStudio.Shared.Enums;
-using CodeStream.VisualStudio.Shared.Interfaces;
-using CodeStream.VisualStudio.Shared.Models;
-using Constants = CodeStream.VisualStudio.Shared.Constants;
+using CodeStream.VisualStudio.Framework;
+using CodeStream.VisualStudio.Framework.Enums;
+using CodeStream.VisualStudio.Framework.Interfaces;
+using CodeStream.VisualStudio.Framework.Models;
+using Constants = CodeStream.VisualStudio.Framework.Constants;
 using Process = System.Diagnostics.Process;
 
 namespace CodeStream.VisualStudio.Services {

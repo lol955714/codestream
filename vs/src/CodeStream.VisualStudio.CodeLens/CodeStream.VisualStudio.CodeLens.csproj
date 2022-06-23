@@ -91,11 +91,9 @@
       <Project>{1A29B558-C55A-4769-AD37-69F903ED6EB3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.csproj">
-      <Project>{89A17DFF-415D-4DAF-A489-1F3C25AF0C35}</Project>
-      <Name>CodeStream.VisualStudio.Shared</Name>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Framework\CodeStream.VisualStudio.Framework.csproj">
+      <Project>{89a17dff-415d-4daf-a489-1f3c25af0c35}</Project>
+      <Name>CodeStream.VisualStudio.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

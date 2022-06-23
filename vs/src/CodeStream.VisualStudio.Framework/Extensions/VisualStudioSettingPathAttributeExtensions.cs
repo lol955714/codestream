@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using CodeStream.VisualStudio.Shared.Attributes;
-using CodeStream.VisualStudio.Shared.Enums;
+using CodeStream.VisualStudio.Framework.Attributes;
+using CodeStream.VisualStudio.Framework.Enums;
 
-namespace CodeStream.VisualStudio.Shared.Extensions {
+namespace CodeStream.VisualStudio.Framework.Extensions {
 	public static class VisualStudioSettingPathAttributeExtensions {
 		public static VisualStudioSettingAttribute GetAttribute(this VisualStudioSetting setting) {
 			var name = Enum.GetName(typeof(VisualStudioSetting), setting);

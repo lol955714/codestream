@@ -1,8 +1,8 @@
 ﻿using System;
-using CodeStream.VisualStudio.Shared.Enums;
+using CodeStream.VisualStudio.Framework.Enums;
 using Microsoft.VisualStudio.Settings;
 
-namespace CodeStream.VisualStudio.Shared.Exceptions {
+namespace CodeStream.VisualStudio.Framework.Exceptions {
 	public class VisualStudioSettingException : Exception {
 		public VisualStudioSettingException(VisualStudioSetting setting, GetValueResult valueResult)
 			: base($"Failed to get {setting}. Result was: {valueResult}") { }

@@ -1,4 +1,4 @@
-﻿namespace CodeStream.VisualStudio.Shared {
+﻿namespace CodeStream.VisualStudio.Framework {
 	public static class Constants {
 		public static class CodeLevelMetrics {
 			public static class Provider {

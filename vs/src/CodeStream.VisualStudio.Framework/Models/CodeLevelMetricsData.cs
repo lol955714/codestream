@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using CodeStream.VisualStudio.Core.Models;
 
-namespace CodeStream.VisualStudio.Shared.Models {
+namespace CodeStream.VisualStudio.Framework.Models {
 	/// <summary>
 	/// Model that represents the necessary data coming from the telemetry, plus our special detail
 	/// model which represents which tokens to render (and in what order) for the XAML view.

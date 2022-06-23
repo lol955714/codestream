@@ -7,8 +7,8 @@
     <ProjectGuid>{89A17DFF-415D-4DAF-A489-1F3C25AF0C35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CodeStream.VisualStudio.Shared</RootNamespace>
-    <AssemblyName>CodeStream.VisualStudio.Shared</AssemblyName>
+    <RootNamespace>CodeStream.VisualStudio.Framework</RootNamespace>
+    <AssemblyName>CodeStream.VisualStudio.Framework</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

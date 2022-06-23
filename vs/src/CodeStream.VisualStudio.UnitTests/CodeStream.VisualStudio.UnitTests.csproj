@@ -104,6 +104,10 @@
       <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Framework\CodeStream.VisualStudio.Framework.csproj">
+      <Project>{89a17dff-415d-4daf-a489-1f3c25af0c35}</Project>
+      <Name>CodeStream.VisualStudio.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CodeStream.VisualStudio\CodeStream.VisualStudio.csproj">
       <Project>{eb360d87-8769-44a4-b837-8bc3279070c9}</Project>
       <Name>CodeStream.VisualStudio</Name>

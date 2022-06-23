@@ -6,8 +6,8 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Shared;
-using CodeStream.VisualStudio.Shared.Interfaces;
+using CodeStream.VisualStudio.Framework;
+using CodeStream.VisualStudio.Framework.Interfaces;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Serilog;
 
