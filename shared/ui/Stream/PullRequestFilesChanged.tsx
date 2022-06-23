@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
 	FetchThirdPartyPullRequestPullRequest,
 	GetReposScmRequestType,
-	FetchForkPointRequestType
+	FetchForkPointRequestType,
+	ReposScm
 } from "@codestream/protocols/agent";
 import { HostApi } from "..";
 import { useSelector } from "react-redux";
@@ -122,27 +123,50 @@ export const PullRequestFilesChanged = (props: Props) => {
 	const [loading, setLoading] = React.useState(false);
 	const [isDisabled, setIsDisabled] = React.useState(false);
 	const [isMounted, setIsMounted] = React.useState(false);
+	const [showErrorDetails, setShowErrorDetails] = React.useState(false);
+	const [openRepos, setOpenRepos] = React.useState<ReposScm[]>([]);
 
 	const handleForkPointResponse = forkPointResponse => {
 		if (!forkPointResponse || forkPointResponse.error) {
-			setErrorMessage(
+			const errorMessageCopy =
 				forkPointResponse &&
-					forkPointResponse.error &&
-					forkPointResponse.error.type === "COMMIT_NOT_FOUND" ? (
-					"A commit required to perform this review was not found in the local git repository. Fetch all remotes and try again."
+				forkPointResponse.error &&
+				forkPointResponse.error.type === "COMMIT_NOT_FOUND" ? (
+					<span>
+						A commit required to perform this review was not found in the local git repository.
+						Fetch all remotes and try again.
+					</span>
 				) : pr && forkPointResponse.error.type === "REPO_NOT_FOUND" ? (
-					<>
+					<div>
 						Repo <span className="monospace highlight">{pr.repository?.name}</span> not found in
 						your editor. Open it, or <Link href={pr.repository?.url}>clone the repo</Link>.
-					</>
+					</div>
 				) : (
 					<span>Could not get fork point.</span>
-				)
-			);
+				);
+			setErrorMessage(errorMessageCopy);
 
 			setIsDisabled(true);
 		} else if (forkPointResponse.sha) {
 			setForkPointSha(forkPointResponse.sha);
+		}
+	};
+
+	const handleMoreDetailsErrorClick = async e => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (!showErrorDetails) {
+			const response = await HostApi.instance.send(GetReposScmRequestType, {
+				inEditorOnly: true,
+				includeCurrentBranches: true,
+				includeProviders: true,
+				includeRemotes: true,
+				includeConnectedProviders: true
+			});
+			if (response && response.repositories) {
+				setOpenRepos(response.repositories);
+			}
+			setShowErrorDetails(true);
 		}
 	};
 
@@ -502,7 +526,32 @@ export const PullRequestFilesChanged = (props: Props) => {
 			)}
 			{(errorMessage || repoErrorMessage) && props.sidebarView && (
 				<PRErrorBoxSidebar>
-					<span>{errorMessage || repoErrorMessage}</span>
+					<Icon style={{ marginRight: "10px" }} name="alert" className="alert" />
+					<div>
+						{errorMessage || repoErrorMessage}
+						{!showErrorDetails && (
+							<div>
+								<Link onClick={e => handleMoreDetailsErrorClick(e)}>More details</Link>
+							</div>
+						)}
+						{showErrorDetails && (
+							<>
+								<div style={{ marginTop: "10px" }}>This pull request is associated with:</div>
+								<div>
+									<div style={{ marginLeft: "10px" }}>
+										<Link href={pr?.repository?.url}>{pr?.repository?.url}</Link>
+									</div>
+								</div>
+								<div style={{ marginTop: "10px" }}>You have the following repositories open:</div>
+								<div style={{ marginLeft: "10px" }}>
+									{openRepos.map((_, index) => {
+										const repoName = _.path.substring(_.path.lastIndexOf("/") + 1);
+										return <div key={`${index}_${repoName}`}>{repoName}</div>;
+									})}
+								</div>
+							</>
+						)}
+					</div>
 				</PRErrorBoxSidebar>
 			)}
 			{changedFiles.length > 0 && !props.sidebarView && (
@@ -545,7 +594,7 @@ export const PullRequestFilesChanged = (props: Props) => {
 					</MetaLabel>
 				</Meta>
 			)}
-			{changedFiles}
+			{!errorMessage && !repoErrorMessage && <>{changedFiles}</>}
 		</>
 	);
 };
