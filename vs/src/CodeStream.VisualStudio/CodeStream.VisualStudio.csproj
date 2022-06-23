@@ -285,9 +285,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="CodeStream.VisualStudio.Settings.json" />
     <Content Include="CHANGELOG.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

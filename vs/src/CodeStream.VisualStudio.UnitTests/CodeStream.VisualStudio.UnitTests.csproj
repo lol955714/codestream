@@ -100,9 +100,6 @@
     <Compile Include="WebViewRouterTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj">
       <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
