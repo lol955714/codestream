@@ -8,10 +8,8 @@ using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Editor;
 using Serilog;
-using EnvironmentColors = Microsoft.VisualStudio.PlatformUI.EnvironmentColors;
 using FontFamily = System.Windows.Media.FontFamily;
 // ReSharper disable RedundantArgumentDefaultValue
 
@@ -25,13 +23,13 @@ namespace CodeStream.VisualStudio.Core.Managers {
 		/// <summary>
 		/// Color
 		/// </summary>
-		public System.Drawing.Color Color { get; set; }
+		public Color Color { get; set; }
 
 		/// <summary>
 		/// Optional function to alter the color
 		/// </summary>
-		public Func<System.Drawing.Color, System.Drawing.Color> DarkModifier { get; set; }
-		public Func<System.Drawing.Color, System.Drawing.Color> LightModifier { get; set; }
+		public Func<Color, Color> DarkModifier { get; set; }
+		public Func<Color, Color> LightModifier { get; set; }
 	}
 
 	public class ThemeResourceMetadata {
@@ -58,10 +56,7 @@ namespace CodeStream.VisualStudio.Core.Managers {
 		private static readonly ILogger Log = LogManager.ForContext<ThemeManagerDummy>();
 
 		private static int DefaultFontSize = 12;
-
-		private static System.Drawing.Color GetThemedColor(IVsUIShell5 shell, ThemeResourceKey themeResourceKey) {
-			return shell.GetThemedGDIColor(themeResourceKey);
-		}
+		
 
 		/// <summary>
 		/// Requires the UI Thread
@@ -70,10 +65,9 @@ namespace CodeStream.VisualStudio.Core.Managers {
 		public static ThemeInfo Generate() {
 			try {
 				ThreadHelper.ThrowIfNotOnUIThread();
-				var shell = Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell5;
 
-				var backgroundColor = GetThemedColor(shell, EnvironmentColors.ToolWindowBackgroundColorKey);
-				var textColor = GetThemedColor(shell, EnvironmentColors.ToolWindowTextColorKey);
+				var backgroundColor = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBackgroundColorKey);
+				var textColor = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowTextColorKey);
 
 				// assume this theme is 'dark' if the ToolWindow background is dark
 				var backgroundIsDark = backgroundColor.IsDark();
@@ -86,7 +80,7 @@ namespace CodeStream.VisualStudio.Core.Managers {
 					new ThemeColorMetadata { Key = "app-background-color-hover", Color = backgroundColor, DarkModifier = c => c.Lighten(0.03f), LightModifier = c => c.Darken(0.015f) },
 
 					new ThemeColorMetadata { Key = "base-background-color", Color = backgroundColor, DarkModifier = c => c.Lighten(0.04f), LightModifier = c => c.Darken(0.03f) },
-					new ThemeColorMetadata { Key = "base-border-color", Color = GetThemedColor(shell, EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.1f) },
+					new ThemeColorMetadata { Key = "base-border-color", Color = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.1f) },
 
 					new ThemeColorMetadata { Key = "panel-tool-background-color", Color = backgroundColor, DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.1f) },
 					new ThemeColorMetadata { Key = "panel-section-foreground-color", Color = textColor, DarkModifier = c => c.Opacity(80), LightModifier = c => c.Opacity(80) },
@@ -98,23 +92,23 @@ namespace CodeStream.VisualStudio.Core.Managers {
 					new ThemeColorMetadata { Key = "text-color-subtle", Color = textColor, DarkModifier = c => c.Opacity(60), LightModifier = c => c.Opacity(60) },
 					new ThemeColorMetadata { Key = "text-color-subtle-extra", Color = textColor, DarkModifier = c => c.Lighten(0.5f).Opacity(60), LightModifier = c => c.Darken(0.5f).Opacity(60) },
 
-					new ThemeColorMetadata { Key = "text-color-info", Color = GetThemedColor(shell, EnvironmentColors.StartPageTextControlLinkSelectedColorKey) },
-					new ThemeColorMetadata { Key = "text-color-info-muted", Color = GetThemedColor(shell, EnvironmentColors.StartPageTextControlLinkSelectedColorKey), DarkModifier = c => c.Darken(0.1f) },
+					new ThemeColorMetadata { Key = "text-color-info", Color = VSColorTheme.GetThemedColor(EnvironmentColors.StartPageTextControlLinkSelectedColorKey) },
+					new ThemeColorMetadata { Key = "text-color-info-muted", Color = VSColorTheme.GetThemedColor(EnvironmentColors.StartPageTextControlLinkSelectedColorKey), DarkModifier = c => c.Darken(0.1f) },
 
-					new ThemeColorMetadata { Key = "text-focus-border-color", Color = GetThemedColor(shell, EnvironmentColors.StartPageTextControlLinkSelectedColorKey), DarkModifier = c => c.Darken(0.1f).Opacity(60), LightModifier = c => c.Opacity(60) },
+					new ThemeColorMetadata { Key = "text-focus-border-color", Color = VSColorTheme.GetThemedColor(EnvironmentColors.StartPageTextControlLinkSelectedColorKey), DarkModifier = c => c.Darken(0.1f).Opacity(60), LightModifier = c => c.Opacity(60) },
 
-					new ThemeColorMetadata { Key = "button-foreground-color", Color = backgroundIsDark ? textColor : GetThemedColor(shell, EnvironmentColors.ToolWindowButtonDownColorKey), LightModifier = c => c.Darken(0.1f) },
-					new ThemeColorMetadata { Key = "button-background-color", Color = GetThemedColor(shell, backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
-					new ThemeColorMetadata { Key = "button-background-color-hover", Color = GetThemedColor(shell, backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
+					new ThemeColorMetadata { Key = "button-foreground-color", Color = backgroundIsDark ? textColor : VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowButtonDownColorKey), LightModifier = c => c.Darken(0.1f) },
+					new ThemeColorMetadata { Key = "button-background-color", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
+					new ThemeColorMetadata { Key = "button-background-color-hover", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
 
 					new ThemeColorMetadata { Key = "line-numbers-foreground-color", Color = textColor, DarkModifier = c => c.Opacity(40), LightModifier = c => c.Opacity(40) },
 
-					new ThemeColorMetadata { Key = "scrollbar-color", Color = GetThemedColor(shell, EnvironmentColors.SystemScrollBarColorKey) },
-					new ThemeColorMetadata { Key = "scrollbar-color-hover", Color = GetThemedColor(shell, EnvironmentColors.ScrollBarThumbMouseOverBackgroundColorKey) },
+					new ThemeColorMetadata { Key = "scrollbar-color", Color = VSColorTheme.GetThemedColor(EnvironmentColors.SystemScrollBarColorKey) },
+					new ThemeColorMetadata { Key = "scrollbar-color-hover", Color = VSColorTheme.GetThemedColor(EnvironmentColors.ScrollBarThumbMouseOverBackgroundColorKey) },
 
-					new ThemeColorMetadata { Key = "list-active-background", Color = GetThemedColor(shell, backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
+					new ThemeColorMetadata { Key = "list-active-background", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
 					new ThemeColorMetadata { Key = "list-active-foreground", Color = textColor, DarkModifier = c => c.Opacity(80), LightModifier = c => c.Opacity(80) },
-					new ThemeColorMetadata { Key = "list-active-outline", Color = GetThemedColor(shell, backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
+					new ThemeColorMetadata { Key = "list-active-outline", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
 					new ThemeColorMetadata { Key = "list-inactive-background", Color = backgroundColor, DarkModifier = c => c.Lighten(0.04f), LightModifier = c => c.Darken(0.03f) },
 					new ThemeColorMetadata { Key = "list-inactive-foreground", Color = textColor, DarkModifier = c => c.Opacity(80), LightModifier = c => c.Opacity(80) }
 				};
@@ -125,39 +119,6 @@ namespace CodeStream.VisualStudio.Core.Managers {
 					//GenerateVisualStudioColorTheme();
 #endif
 				}
-
-				// if (isDark && textColor.IsDark())
-				// {
-				// 	// in this case, there's a dark on dark issue -- default texts to something reasonable
-				// 	var color = Color.FromArgb(228, 227, 227);
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color", Color = color.Opacity(80) });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-highlight", Color = color });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-subtle", Color = color.Opacity(60) });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-subtle-extra", Color = color.Lighten(0.5f).Opacity(60) });
-
-				// 	colors.Add(new ThemeColorMetadata { Key = "vscode-sideBarSectionHeader-foreground", Color = color.Opacity(80) });
-
-				// 	if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
-				// 	{
-				// 		Log.Debug($"Dark on Dark, TextColor={textColor},{textColor.ToRgba()} BackgroundColor={backgroundColor}, {backgroundColor.ToRgba()}");
-				// 	}
-				// }
-				// else if (!isDark && !textColor.IsDark())
-				// {
-				// 	// in this case, there's a light on light issue -- default texts to something reasonable
-				// 	var color = Color.FromArgb(17, 17, 17);
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color", Color = color.Opacity(80) });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-highlight", Color = color });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-subtle", Color = color.Opacity(60) });
-				// 	colors.Add(new ThemeColorMetadata { Key = "text-color-subtle-extra", Color = color.Darken(0.5f).Opacity(60) });
-
-				// 	colors.Add(new ThemeColorMetadata { Key = "vscode-sideBarSectionHeader-foreground", Color = color.Opacity(80) });
-
-				// 	if (Log.IsEnabled(Serilog.Events.LogEventLevel.Debug))
-				// 	{
-				// 		Log.Debug($"Light on Light, TextColor={textColor},{textColor.ToRgba()} BackgroundColor={backgroundColor}, {backgroundColor.ToRgba()}");
-				// 	}
-				// }
 
 				string fontFamilyString;
 				var fontFamily = System.Windows.Application.Current.FindResource(VsFonts.EnvironmentFontFamilyKey) as FontFamily;

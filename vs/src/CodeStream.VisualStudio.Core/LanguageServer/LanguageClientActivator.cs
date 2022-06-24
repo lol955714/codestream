@@ -17,7 +17,6 @@ namespace CodeStream.VisualStudio.Core.LanguageServer {
 			try {
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 				path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Resources", Constants.CodeStreamCodeStream);
-
 				var window = dte.OpenFile(EnvDTE.Constants.vsViewKindCode, path);
 				window.Visible = true;
 				window.Close(vsSaveChanges.vsSaveChangesNo);

@@ -34,7 +34,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;X86</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -52,6 +52,27 @@
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;X64</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -100,13 +121,17 @@
     <Compile Include="WebViewRouterTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CodeStream.VisualStudio.CodeLens\CodeStream.VisualStudio.CodeLens.csproj">
+      <Project>{31eb1b96-34e8-4e37-872d-4ed7363c95d9}</Project>
+      <Name>CodeStream.VisualStudio.CodeLens</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj">
       <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CodeStream.VisualStudio\CodeStream.VisualStudio.csproj">
-      <Project>{eb360d87-8769-44a4-b837-8bc3279070c9}</Project>
-      <Name>CodeStream.VisualStudio</Name>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Vsix.x86\CodeStream.VisualStudio.Vsix.x86.csproj">
+      <Project>{EB360D87-8769-44A4-B837-8BC3279070C9}</Project>
+      <Name>CodeStream.VisualStudio.Vsix.x86</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

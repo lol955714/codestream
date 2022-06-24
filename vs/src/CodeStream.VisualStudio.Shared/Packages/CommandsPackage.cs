@@ -18,6 +18,12 @@ using CodeStream.VisualStudio.Shared.Commands;
 using CodeStream.VisualStudio.Shared.UI;
 using Task = System.Threading.Tasks.Task;
 
+#if X86
+	using CodeStream.VisualStudio.Vsix.x86;
+#else
+	using CodeStream.VisualStudio.Vsix.x64;
+#endif
+
 namespace CodeStream.VisualStudio.Shared.Packages {
 	/// <summary>
 	/// Pseudo-package to allow for a custom service provider

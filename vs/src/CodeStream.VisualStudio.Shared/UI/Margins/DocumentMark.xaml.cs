@@ -9,7 +9,6 @@ using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
 using CodeStream.VisualStudio.Core.Packages;
 using CodeStream.VisualStudio.Core.Services;
-// using CodeStream.VisualStudio.UI.Extensions;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Serilog;
 
@@ -39,8 +38,14 @@ namespace CodeStream.VisualStudio.Shared.UI.Margins {
 			// this.FadeIn(FadeInDefault);
 
 			// WTF I cannot get this to be "prcomment" OR "pull-request", using "comment" instead... going insane here...
-			var type = _viewModel.Marker.Type == CodemarkType.Prcomment ? "comment" : _viewModel.Marker.Type.ToString();			 
-			ImageUri = $"pack://application:,,,/CodeStream.VisualStudio;component/Resources/Assets/marker-{type}-{color}.png";
+			var type = _viewModel.Marker.Type == CodemarkType.Prcomment ? "comment" : _viewModel.Marker.Type.ToString();
+
+			#if X86
+				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x86;component/resources/assets/marker-{type}-{color}.png";
+			#else
+				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x64;component/resources/assets/marker-{type}-{color}.png";
+			#endif
+
 		}
 
 		protected override void OnMouseEnter(MouseEventArgs e) {

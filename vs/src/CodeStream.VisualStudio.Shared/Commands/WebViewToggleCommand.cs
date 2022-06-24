@@ -5,6 +5,12 @@ using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
 
+#if X86
+	using CodeStream.VisualStudio.Vsix.x86;
+#else
+	using CodeStream.VisualStudio.Vsix.x64;
+#endif
+
 namespace CodeStream.VisualStudio.Shared.Commands {
 	internal sealed class WebViewToggleCommand : VsCommandBase {
 		private static readonly ILogger Log = LogManager.ForContext<WebViewToggleCommand>();

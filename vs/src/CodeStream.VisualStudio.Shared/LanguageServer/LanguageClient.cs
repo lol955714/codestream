@@ -19,27 +19,31 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace CodeStream.VisualStudio.Shared.LanguageServer {
-
-	public class LanguageServerClient2019 { }
-
+	
 	/// <summary>
 	/// NOTE: See ContentDefinitions.cs for the LanguageClient partial class attributes
 	/// </summary>
 	[Export(typeof(ICodestreamLanguageClient))]
 	[Export(typeof(ILanguageClient))]
 	[Guid(Guids.LanguageClientId)]
-	public partial class Client : LanguageServerClientBase,
+	public partial class LanguageClient : LanguageServerClientBase,
 	ILanguageClient,
 	ICodestreamLanguageClient,
+
+#if X86
 	ILanguageClientCustomMessage,
+#else
+	ILanguageClientCustomMessage2,
+#endif
 	IDisposable {
-		private static readonly ILogger Log = LogManager.ForContext<LanguageServerClient2019>();
+		private static readonly ILogger Log = LogManager.ForContext<LanguageClient>();
 		private bool _disposed;
 		private JsonRpc _rpc;
 		private ISolutionEventsListener _solutionEventListener;
 		private bool _hasStartedOnce;
 		private int _state;
 
+		public bool ShowNotificationOnInitializeFailed { get; }
 		public event AsyncEventHandler<EventArgs> StartAsync;
 #pragma warning disable 0067
 		public event AsyncEventHandler<EventArgs> StopAsync;
@@ -54,7 +58,7 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 		//#endif
 
 		[ImportingConstructor]
-		public Client(
+		public LanguageClient(
 			[Import(typeof(Microsoft.VisualStudio.Shell.SVsServiceProvider))] IServiceProvider serviceProvider,
 			ISessionService sessionService,
 			IEventAggregator eventAggregator,
@@ -65,6 +69,14 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 
 			_middleLayerProvider = new MiddleLayerProvider(Log);
 		}
+
+#if X64
+		public Task<InitializationFailureContext> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState) {
+			return Task.FromResult(new InitializationFailureContext {
+				FailureMessage = initializationState.StatusMessage
+			});
+		}
+#endif
 
 		public string Name => Application.Name;
 
@@ -91,7 +103,7 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 			await Task.Yield();
 			Connection connection = null;
 			try {
-				var settingsManager = SettingsServiceFactory.GetOrCreate(nameof(Client));
+				var settingsManager = SettingsServiceFactory.GetOrCreate(nameof(LanguageClient));
 				var process = LanguageServerProcess.Create(settingsManager, HttpClientService);
 
 				using (Log.CriticalOperation($"Started language server process. FileName={process.StartInfo.FileName} Arguments={process.StartInfo.Arguments}", Serilog.Events.LogEventLevel.Information)) {
@@ -175,9 +187,11 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 			await Task.Yield();
 			_rpc = rpc;
 
+			#if X86
 			// Slight hack to use camelCased properties when serializing requests
 			_rpc.JsonSerializer.ContractResolver = new CustomCamelCasePropertyNamesContractResolver(new HashSet<Type> { typeof(TelemetryProperties) });
 			_rpc.JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
+			#endif
 
 			await OnAttachedForCustomMessageAsync();
 			Log.Debug(nameof(AttachForCustomMessageAsync));

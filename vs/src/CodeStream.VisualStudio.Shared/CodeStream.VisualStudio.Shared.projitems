@@ -24,8 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\WebViewReloadCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\WebViewToggleCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controllers\ConfigurationController.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\Client.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\LanguageClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\ClientManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\ContentDefinitions1.cs">
       <DependentUpon>ContentDefinitions.tt</DependentUpon>

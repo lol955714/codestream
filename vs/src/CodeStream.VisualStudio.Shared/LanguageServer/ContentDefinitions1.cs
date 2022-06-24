@@ -4373,7 +4373,7 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 	[ContentType("XAML")]
 	[ContentType("CoffeeScript")]
 	[ContentType("CodeStream")]
-	public partial class Client {
+	public partial class LanguageClient {
 	}
 
 

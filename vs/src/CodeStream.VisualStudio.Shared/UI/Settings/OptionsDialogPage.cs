@@ -5,8 +5,10 @@ using System.Runtime.CompilerServices;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
+using System.Runtime.InteropServices;
 
 namespace CodeStream.VisualStudio.Shared.UI.Settings {
+	[ComVisible(true)]
 	public class OptionsDialogPage : Microsoft.VisualStudio.Shell.DialogPage, IOptionsDialogPage {	
 
 		private string _email;
