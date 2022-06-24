@@ -88,8 +88,7 @@
     <StartArguments>/rootsuffix Exp</StartArguments>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\resources\CodeStreamPackage.cs">
-      <Link>CodeStreamPackage.cs</Link>
+    <Compile Include="CodeStreamPackage.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>CodeStreamPackage.vsct</DependentUpon>
@@ -666,13 +665,6 @@
     <Content Include="..\resources\CodeStream.VisualStudio.pkgdef">
       <Link>CodeStream.VisualStudio.pkgdef</Link>
     </Content>
-    <VSCTCompile Include="..\resources\CodeStreamPackage.vsct">
-      <Link>CodeStreamPackage.vsct</Link>
-      <ResourceName>Menus.ctmenu</ResourceName>
-      <SubType>Designer</SubType>
-      <Generator>VsctGenerator</Generator>
-      <LastGenOutput>CodeStreamPackage.cs</LastGenOutput>
-    </VSCTCompile>
     <Content Include="..\resources\CodestreamPackage.ico">
       <Link>resources\CodestreamPackage.ico</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -722,6 +714,11 @@
     <EmbeddedResource Include="..\resources\teamdev.licenses">
       <Link>teamdev.licenses</Link>
     </EmbeddedResource>
+    <VSCTCompile Include="CodeStreamPackage.vsct">
+      <Generator>VsctGenerator</Generator>
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <LastGenOutput>CodeStreamPackage.cs</LastGenOutput>
+    </VSCTCompile>
     <ContentManifest Include="..\resources\ContentManifest.json">
       <Link>ContentManifest.json</Link>
     </ContentManifest>
@@ -949,7 +946,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
-    <PreBuildEvent>powershell -ExecutionPolicy Unrestricted $(ProjectDir)..\resources\scripts\Pre-Build.ps1 -ConfigurationName $(ConfigurationName) -SolutionDir $(SolutionDir) -ProjectDir $(ProjectDir) -TargetDir $(TargetDir)</PreBuildEvent>
+    <PreBuildEvent>powershell -ExecutionPolicy Unrestricted $(ProjectDir)..\resources\scripts\Pre-Build.ps1 -ConfigurationName $(ConfigurationName) -SolutionDir $(SolutionDir) -ProjectDir $(ProjectDir)..\resources</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>powershell -ExecutionPolicy Unrestricted $(ProjectDir)..\resources\scripts\Post-Build.ps1 -ConfigurationName $(ConfigurationName) -SolutionDir $(SolutionDir) -TargetDir $(TargetDir)</PostBuildEvent>

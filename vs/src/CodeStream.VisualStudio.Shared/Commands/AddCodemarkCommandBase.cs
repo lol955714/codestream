@@ -11,7 +11,7 @@ using System;
 using System.Threading;
 
 #if X86
-using CodeStream.VisualStudio.Vsix.x86;
+	using CodeStream.VisualStudio.Vsix.x86;
 #else
 	using CodeStream.VisualStudio.Vsix.x64;
 #endif

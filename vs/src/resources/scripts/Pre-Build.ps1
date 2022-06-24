@@ -1,8 +1,7 @@
 param(
 [string] $ConfigurationName,
 [string] $SolutionDir,
-[string] $ProjectDir,
-[string] $TargetDir
+[string] $ProjectDir
 )
 Write-Host ""
 Write-Host "CS4VS Pre-Build.ps1 Starting..."
@@ -11,7 +10,6 @@ Write-Host ""
 
 Write-Host "ProjectDir=$($ProjectDir)"
 Write-Host "SolutionDir=$($SolutionDir)"
-Write-Host "TargetDir=$($TargetDir)"
 
 $Joined = Join-Path "$($SolutionDir)" "..\licenses\$($ConfigurationName)"
 Write-Host "joined" $Joined
@@ -32,7 +30,7 @@ Write-Host ""
 Write-Host ""
 
 Write-Host "Possibly deleting old local license file '$($LocalLicenseFile)'..."
-if (Test-Path -Path "$($LocalLicenseFile)") {	
+if (Test-Path -Path "$($LocalLicenseFile)") {
 	Remove-Item "$($LocalLicenseFile)" -Force
 	Write-Host "Deleted old local license completed."
 }
