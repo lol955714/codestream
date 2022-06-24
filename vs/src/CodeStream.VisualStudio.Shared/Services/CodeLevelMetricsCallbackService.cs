@@ -16,12 +16,11 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 using System.Threading.Tasks;
-using CodeStream.VisualStudio.Framework;
-using CodeStream.VisualStudio.Framework.Enums;
-using CodeStream.VisualStudio.Framework.Interfaces;
-using CodeStream.VisualStudio.Framework.Models;
-using Constants = CodeStream.VisualStudio.Framework.Constants;
+using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core.Enums;
+using CodeStream.VisualStudio.Core.Interfaces;
 using Process = System.Diagnostics.Process;
+using CSConstants = CodeStream.VisualStudio.Core.Constants;
 
 namespace CodeStream.VisualStudio.Shared.Services {
 
@@ -79,9 +78,9 @@ namespace CodeStream.VisualStudio.Shared.Services {
 
 			//example: "avg duration: ${averageDuration} | throughput: ${throughput} | error rate: ${errorsPerMinute} - since ${since}"
 			var formatString = GetEditorFormat().ToLower();
-			var includeThroughput = formatString.Contains(Constants.CodeLevelMetrics.Tokens.Throughput);
-			var includeAverageDuration = formatString.Contains(Constants.CodeLevelMetrics.Tokens.AverageDuration);
-			var includeErrorRate = formatString.Contains(Constants.CodeLevelMetrics.Tokens.ErrorsPerMinute);
+			var includeThroughput = formatString.Contains(CSConstants.CodeLevelMetrics.Tokens.Throughput);
+			var includeAverageDuration = formatString.Contains(CSConstants.CodeLevelMetrics.Tokens.AverageDuration);
+			var includeErrorRate = formatString.Contains(CSConstants.CodeLevelMetrics.Tokens.ErrorsPerMinute);
 
 			try {
 				return await _codeStreamAgentService.GetFileLevelTelemetryAsync(

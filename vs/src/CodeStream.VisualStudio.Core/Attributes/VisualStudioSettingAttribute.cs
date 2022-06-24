@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeStream.VisualStudio.Framework.Attributes {
+namespace CodeStream.VisualStudio.Core.Attributes {
 	public class VisualStudioSettingAttribute : Attribute {
 		public string Path { get; }
 

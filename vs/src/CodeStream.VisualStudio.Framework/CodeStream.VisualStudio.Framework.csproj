@@ -50,26 +50,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
-    <Compile Include="Models\CodeLensConnection.cs" />
-    <Compile Include="Models\CodeLevelMetricsData.cs" />
-    <Compile Include="Enums\CodeLevelMetricStatus.cs" />
-    <Compile Include="Interfaces\ICodeLevelMetricsCallbackService.cs" />
-    <Compile Include="Interfaces\IRemoteCodeLens.cs" />
-    <Compile Include="Interfaces\IVisualStudioSettingsManager.cs" />
-    <Compile Include="Models\CodeLevelMetricsDetail.cs" />
-    <Compile Include="RpcPipeNames.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Enums\VisualStudioSetting.cs" />
-    <Compile Include="Attributes\VisualStudioSettingAttribute.cs" />
-    <Compile Include="Exceptions\VisualStudioSettingException.cs" />
-    <Compile Include="Extensions\VisualStudioSettingPathAttributeExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj">
-      <Project>{1A29B558-C55A-4769-AD37-69F903ED6EB3}</Project>
-      <Name>CodeStream.VisualStudio.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Threading">
@@ -141,6 +122,12 @@
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeStream.VisualStudio.Core\CodeStream.VisualStudio.Core.csproj">
+      <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
+      <Name>CodeStream.VisualStudio.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

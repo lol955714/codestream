@@ -2,11 +2,11 @@
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Runtime.InteropServices;
-using CodeStream.VisualStudio.Framework;
-using CodeStream.VisualStudio.Framework.Enums;
-using CodeStream.VisualStudio.Framework.Exceptions;
-using CodeStream.VisualStudio.Framework.Extensions;
-using CodeStream.VisualStudio.Framework.Interfaces;
+using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core.Enums;
+using CodeStream.VisualStudio.Core.Exceptions;
+using CodeStream.VisualStudio.Core.Extensions;
+using CodeStream.VisualStudio.Core.Interfaces;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 

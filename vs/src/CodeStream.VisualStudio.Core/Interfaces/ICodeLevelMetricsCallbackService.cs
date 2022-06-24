@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
+using CodeStream.VisualStudio.Core.Enums;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Framework.Enums;
 
-namespace CodeStream.VisualStudio.Framework.Interfaces {
+namespace CodeStream.VisualStudio.Core.Interfaces {
 	public interface ICodeLevelMetricsCallbackService {
 		CodeLevelMetricStatus GetClmStatus();
 		int GetVisualStudioPid();

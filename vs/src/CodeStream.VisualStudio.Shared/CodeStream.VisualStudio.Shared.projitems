@@ -25,6 +25,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\WebViewToggleCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controllers\ConfigurationController.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\Client.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\ClientManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\ContentDefinitions1.cs">
+      <DependentUpon>ContentDefinitions.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)LanguageServer\ICodestreamLanguageClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packages\AsyncPackageHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packages\CommandsPackage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packages\ProtocolHandlerPackage.cs" />
@@ -113,6 +121,11 @@
     <None Include="$(MSBuildThisFileDirectory)UI\WebViews\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)LanguageServer\ContentDefinitions.tt">
+      <LastGenOutput>ContentDefinitions1.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)LanguageServer\ContentTypesVisualStudio.txt" />
     <Content Include="$(MSBuildThisFileDirectory)UI\WebViews\index.html" />
     <Content Include="$(MSBuildThisFileDirectory)UI\WebViews\index.ts" />
     <Content Include="$(MSBuildThisFileDirectory)UI\WebViews\theme.css" />

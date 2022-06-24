@@ -1,7 +1,7 @@
-﻿using CodeStream.VisualStudio.Framework.Enums;
+﻿using CodeStream.VisualStudio.Core.Enums;
 using Microsoft.VisualStudio.Settings;
 
-namespace CodeStream.VisualStudio.Framework.Interfaces {
+namespace CodeStream.VisualStudio.Core.Interfaces {
 	public interface IVisualStudioSettingsManager {
 		bool IsCodeLevelMetricsEnabled();
 		bool IsCodeLensEnabled();

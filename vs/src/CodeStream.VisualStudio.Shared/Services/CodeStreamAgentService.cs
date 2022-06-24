@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Extensions;
+using CodeStream.VisualStudio.Core.Interfaces;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Task = System.Threading.Tasks.Task;
 using TextDocumentIdentifier = CodeStream.VisualStudio.Core.Models.TextDocumentIdentifier;
 using CodeStream.VisualStudio.Core.Models;
 using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Framework.Interfaces;
 #if DEBUG
 using TraceLevel = CodeStream.VisualStudio.Core.Logging.TraceLevel;
 #endif

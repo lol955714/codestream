@@ -52,11 +52,19 @@
   <ItemGroup>
     <Compile Include="Annotations\Annotations.cs" />
     <Compile Include="Application.cs" />
+    <Compile Include="Attributes\VisualStudioSettingAttribute.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
     <Compile Include="CamelCaseStringEnumConverter.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContentTypes.cs" />
+    <Compile Include="Enums\CodeLevelMetricStatus.cs" />
+    <Compile Include="Enums\VisualStudioSetting.cs" />
     <Compile Include="Exceptions\NRApiErrorException.cs" />
+    <Compile Include="Exceptions\VisualStudioSettingException.cs" />
+    <Compile Include="Extensions\VisualStudioSettingPathAttributeExtensions.cs" />
+    <Compile Include="Interfaces\ICodeLevelMetricsCallbackService.cs" />
+    <Compile Include="Interfaces\IRemoteCodeLens.cs" />
+    <Compile Include="Interfaces\IVisualStudioSettingsManager.cs" />
     <Compile Include="LanguageServer\ILanguageServerClientManager.cs" />
     <Compile Include="LanguageServer\MiddleLayerProvider.cs" />
     <Compile Include="Logging\CodeStreamSink.cs" />
@@ -71,6 +79,9 @@
     <Compile Include="Logging\Sanitizer\SecretsSanitizingFormatRule.cs" />
     <Compile Include="Logging\Sanitizer\TextProcessor.cs" />
     <Compile Include="Logging\TraceLevel.cs" />
+    <Compile Include="Models\CodeLensConnection.cs" />
+    <Compile Include="Models\CodeLevelMetricsData.cs" />
+    <Compile Include="Models\CodeLevelMetricsDetail.cs" />
     <Compile Include="Models\CodeStreamDiffUri.cs" />
     <Compile Include="Models\EntityAccount.cs" />
     <Compile Include="Models\Agent.Protocol.CodeLevelMetrics.cs" />
@@ -92,6 +103,7 @@
     <Compile Include="Process\ProcessExtensions.cs" />
     <Compile Include="RegularExpressions.cs" />
     <Compile Include="Retry.cs" />
+    <Compile Include="RpcPipeNames.cs" />
     <Compile Include="Services\IHttpClientService.cs" />
     <Compile Include="Services\ISolutionEventsListener.cs" />
     <Compile Include="Services\IWebviewUserSettingsService.cs" />

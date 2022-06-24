@@ -1,4 +1,4 @@
-﻿namespace CodeStream.VisualStudio.Framework.Models
+﻿namespace CodeStream.VisualStudio.Core.Models
 {
 	public class CodeLevelMetricsDetail {
 		public int Order { get; set; }

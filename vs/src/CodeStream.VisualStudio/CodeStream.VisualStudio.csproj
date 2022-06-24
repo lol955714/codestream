@@ -770,16 +770,6 @@
       <Project>{1a29b558-c55a-4769-ad37-69f903ed6eb3}</Project>
       <Name>CodeStream.VisualStudio.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CodeStream.VisualStudio.Framework\CodeStream.VisualStudio.Framework.csproj">
-      <Project>{89a17dff-415d-4daf-a489-1f3c25af0c35}</Project>
-      <Name>CodeStream.VisualStudio.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CodeStream.VisualStudio.Shell.2019\CodeStream.VisualStudio.Shell.2019.csproj">
-      <Project>{e45e73e2-3442-464f-a54f-a5b8a8e48084}</Project>
-      <Name>CodeStream.VisualStudio.Shell.2019</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNetBrowser32">
@@ -854,6 +844,12 @@
     <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense">
       <Version>16.4.280</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client">
+      <Version>16.2.1079</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol">
+      <Version>16.4.30</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.LiveShare">
       <Version>0.3.1074</Version>
     </PackageReference>
@@ -921,7 +917,7 @@
       <Version>15.8.192</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Utilities">
-      <Version>15.6.27413</Version>
+      <Version>16.0.28729</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Validation">
       <Version>15.3.58</Version>

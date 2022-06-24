@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core.Enums;
 using CodeStream.VisualStudio.Core.Extensions;
+using CodeStream.VisualStudio.Core.Interfaces;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Framework;
-using CodeStream.VisualStudio.Framework.Enums;
-using CodeStream.VisualStudio.Framework.Interfaces;
-using CodeStream.VisualStudio.Framework.Models;
+using EnvDTE80;
 using Microsoft.VisualStudio.Language.CodeLens;
 using Microsoft.VisualStudio.Language.CodeLens.Remoting;
 using Microsoft.VisualStudio.Threading;
@@ -105,7 +105,7 @@ namespace CodeStream.VisualStudio.CodeLens {
 		}
 
 		/// <summary>
-		/// Populates the data to pass to the WPF view <seealso cref="VisualStudio.UI.ToolWindows.CodeLevelMetricsDetails.ViewMore_OnMouseDown" />
+		/// Populates the data to pass to the WPF view <seealso cref="ToolWindows.CodeLevelMetricsDetails.ViewMore_OnMouseDown" />
 		/// when a user "clicks" the CodeLens description populated from <see cref="GetDataAsync"/>
 		/// </summary>
 		/// <remarks>

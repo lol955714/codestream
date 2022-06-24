@@ -1,7 +1,7 @@
 ﻿using System.IO.Pipes;
 using StreamJsonRpc;
 
-namespace CodeStream.VisualStudio.Framework.Models {
+namespace CodeStream.VisualStudio.Core.Models {
 
 	/// <summary>
 	/// Responsible for handling the connections from Visual Studio down to the CodeLens provider

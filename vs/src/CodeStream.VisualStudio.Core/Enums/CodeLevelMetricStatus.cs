@@ -1,4 +1,4 @@
-﻿namespace CodeStream.VisualStudio.Framework.Enums {
+﻿namespace CodeStream.VisualStudio.Core.Enums {
 	public enum CodeLevelMetricStatus {
 		Loading,
 		SignInRequired,
