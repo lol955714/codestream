@@ -126,13 +126,13 @@ module.exports = function(env, argv) {
 		env
 	);
 
-	const context = path.resolve(__dirname, "src/CodeStream.VisualStudio/UI/WebViews");
+	const context = path.resolve(__dirname, "src/CodeStream.VisualStudio.Shared/UI/WebViews");
 	console.log(`__dirname=${__dirname}`);
 	console.log(`context=${context}`);
 
 	const plugins = [
 		new CleanWebpackPlugin({
-			cleanOnceBeforeBuildPatterns: ["src/CodeStream.VisualStudio/dist/webview"],
+			cleanOnceBeforeBuildPatterns: ["src/resources/dist/webview"],
 			verbose: true
 		}),
 		new webpack.DefinePlugin(
@@ -165,7 +165,7 @@ module.exports = function(env, argv) {
 			patterns: [
 				{ 
 					from: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"), 
-					to: path.resolve(__dirname, "src/CodeStream.VisualStudio/dist/webview")
+					to: path.resolve(__dirname, "src/resources/dist/webview")
 				}
 			]
 		}),
@@ -190,7 +190,7 @@ module.exports = function(env, argv) {
 		devtool: !env.production ? "eval-source-map" : undefined,
 		output: {
 			filename: "[name].js",
-			path: path.resolve(__dirname, "src/CodeStream.VisualStudio/dist/webview"),
+			path: path.resolve(__dirname, "src/resources/dist/webview"),
 			publicPath: "file:///{root}/dist/webview/"
 		},
 		optimization: {

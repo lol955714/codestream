@@ -99,14 +99,14 @@ module.exports = function(env, argv) {
 				{
 					source: "dist/agent-pkg.js",
 					// TODO: Use environment variable if exists
-					destination: path.resolve(__dirname, "../../vs/src/CodeStream.VisualStudio/dist/agent.js")
+					destination: path.resolve(__dirname, "../../vs/src/resources/dist/agent.js")
 				},
 				{
 					source: "dist/agent-pkg.js.map",
 					// TODO: Use environment variable if exists
 					destination: path.resolve(
 						__dirname,
-						"../../vs/src/CodeStream.VisualStudio/dist/agent-pkg.js.map"
+						"../../vs/src/resources/dist/agent-pkg.js.map"
 					)
 				},
 				{
