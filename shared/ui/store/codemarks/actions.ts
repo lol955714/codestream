@@ -17,7 +17,8 @@ import {
 	CodemarkPlus,
 	MoveMarkerRequest,
 	MoveMarkerRequestType,
-	DeleteThirdPartyPostRequestType
+	DeleteThirdPartyPostRequestType,
+	SharePostViaServerRequestType
 } from "@codestream/protocols/agent";
 import { ShareTarget } from "@codestream/protocols/api";
 import { logError } from "@codestream/webview/logger";
