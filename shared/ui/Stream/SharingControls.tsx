@@ -115,13 +115,13 @@ type BaseSharingAttributes = {
 	providerId: string;
 	providerTeamId: string;
 	providerTeamName?: string;
+	channelName?: string;
 	botUserId?: string;
 };
 
 type ChannelSharingAttributes = BaseSharingAttributes & {
 	type: "channel";
 	channelId: string;
-	channelName?: string;
 };
 
 type DirectSharingAttributes = BaseSharingAttributes & {
@@ -350,12 +350,20 @@ export const SharingControls = React.memo(
 						: undefined;
 					botUserId = teamData ? teamData.bot_user_id : undefined;
 				}
+				const dataForTeam = data.get();
+				const members = dataForTeam.members || [];
+				const channelName = members
+					.filter(user => checkedUsers.includes(user.id))
+					.map(user => user.name)
+					.sort()
+					.join(", ");
 				props.onChangeValues({
 					type: "direct",
 					providerId: shareTarget.providerId,
 					providerTeamId: shareTarget.teamId,
 					providerTeamName: shareTarget.teamName,
 					userIds: checkedUsers,
+					channelName,
 					botUserId
 				});
 			} else props.onChangeValues(undefined);

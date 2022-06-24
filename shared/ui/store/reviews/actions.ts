@@ -57,13 +57,13 @@ interface BaseSharingAttributes {
 	providerId: string;
 	providerTeamId: string;
 	providerTeamName?: string;
+	channelName?: string;
 	botUserId?: string;
 }
 
 type ChannelSharingAttributes = BaseSharingAttributes & {
 	type: "channel";
 	channelId: string;
-	channelName?: string;
 };
 
 type DirectSharingAttributes = BaseSharingAttributes & {
@@ -159,10 +159,7 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 									channelId:
 										channelId ||
 										(sharingAttributes.type === "channel" ? sharingAttributes.channelId : ""),
-									channelName:
-										(sharingAttributes.type === "channel"
-											? sharingAttributes.channelName
-											: "Direct Message") || "",
+									channelName: sharingAttributes.channelName || "",
 									postId: ts,
 									url: permalink || ""
 								}
