@@ -6,24 +6,24 @@
         <DisplayName>New Relic CodeStream - GitHub, GitLab PRs &amp; Review</DisplayName>
         <Description xml:space="preserve">GitHub pull requests, GitLab merge requests, and code reviews in your IDE. Eliminate context-switching. Integrates with New Relic observability, Bitbucket, Slack, MS Teams, Jira, Trello and more.</Description>
         <MoreInfo>https://codestream.com/</MoreInfo>
-        <ReleaseNotes>CHANGELOG.txt</ReleaseNotes>
-        <Icon>Resources\Assets\codestream.png</Icon>
-        <PreviewImage>Resources\CodeStreamPackage.ico</PreviewImage>
+        <ReleaseNotes>..\resources\CHANGELOG.txt</ReleaseNotes>
+        <Icon>..\resources\assets\codestream.png</Icon>
+        <PreviewImage>..\resources\CodeStreamPackage.ico</PreviewImage>
         <Tags>gitlab;collaboration;github;review;slack</Tags>
     </Metadata>
     <Installation Experimental="false" AllUsers="true">
         <!-- Targetting the first release after Preview 3 which is: 15.0.15	Release	July 10, 2018  -->
         <!-- See: https://docs.microsoft.com/en-us/visualstudio/install/visual-studio-build-numbers-and-release-dates?view=vs-2017 -->
-        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0.27413.43, 17.0)" />
-        <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[15.0.27413.43, 17.0)" />
-        <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[15.0.27413.43, 17.0)" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.2, 17.0)" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[16.2, 17.0)" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[16.2, 17.0)" />
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
         <Dependency Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" d:Source="Installed" Version="[15.0]" />
     </Dependencies>
     <Prerequisites>
-        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0.27413.43, 17.0]" DisplayName="Visual Studio core editor" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.2, 17.0]" DisplayName="Visual Studio core editor" />
     </Prerequisites>
     <Assets>
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
