@@ -605,6 +605,27 @@ function blockTruncated(): KnownBlock {
 	};
 }
 
+function blockRepliedTo(text: string): KnownBlock {
+	let replyText: string;
+	const maxText = text.substring(0, 28);
+	if (text === maxText) {
+		replyText = text;
+	} else {
+		const match = maxText.match(/(.+\b)\W/);
+		const truncatedText = match ? match[1] : maxText;
+		replyText = truncatedText === text ? truncatedText : `${truncatedText}...`;
+	}
+	return {
+		type: "context",
+		elements: [
+			{
+				type: "mrkdwn",
+				text: `_reply to "${replyText}"_`
+			}
+		]
+	};
+}
+
 export function toSlackPostBlocks(
 	codemark: CodemarkPlus,
 	remotes: string[] | undefined,
@@ -1144,6 +1165,21 @@ export function toSlackCodeErrorPostBlocks(
 		]
 	});
 
+	return blocks;
+}
+
+export function toSlackTextPostBlocks(text: string, parentText: string) {
+	const blocks: Blocks = [];
+	if (parentText) {
+		blocks.push(blockRepliedTo(parentText));
+	}
+	blocks.push({
+		type: "section",
+		text: {
+			type: "mrkdwn",
+			text: text
+		}
+	});
 	return blocks;
 }
 

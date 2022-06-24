@@ -17,7 +17,8 @@ import {
 	CodemarkPlus,
 	MoveMarkerRequest,
 	MoveMarkerRequestType,
-	DeleteThirdPartyPostRequestType
+	DeleteThirdPartyPostRequestType,
+	SharePostViaServerRequestType
 } from "@codestream/protocols/agent";
 import { ShareTarget } from "@codestream/protocols/api";
 import { logError } from "@codestream/webview/logger";
@@ -210,6 +211,58 @@ export const createCodemark = (attributes: SharingNewCodemarkAttributes) => asyn
 					} catch (error) {
 						logError("Error sharing a codemark", { message: error.toString() });
 						throw { reason: "share" } as CreateCodemarkError;
+					}
+				} else if (
+					attributes.parentPostId &&
+					state.posts.byStream[response.post.streamId] &&
+					state.posts.byStream[response.post.streamId][attributes.parentPostId] &&
+					state.posts.byStream[response.post.streamId][attributes.parentPostId].sharedTo
+				) {
+					const sharedTo = state.posts.byStream[response.post.streamId][attributes.parentPostId]
+						.sharedTo!;
+					for (const target of sharedTo) {
+						if (target.providerId !== "slack*com") continue;
+						try {
+							const { post, ts, permalink } = await HostApi.instance.send(
+								CreateThirdPartyPostRequestType,
+								{
+									providerId: target.providerId,
+									channelId: target.channelId,
+									providerTeamId: target.teamId,
+									parentPostId: target.postId,
+									text: rest.text,
+									codemark: response.codemark,
+									remotes: attributes.remotes,
+									mentionedUserIds: attributes.mentionedUserIds
+								}
+							);
+							if (ts) {
+								await HostApi.instance.send(UpdatePostSharingDataRequestType, {
+									postId: response.codemark.postId,
+									sharedTo: [
+										{
+											createdAt: post.createdAt,
+											providerId: target.providerId,
+											teamId: target.teamId,
+											teamName: target.teamName,
+											channelId: target.channelId,
+											channelName: target.channelName,
+											postId: ts,
+											url: permalink || ""
+										}
+									]
+								});
+							}
+						} catch (error) {
+							try {
+								await HostApi.instance.send(SharePostViaServerRequestType, {
+									postId: response.post.id,
+									providerId: target.providerId
+								});
+							} catch (error2) {
+								logError("Error sharing a post", { message: error2.toString() });
+							}
+						}
 					}
 				}
 			}

@@ -53,6 +53,7 @@ import {
 	toSlackPostBlocks,
 	toSlackPostText,
 	toSlackReviewPostBlocks,
+	toSlackTextPostBlocks,
 	UserMaps
 } from "./slackSharingApi.adapters";
 
@@ -414,6 +415,8 @@ export class SlackSharingApiProvider {
 				blocks = toSlackCodeErrorPostBlocks(codeError, userMaps, repoHash, this._slackUserId);
 				// Set the fallback (notification) content for the message
 				text = `${codeError.title}`;
+			} else if (request.parentText && text) {
+				blocks = toSlackTextPostBlocks(text, request.parentText);
 			}
 
 			if (request.providerServerTokenUserId) {

@@ -47,6 +47,7 @@ export interface CreateSharedExternalPostRequest {
 	text: string;
 	mentionedUserIds?: string[];
 	parentPostId?: string;
+	parentText?: string;
 	remotes?: string[];
 	entryPoint?: string;
 	// can share either a codemark

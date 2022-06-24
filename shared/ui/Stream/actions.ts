@@ -392,53 +392,65 @@ export const createPost = (
 		}
 		const response = await responsePromise;
 
+		const getTopLevelSharedTo = (
+			postId: string | undefined
+		): { sharedTo?: ShareTarget[]; parentText?: string } => {
+			if (!postId) return {};
+			const post = posts.byStream[streamId][postId];
+			if (post.parentPostId) {
+				return {
+					...getTopLevelSharedTo(post.parentPostId),
+					parentText: post.text
+				};
+			}
+			if (post.sharedTo) return { sharedTo: post.sharedTo };
+			return {};
+		};
+
 		if (response) {
-			if (
-				parentPostId &&
-				posts.byStream[streamId] &&
-				posts.byStream[streamId][parentPostId] &&
-				posts.byStream[streamId][parentPostId].sharedTo &&
-				posts.byStream[streamId][parentPostId].sharedTo![0].providerId === "slack*com"
-			) {
-				const sharedTo = posts.byStream[streamId][parentPostId].sharedTo![0];
-				try {
-					const { post, ts, permalink } = await HostApi.instance.send(
-						CreateThirdPartyPostRequestType,
-						{
-							providerId: sharedTo.providerId,
-							channelId: sharedTo.channelId,
-							providerTeamId: sharedTo.teamId,
-							parentPostId: sharedTo.postId,
-							text: text,
-							codemark: response.codemark,
-							mentionedUserIds: mentions
-						}
-					);
-					if (ts) {
-						await HostApi.instance.send(UpdatePostSharingDataRequestType, {
-							postId: response.post.id,
-							sharedTo: [
-								{
-									createdAt: post.createdAt,
-									providerId: sharedTo.providerId,
-									teamId: sharedTo.teamId,
-									teamName: sharedTo.teamName,
-									channelId: sharedTo.channelId,
-									channelName: sharedTo.channelName,
-									postId: ts,
-									url: permalink || ""
-								}
-							]
-						});
-					}
-				} catch (error) {
+			const { sharedTo, parentText } = getTopLevelSharedTo(parentPostId);
+			if (sharedTo) {
+				for (const target of sharedTo) {
 					try {
-						await HostApi.instance.send(SharePostViaServerRequestType, {
-							postId: response.post.id,
-							providerId: sharedTo.providerId
-						});
-					} catch (error2) {
-						logError("Error sharing a post", { message: error2.toString() });
+						const { post, ts, permalink } = await HostApi.instance.send(
+							CreateThirdPartyPostRequestType,
+							{
+								providerId: target.providerId,
+								channelId: target.channelId,
+								providerTeamId: target.teamId,
+								parentPostId: target.postId,
+								parentText: parentText,
+								text: text,
+								codemark: response.codemark,
+								mentionedUserIds: mentions
+							}
+						);
+						if (ts) {
+							await HostApi.instance.send(UpdatePostSharingDataRequestType, {
+								postId: response.post.id,
+								sharedTo: [
+									{
+										createdAt: post.createdAt,
+										providerId: target.providerId,
+										teamId: target.teamId,
+										teamName: target.teamName,
+										channelId: target.channelId,
+										channelName: target.channelName,
+										postId: ts,
+										url: permalink || ""
+									}
+								]
+							});
+						}
+					} catch (error) {
+						try {
+							await HostApi.instance.send(SharePostViaServerRequestType, {
+								postId: response.post.id,
+								providerId: target.providerId
+							});
+						} catch (error2) {
+							logError("Error sharing a post", { message: error2.toString() });
+						}
 					}
 				}
 			}
