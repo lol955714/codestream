@@ -339,10 +339,7 @@ ASALocalRun/
 .localhistory/
 
 # CodeStream stuff
-src/CodeStream.VisualStudio/dist/
-licenses/Debug/teamdev.licenses
-licenses/Release/teamdev.licenses
-src/CodeStream.VisualStudio/teamdev.licenses
+**/teamdev.licenses
 src/protocols/
-src/CodeStream.VisualStudio/Internal/CodeStream.VisualStudio.Shell.*.dll
 stats.json
+src/resources/dist/
