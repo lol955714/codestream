@@ -53,6 +53,7 @@ import { GitPatchParser, ParsedDiffPatch } from "./parsers/patchParser";
 import { GitRemoteParser } from "./parsers/remoteParser";
 import { GitRepositories } from "./repositories";
 import { RepositoryLocator } from "./repositoryLocator";
+import JSONStream = Mocha.reporters.JSONStream;
 
 export * from "./models/models";
 
@@ -818,7 +819,8 @@ export class GitService implements IGitService, Disposable {
 		try {
 			const data = (await git({ cwd: cwd }, "rev-parse", "--abbrev-ref", "HEAD")).trim();
 			return data === "" || data === "HEAD" ? undefined : data;
-		} catch {
+		} catch (e) {
+			Logger.warn("getCurrentBranch git rev-parse error", JSON.stringify(e));
 			return undefined;
 		}
 	}
@@ -935,7 +937,8 @@ export class GitService implements IGitService, Disposable {
 				};
 			}
 			return data === "" ? undefined : data;
-		} catch {
+		} catch (e) {
+			Logger.error(e, "getTrackingBranch git rev-parse error");
 			return undefined;
 		}
 	}
@@ -1051,6 +1054,7 @@ export class GitService implements IGitService, Disposable {
 			}
 			return { success: true };
 		} catch (err) {
+			Logger.warn("fetchRemoteBranch git rev-parse error", JSON.stringify(err));
 			return { success: false, error: err.message };
 		}
 	}
@@ -1582,7 +1586,8 @@ export class GitService implements IGitService, Disposable {
 		try {
 			const data = await git({ cwd: repoPath }, "rev-parse", "--abbrev-ref", `${branch}@{u}`);
 			return data ? data.trim() : undefined;
-		} catch {
+		} catch (e) {
+			Logger.warn("getBranchRemote git rev-parse error", JSON.stringify(e));
 			return undefined;
 		}
 	}

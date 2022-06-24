@@ -362,7 +362,7 @@ class ReviewForm extends React.Component<Props, State> {
 			if (!uri && openRepos.repositories.length) {
 				// use the uri of the first repo found
 				// if there isn't a file's uri
-				uri = firstRepoUri = openRepos.repositories[0].folder.uri;
+				uri = firstRepoUri = URI.file(openRepos.repositories[0].path).toString();
 			}
 		}
 

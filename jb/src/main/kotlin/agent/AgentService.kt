@@ -293,6 +293,7 @@ class AgentService(private val project: Project) : Disposable {
             return GeneralCommandLine(
                 nodeDestFile.absolutePath,
                 "--nolazy",
+                "--inspect",
                 agentJsDestFile.absolutePath,
                 "--stdio"
             ).withEnvironment(agentEnv).createProcess()
@@ -300,6 +301,7 @@ class AgentService(private val project: Project) : Disposable {
             // if we don't ship Node.js for the user's platform, fallback to system-installed node
             "node",
             "--nolazy",
+            "--inspect",
             agentJsDestFile.absolutePath,
             "--stdio"
         ).withEnvironment(agentEnv).createProcess()

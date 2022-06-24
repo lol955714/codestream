@@ -183,9 +183,9 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 
 				if (!SupressedGitWarnings.find(_ => _.test(err.message))) {
 					Logger.warn(
-						`Error(${opts.cwd}): ${command} ${args.join(" ")})\n    (${err.code}) ${
-							err.message
-						}\n${stderr}`
+						`Error(${opts.cwd}): ${command} ${args.join(" ")})\n ${JSON.stringify(
+							err
+						)}  \n${stdout}\n${stderr}`
 					);
 				}
 				reject(err);
@@ -193,6 +193,18 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 		);
 
 		ignoreClosedInputStream(proc);
+
+		proc.on("error", err => {
+			Logger.warn(`ErrorEvent ${command} ${args.join(" ")}) ${JSON.stringify(err)}`);
+		});
+
+		proc.on("exit", err => {
+			Logger.warn(`ExitEvent ${command} ${args.join(" ")}) ${JSON.stringify(err)}`);
+		});
+
+		proc.on("spawn", () => {
+			Logger.warn(`SpawnEvent ${command} ${args.join(" ")}) ${process.pid}`);
+		});
 
 		if (stdin) {
 			proc.stdin?.end(stdin, stdinEncoding || "utf8");

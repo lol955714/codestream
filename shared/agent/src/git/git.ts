@@ -126,7 +126,8 @@ export async function git(
 			ex,
 			"git",
 			...args,
-			` killed=${ex?.killed} signal=${ex?.signal} code=${ex?.code} cwd='${options.cwd}'\n\n  `
+			` killed=${ex?.killed} signal=${ex?.signal} code=${ex?.code} cwd='${options.cwd}'\n\n  `,
+			JSON.stringify(ex)
 		);
 		throw ex;
 	} finally {
