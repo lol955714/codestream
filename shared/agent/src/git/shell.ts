@@ -136,7 +136,7 @@ export interface CommandOptions {
 	readonly maxBuffer?: number;
 	/**
 	 * An optional string or buffer which will be written to
-	 * the child process stdin stream immediately immediately
+	 * the child process stdin stream immediately
 	 * after spawning the process.
 	 */
 	readonly stdin?: string | Buffer;
@@ -156,7 +156,7 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 	const { stdin, stdinEncoding, ...opts }: CommandOptions = {
 		maxBuffer: 100 * 1024 * 1024,
 		...options
-	} as CommandOptions;
+	};
 
 	return new Promise<string>((resolve, reject) => {
 		const proc = execFile(
@@ -168,6 +168,7 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 					if (stderr) {
 						Logger.warn(`Warning(${command} ${args.join(" ")}): ${stderr}`);
 					}
+					Logger.warn(`State after success: ${JSON.stringify(proc)}`);
 					resolve(stdout);
 
 					return;
@@ -187,6 +188,7 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 							err
 						)}  \n${stdout}\n${stderr}`
 					);
+					Logger.warn(`State after error: ${JSON.stringify(proc)}`);
 				}
 				reject(err);
 			}
@@ -202,11 +204,16 @@ export function runCommand(command: string, args: any[], options: CommandOptions
 			Logger.warn(`ExitEvent ${command} ${args.join(" ")}) ${JSON.stringify(err)}`);
 		});
 
+		proc.on("close", err => {
+			Logger.warn(`CloseEvent ${command} ${args.join(" ")}) ${JSON.stringify(err)}`);
+		});
+
 		proc.on("spawn", () => {
 			Logger.warn(`SpawnEvent ${command} ${args.join(" ")}) ${process.pid}`);
 		});
 
 		if (stdin) {
+			Logger.warn(`Writing to stdin: ${stdin}`);
 			proc.stdin?.end(stdin, stdinEncoding || "utf8");
 		}
 	});
