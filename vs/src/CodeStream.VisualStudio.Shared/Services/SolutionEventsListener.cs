@@ -1,5 +1,4 @@
-﻿using CodeStream.VisualStudio.Core.Services;
-using Microsoft;
+﻿using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;

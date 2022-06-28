@@ -2,7 +2,7 @@
 using System.ComponentModel.Composition;
 using System.Windows;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Services;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;

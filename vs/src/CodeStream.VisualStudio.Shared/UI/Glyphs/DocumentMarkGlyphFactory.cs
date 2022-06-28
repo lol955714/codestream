@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using CodeStream.VisualStudio.Shared.Models;
 using CodeStream.VisualStudio.Shared.UI.Margins;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
@@ -18,7 +19,7 @@ namespace CodeStream.VisualStudio.Shared.UI.Glyphs {
 			var documentMarkGlyphTag = tag as DocumentMarkGlyphTag;
 			 
 			if (documentMarkGlyphTag?.DocumentMarker?.Codemark != null ||
-				documentMarkGlyphTag?.DocumentMarker?.Type == Core.Models.CodemarkType.Prcomment) {
+				documentMarkGlyphTag?.DocumentMarker?.Type == CodemarkType.Prcomment) {
 
 				return new DocumentMark(new DocumentMarkViewModel(documentMarkGlyphTag.DocumentMarker));
 			}

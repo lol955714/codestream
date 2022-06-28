@@ -1,8 +1,6 @@
 ﻿using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Packages;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -15,6 +13,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Shared.Commands;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Services;
 using CodeStream.VisualStudio.Shared.UI;
 using Task = System.Threading.Tasks.Task;
 

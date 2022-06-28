@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.Composition;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Extensions;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI.Extensions;
+using CodeStream.VisualStudio.Shared.Extensions;
+using CodeStream.VisualStudio.Shared.Services;
 using CodeStream.VisualStudio.Shared.UI.Glyphs;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;

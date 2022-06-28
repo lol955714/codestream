@@ -1,7 +1,9 @@
 ﻿using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Services;
 using Serilog;
 
 namespace CodeStream.VisualStudio.Shared.Controllers {

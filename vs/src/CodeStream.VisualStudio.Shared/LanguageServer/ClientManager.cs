@@ -1,5 +1,4 @@
-﻿using CodeStream.VisualStudio.Core.LanguageServer;
-using CodeStream.VisualStudio.Core.Logging;
+﻿using CodeStream.VisualStudio.Core.Logging;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Serilog;

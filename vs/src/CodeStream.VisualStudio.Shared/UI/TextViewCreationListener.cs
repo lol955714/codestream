@@ -4,10 +4,7 @@ using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Logging.Instrumentation;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI;
-using CodeStream.VisualStudio.Core.UI.Adornments;
-using CodeStream.VisualStudio.Core.UI.Extensions;
+using CodeStream.VisualStudio.Core.Adornments;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -29,6 +26,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using System.Windows.Media;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Extensions;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Services;
 using CodeStream.VisualStudio.Shared.UI.Margins;
 
 namespace CodeStream.VisualStudio.Shared.UI {
@@ -48,7 +49,7 @@ namespace CodeStream.VisualStudio.Shared.UI {
 		private IWpfTextView _focusedWpfTextView;
 		private static readonly object InitializedLock = new object();
 
-		internal const string LayerName = CodeStream.VisualStudio.Core.UI.PropertyNames.TextViewCreationListenerLayerName;
+		internal const string LayerName = Core.PropertyNames.TextViewCreationListenerLayerName;
 
 		private static readonly object WeakTableLock = new object();
 		private static readonly ConditionalWeakTable<ITextBuffer, HashSet<IWpfTextView>> TextBufferTable =

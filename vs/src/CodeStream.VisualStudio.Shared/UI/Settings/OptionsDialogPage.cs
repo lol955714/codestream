@@ -6,6 +6,7 @@ using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
 using System.Runtime.InteropServices;
+using CodeStream.VisualStudio.Shared.Models;
 
 namespace CodeStream.VisualStudio.Shared.UI.Settings {
 	[ComVisible(true)]

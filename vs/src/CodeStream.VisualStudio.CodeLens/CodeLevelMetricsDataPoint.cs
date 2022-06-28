@@ -5,12 +5,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core.CodeLevelMetrics;
 using CodeStream.VisualStudio.Core.Enums;
 using CodeStream.VisualStudio.Core.Extensions;
-using CodeStream.VisualStudio.Core.Interfaces;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using EnvDTE80;
 using Microsoft.VisualStudio.Language.CodeLens;
 using Microsoft.VisualStudio.Language.CodeLens.Remoting;
 using Microsoft.VisualStudio.Threading;
@@ -20,7 +19,7 @@ namespace CodeStream.VisualStudio.CodeLens {
 	public class CodeLevelMetricDataPoint : IAsyncCodeLensDataPoint {
 		private static readonly ILogger Log = LogManager.ForContext<CodeLevelMetricDataPoint>();
 		private readonly ICodeLensCallbackService _callbackService;
-		private GetFileLevelTelemetryResponse _metrics;
+		private CodeLevelMetricsTelemetry _metrics;
 		private string _editorFormatString;
 
 		public readonly string DataPointId = Guid.NewGuid().ToString();
@@ -67,14 +66,14 @@ namespace CodeStream.VisualStudio.CodeLens {
 					.ConfigureAwait(false);
 
 				_metrics = await _callbackService
-					.InvokeAsync<GetFileLevelTelemetryResponse>(
+					.InvokeAsync<CodeLevelMetricsTelemetry>(
 						this,
 						nameof(ICodeLevelMetricsCallbackService.GetTelemetryAsync),
 						new object[] { codeNamespace, functionName },
 						cancellationToken: token)
 					.ConfigureAwait(false);
 
-				_metrics = _metrics ?? new GetFileLevelTelemetryResponse();
+				_metrics = _metrics ?? new CodeLevelMetricsTelemetry();
 
 				var throughput = _metrics.Throughput?.FirstOrDefault(x =>
 						$"{x.Namespace}.{x.ClassName}.{x.FunctionName}".EqualsIgnoreCase(namespaceFunction))?.RequestsPerMinute;

@@ -1,10 +1,7 @@
 ﻿using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Managers;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI;
-using CodeStream.VisualStudio.Core.UI.Extensions;
+using CodeStream.VisualStudio.Core;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Editor;
@@ -15,6 +12,9 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Serilog;
 using System;
 using System.ComponentModel.Composition;
+using CodeStream.VisualStudio.Shared.Extensions;
+using CodeStream.VisualStudio.Shared.Managers;
+using CodeStream.VisualStudio.Shared.Models;
 
 namespace CodeStream.VisualStudio.Shared.Services {
 

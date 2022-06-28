@@ -1,9 +1,7 @@
 ﻿using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Events;
-using CodeStream.VisualStudio.Core.LanguageServer;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -14,9 +12,12 @@ using StreamJsonRpc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Services;
 
 namespace CodeStream.VisualStudio.Shared.LanguageServer {
 	
@@ -187,11 +188,17 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 			await Task.Yield();
 			_rpc = rpc;
 
-			#if X86
+#if X86
 			// Slight hack to use camelCased properties when serializing requests
 			_rpc.JsonSerializer.ContractResolver = new CustomCamelCasePropertyNamesContractResolver(new HashSet<Type> { typeof(TelemetryProperties) });
 			_rpc.JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
-			#endif
+#else
+			//var messageFormatter = new JsonMessageFormatter();
+			//messageFormatter.JsonSerializer.ContractResolver = new CustomCamelCasePropertyNamesContractResolver(new HashSet<Type> { typeof(TelemetryProperties) });
+			//messageFormatter.JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
+			//var handler = new HeaderDelimitedMessageHandler()
+			//NOW WHAT?
+#endif
 
 			await OnAttachedForCustomMessageAsync();
 			Log.Debug(nameof(AttachForCustomMessageAsync));

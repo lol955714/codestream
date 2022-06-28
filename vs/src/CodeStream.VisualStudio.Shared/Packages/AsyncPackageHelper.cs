@@ -1,9 +1,9 @@
 ﻿using CodeStream.VisualStudio.Core;
-using CodeStream.VisualStudio.Core.LanguageServer;
 using CodeStream.VisualStudio.Core.Logging;
 using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
+using CodeStream.VisualStudio.Shared.LanguageServer;
 
 namespace CodeStream.VisualStudio.Shared.Packages {
 	public class AsyncPackageHelper {

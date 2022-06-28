@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
-using CodeStream.VisualStudio.Core.Interfaces;
+using CodeStream.VisualStudio.Core.CodeLevelMetrics;
 using StreamJsonRpc;
 
 namespace CodeStream.VisualStudio.CodeLens {

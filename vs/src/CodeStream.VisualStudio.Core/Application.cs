@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using CodeStream.VisualStudio.Core.Annotations;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Properties;
+using Newtonsoft.Json;
 
 namespace CodeStream.VisualStudio.Core {
 	public class Application {
@@ -156,7 +157,7 @@ namespace CodeStream.VisualStudio.Core {
 				}
 
 				process.WaitForExit(2000);
-				return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(output);
+				return JsonConvert.DeserializeObject<T>(output);
 			}
 			catch {
 				// suffer because logs aren't setup yet.

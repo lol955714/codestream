@@ -4,9 +4,9 @@ using System.Linq;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI;
-using CodeStream.VisualStudio.Core.UI.Extensions;
+using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Services;
 using Microsoft.VisualStudio.Text.Editor;
 using Serilog;
 

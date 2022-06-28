@@ -75,22 +75,36 @@
     <Compile Include="Annotations\Annotations.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="Attributes\VisualStudioSettingAttribute.cs" />
-    <Compile Include="Controllers\AuthenticationController.cs" />
-    <Compile Include="CamelCaseStringEnumConverter.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="Enums\CodeLevelMetricStatus.cs" />
+    <Compile Include="CodeLevelMetrics\ICodeLevelMetricsCallbackService.cs" />
+    <Compile Include="CodeLevelMetrics\IRemoteCodeLens.cs" />
+    <Compile Include="Credentials\Credential.cs" />
+    <Compile Include="Credentials\CredentialSet.cs" />
+    <Compile Include="Credentials\CredentialType.cs" />
+    <Compile Include="Credentials\NativeMethods.cs" />
+    <Compile Include="Credentials\PersistanceType.cs" />
+    <Compile Include="Credentials\SecureStringHelper.cs" />
     <Compile Include="Enums\VisualStudioSetting.cs" />
-    <Compile Include="Exceptions\NRApiErrorException.cs" />
-    <Compile Include="Exceptions\VisualStudioSettingException.cs" />
+    <Compile Include="Events\EventAggregator.cs" />
+    <Compile Include="Events\EventBase.cs" />
+    <Compile Include="Extensions\CollectionExtensions.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\DynamicExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Extensions\FileSystemExtensions.cs" />
+    <Compile Include="Extensions\Guard.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\ReactiveExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Extensions\VisualStudioSettingPathAttributeExtensions.cs" />
-    <Compile Include="Interfaces\ICodeLevelMetricsCallbackService.cs" />
-    <Compile Include="Interfaces\IRemoteCodeLens.cs" />
-    <Compile Include="Interfaces\IVisualStudioSettingsManager.cs" />
-    <Compile Include="LanguageServer\ILanguageServerClientManager.cs" />
-    <Compile Include="LanguageServer\MiddleLayerProvider.cs" />
     <Compile Include="Logging\CodeStreamSink.cs" />
-    <Compile Include="Logging\CustomOutputPaneSink.cs" />
     <Compile Include="Logging\EmptyLogger.cs" />
     <Compile Include="Logging\Instrumentation\Metrics.cs" />
     <Compile Include="Logging\LogExtensions.cs" />
@@ -101,152 +115,54 @@
     <Compile Include="Logging\Sanitizer\SecretsSanitizingFormatRule.cs" />
     <Compile Include="Logging\Sanitizer\TextProcessor.cs" />
     <Compile Include="Logging\TraceLevel.cs" />
-    <Compile Include="Models\CodeLensConnection.cs" />
+    <Compile Include="Models\AverageDurationResponse.cs" />
     <Compile Include="Models\CodeLevelMetricsData.cs" />
     <Compile Include="Models\CodeLevelMetricsDetail.cs" />
+    <Compile Include="Models\CodeLevelMetricsTelemetry.cs" />
     <Compile Include="Models\CodeStreamDiffUri.cs" />
     <Compile Include="Models\EntityAccount.cs" />
-    <Compile Include="Models\Agent.Protocol.CodeLevelMetrics.cs" />
-    <Compile Include="Models\Host.Protocol.Review.cs" />
-    <Compile Include="Models\IOptions.cs" />
+    <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\ErrorRateResponse.cs" />
+    <Compile Include="Models\FileLevelTelemetryFunctionLocator.cs" />
+    <Compile Include="Models\FileLevelTelemetryRequestOptions.cs" />
     <Compile Include="Models\IVirtualTextDocument.cs" />
     <Compile Include="Models\MetricTimesliceNameMapping.cs" />
-    <Compile Include="Models\NREnvironmentSettings.cs" />
-    <Compile Include="Models\OpenEditorResult.cs" />
     <Compile Include="Models\Placement.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\RepoInfo.cs" />
     <Compile Include="Models\SessionSignedOutReason.cs" />
-    <Compile Include="Models\VirtualTextDocument.cs" />
-    <Compile Include="Models\Webview.Protocol.CodeLevelMetrics.cs" />
-    <Compile Include="Models\Webview.Protocol.Shell.cs" />
-    <Compile Include="Packages\ToolWindowProvider.cs" />
+    <Compile Include="Models\ThroughputResponse.cs" />
     <Compile Include="Process\Node.cs" />
     <Compile Include="Process\ProcessExtensions.cs" />
+    <Compile Include="Process\ProcessFactory.cs" />
     <Compile Include="RegularExpressions.cs" />
     <Compile Include="Retry.cs" />
     <Compile Include="RpcPipeNames.cs" />
-    <Compile Include="Services\IHttpClientService.cs" />
-    <Compile Include="Services\ISolutionEventsListener.cs" />
-    <Compile Include="Services\IWebviewUserSettingsService.cs" />
     <Compile Include="TelemetryEventNames.cs" />
-    <Compile Include="Credentials\Credential.cs" />
-    <Compile Include="Credentials\CredentialSet.cs" />
-    <Compile Include="Credentials\CredentialType.cs" />
-    <Compile Include="Credentials\NativeMethods.cs" />
-    <Compile Include="Credentials\PersistanceType.cs" />
-    <Compile Include="Credentials\SecureStringHelper.cs" />
-    <Compile Include="Events\EventAggregator.cs" />
-    <Compile Include="Events\EventArgs.cs" />
-    <Compile Include="LanguageServer\ILanguageServerClientProcess.cs" />
-    <Compile Include="LanguageServer\LanguageServerClientBase.cs" />
-    <Compile Include="Models\AgentState.cs" />
-    <Compile Include="Models\AgentStateException.cs" />
-    <Compile Include="Models\CurrentTextViews.cs" />
-    <Compile Include="Models\ExtensionKind.cs" />
-    <Compile Include="Models\IpcScope.cs" />
     <Compile Include="Models\Range.cs" />
-    <Compile Include="ExtensionManager.cs" />
-    <Compile Include="Extensions\CollectionExtensions.cs" />
-    <Compile Include="Extensions\ColorExtensions.cs" />
-    <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Extensions\DynamicExtensions.cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
-    <Compile Include="Extensions\ExceptionExtensions.cs" />
-    <Compile Include="Extensions\FileSystemExtensions.cs" />
-    <Compile Include="Extensions\Guard.cs" />
-    <Compile Include="Extensions\ITextSelectionExtensions.cs" />
-    <Compile Include="Extensions\JsonExtensions.cs" />
-    <Compile Include="Extensions\ListExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Extensions\PackageExtensions.cs" />
-    <Compile Include="Extensions\RangeExtensions.cs" />
-    <Compile Include="Extensions\ReactiveExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Extensions\TextViewExtensions.cs" />
-    <Compile Include="Extensions\UriExtensions.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="IpcLogger.cs" />
-    <Compile Include="LanguageServer\CustomCamelCasePropertyNamesContractResolver.cs" />
-    <Compile Include="LanguageServer\CustomMessageHandler.cs" />
-    <Compile Include="LanguageServer\Extensions.cs" />
-    <Compile Include="LanguageServer\LanguageClientActivator.cs" />
-    <Compile Include="LanguageServer\LanguageServerClientProcess.cs" />
-    <Compile Include="Managers\ThemeManager.cs" />
-    <Compile Include="Models\ActiveTextEditor.cs" />
-    <Compile Include="Models\Agent.Protocol.Auth.cs" />
-    <Compile Include="Models\Agent.Protocol.cs" />
-    <Compile Include="Models\Agent.Protocol.DocumentMarkers.cs" />
-    <Compile Include="Models\Agent.Protocol.Notifications.cs" />
-    <Compile Include="Models\Agent.Protocol.Scm.cs" />
-    <Compile Include="Models\CodeStreamModels.cs" />
-    <Compile Include="Models\Host.Protocol.cs" />
-    <Compile Include="Models\Host.Protocol.Editor.cs" />
-    <Compile Include="Models\Host.Protocol.Notifications.cs" />
-    <Compile Include="Models\Host.Protocol.Vsls.cs" />
-    <Compile Include="Models\MessageTypes.cs" />
     <Compile Include="Models\SessionState.cs" />
-    <Compile Include="Models\Settings.cs" />
-    <Compile Include="Models\SettingsScope.cs" />
-    <Compile Include="Models\Types.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="Models\Webview.Protocol.Common.cs" />
-    <Compile Include="Models\Webview.Protocol.cs" />
-    <Compile Include="Models\Webview.Protocol.Notifications.cs" />
-    <Compile Include="Models\WebviewIpcMessage.cs" />
     <Compile Include="Models\WindowEventArgs.cs" />
-    <Compile Include="Process\ProcessFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SolutionInfo.cs" />
-    <Compile Include="ServiceLocator.cs" />
-    <Compile Include="Services\BrowserServiceExtensions.cs" />
-    <Compile Include="Services\IAuthenticationService.cs" />
-    <Compile Include="Services\IAuthenticationServiceFactory.cs" />
-    <Compile Include="Services\IBrowserService.cs" />
-    <Compile Include="Services\IBrowserServiceFactory.cs" />
-    <Compile Include="Services\ICodeStreamAgentService.cs" />
-    <Compile Include="Services\ICodeStreamAgentServiceFactory.cs" />
-    <Compile Include="Services\ICodeStreamService.cs" />
-    <Compile Include="Services\ICredentialsService.cs" />
-    <Compile Include="Services\IEditorService.cs" />
-    <Compile Include="Services\IIdeService.cs" />
-    <Compile Include="Services\ISessionService.cs" />
-    <Compile Include="Services\ICodeStreamSettingsManager.cs" />
-    <Compile Include="Services\ISettingsServiceFactory.cs" />
-    <Compile Include="Services\IWpfTextViewCache.cs" />
     <Compile Include="Services\UserSettingsKeys.cs" />
     <Compile Include="Services\WindowMessageHandler.cs" />
-    <Compile Include="UI\Adornments\ActiveTextEditorExtensions.cs" />
-    <Compile Include="UI\Adornments\HighlightAdornmentManager.cs" />
-    <Compile Include="UI\Extensions\FrameworkElementExtensions.cs" />
-    <Compile Include="UI\Extensions\TextDocumentExtensions.cs" />
-    <Compile Include="UI\Extensions\TextViewExtensions.cs" />
-    <Compile Include="UI\PropertyNames.cs" />
-    <Compile Include="UI\TextViewRoles.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LanguageServer\FileExtensionExclusions.txt" />
-    <Content Include="LanguageServer\FileExtensionsGeneric.txt" />
+    <Compile Include="Extensions\FrameworkElementExtensions.cs" />
+    <Compile Include="PropertyNames.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualStudio.CommandBars, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
@@ -258,130 +174,14 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EnvDTE">
-      <Version>8.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="EnvDTE100">
-      <Version>10.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="EnvDTE80">
-      <Version>8.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="EnvDTE90">
-      <Version>9.0.0</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Targets">
       <Version>1.1.3</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.ComponentModelHost">
-      <Version>15.8.525</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.CoreUtility">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Editor">
-      <Version>15.8.525</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.ImageCatalog">
-      <Version>15.8.28010</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Imaging">
-      <Version>15.5.27130</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime">
-      <Version>14.3.26930</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Language">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client">
-      <Version>16.2.1079</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol">
-      <Version>16.4.30</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.LiveShare">
-      <Version>0.3.1074</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.OLE.Interop">
-      <Version>7.10.6071</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK.Analyzers">
-      <Version>15.8.36</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes">
-      <Version>15.0.27</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0">
-      <Version>15.0.26201</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework">
-      <Version>16.0.28729</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop">
-      <Version>7.10.6072</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.10.0">
-      <Version>10.0.30320</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-      <Version>11.0.61031</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.12.0">
-      <Version>12.0.30111</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.8.0">
-      <Version>8.0.50728</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.9.0">
-      <Version>9.0.30729</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Text.Data">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Text.Logic">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Text.UI">
-      <Version>16.4.280</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Text.UI.Wpf">
-      <Version>15.8.525</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.TextManager.Interop">
-      <Version>7.10.6071</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.TextManager.Interop.8.0">
-      <Version>8.0.50728</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Threading">
-      <Version>16.4.16</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
-      <Version>15.8.192</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Utilities">
-      <Version>16.0.28729</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Validation">
-      <Version>15.3.58</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>15.9.3039</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Win32.Registry">
       <Version>4.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="Nerdbank.Streams">
-      <Version>2.1.37</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
@@ -400,9 +200,6 @@
     </PackageReference>
     <PackageReference Include="SerilogTimings">
       <Version>2.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="StreamJsonRpc">
-      <Version>1.5.68</Version>
     </PackageReference>
     <PackageReference Include="System.Buffers">
       <Version>4.5.0</Version>
@@ -471,5 +268,6 @@
       <Version>4.5.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

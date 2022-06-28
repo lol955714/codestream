@@ -1,14 +1,15 @@
 ﻿using CodeStream.VisualStudio.Core.Events;
-using CodeStream.VisualStudio.Core.Extensions;
-using CodeStream.VisualStudio.Core.LanguageServer;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Serilog;
 using System;
 using System.ComponentModel.Composition;
+using CodeStream.VisualStudio.Core.Extensions;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.LanguageServer;
+using CodeStream.VisualStudio.Shared.Models;
 using Newtonsoft.Json.Linq;
 
 namespace CodeStream.VisualStudio.Shared.Services {

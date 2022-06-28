@@ -12,17 +12,16 @@ using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Extensions;
-using CodeStream.VisualStudio.Core.Interfaces;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Task = System.Threading.Tasks.Task;
-using TextDocumentIdentifier = CodeStream.VisualStudio.Core.Models.TextDocumentIdentifier;
+using TextDocumentIdentifier = CodeStream.VisualStudio.Shared.Models.TextDocumentIdentifier;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Extensions;
+using CodeStream.VisualStudio.Shared.Interfaces;
+using CodeStream.VisualStudio.Shared.Models;
 #if DEBUG
 using TraceLevel = CodeStream.VisualStudio.Core.Logging.TraceLevel;
 #endif
-// ReSharper disable ClassNeverInstantiated.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace CodeStream.VisualStudio.Shared.Services {
 	[Export(typeof(ICodeStreamAgentService))]
@@ -67,8 +66,8 @@ namespace CodeStream.VisualStudio.Shared.Services {
 			_rpc = rpc;
 
 			try {
-				var initializationResult = await InitializeAsync();
-				Log.Verbose(initializationResult?.ToString());
+				//var initializationResult = await InitializeAsync();
+				//Log.Verbose(initializationResult?.ToString());
 				_sessionService.SetAgentConnected();
 			}
 			catch (Exception ex) {
@@ -278,7 +277,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 					CodemarkApply = true,
 					CodemarkCompare = true,
 					EditorTrackVisibleRange = true,
-					Services = new Core.Models.Services { }
+					Services = new Shared.Models.Services { }
 				}.ToJToken(), new JsonMergeSettings {
 					MergeArrayHandling = MergeArrayHandling.Union
 				});

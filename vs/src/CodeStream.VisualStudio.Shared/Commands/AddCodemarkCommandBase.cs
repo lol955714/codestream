@@ -2,13 +2,15 @@
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Packages;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
 using System.Threading;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Packages;
+using CodeStream.VisualStudio.Shared.Services;
 
 #if X86
 	using CodeStream.VisualStudio.Vsix.x86;

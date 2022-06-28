@@ -2,7 +2,6 @@
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -10,6 +9,8 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Services;
 
 namespace CodeStream.VisualStudio.Shared.UI.ToolWindows {
 	// ReSharper disable once RedundantExtendsListEntry

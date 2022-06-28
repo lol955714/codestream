@@ -1,9 +1,6 @@
 ﻿using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Managers;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI.Extensions;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -12,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
+using CodeStream.VisualStudio.Shared.Managers;
+using CodeStream.VisualStudio.Shared.Models;
 using Task = System.Threading.Tasks.Task;
 
 namespace CodeStream.VisualStudio.Shared.Services {
@@ -152,7 +151,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 				_ = BrowserService.NotifyAsync(new ShowCodemarkNotificationType {
 					Params = new ShowCodemarkNotification {
 						CodemarkId = codemarkId,
-						SourceUri = filePath != null ? Core.LanguageServer.Extensions.ToLspUriString(filePath) : null,
+						SourceUri = filePath != null ? LanguageServer.Extensions.ToLspUriString(filePath) : null,
 					}
 				});
 			}

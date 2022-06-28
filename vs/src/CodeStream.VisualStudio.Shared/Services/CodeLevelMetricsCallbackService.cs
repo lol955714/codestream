@@ -3,9 +3,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel.Composition;
 using System.IO.Pipes;
 using System.Linq;
-using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft.VisualStudio.Language.CodeLens;
 using Microsoft.VisualStudio.Utilities;
 using Serilog;
@@ -17,8 +15,11 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core.CodeLevelMetrics;
 using CodeStream.VisualStudio.Core.Enums;
-using CodeStream.VisualStudio.Core.Interfaces;
+using CodeStream.VisualStudio.Core.Events;
+using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Models;
 using Process = System.Diagnostics.Process;
 using CSConstants = CodeStream.VisualStudio.Core.Constants;
 
@@ -72,7 +73,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 			return settings.GoldenSignalsInEditorFormat;
 		}
 
-		public async Task<GetFileLevelTelemetryResponse> GetTelemetryAsync(string codeNamespace, string functionName) {
+		public async Task<CodeLevelMetricsTelemetry> GetTelemetryAsync(string codeNamespace, string functionName) {
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 			var solution = _vsSolution.GetSolutionFile();
 
@@ -83,7 +84,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 			var includeErrorRate = formatString.Contains(CSConstants.CodeLevelMetrics.Tokens.ErrorsPerMinute);
 
 			try {
-				return await _codeStreamAgentService.GetFileLevelTelemetryAsync(
+				var metrics = await _codeStreamAgentService.GetFileLevelTelemetryAsync(
 					solution,
 					"csharp",
 					false,
@@ -93,10 +94,19 @@ namespace CodeStream.VisualStudio.Shared.Services {
 					includeAverageDuration,
 					includeErrorRate
 				);
+
+				return new CodeLevelMetricsTelemetry(
+					metrics.AverageDuration,
+					metrics.Throughput,
+					metrics.ErrorRate,
+					metrics.SinceDateFormatted,
+					metrics.Repo,
+					metrics.NewRelicEntityGuid);
+
 			}
 			catch (Exception ex) {
 				Log.Error(ex, $"Unable to obtain CLM for {codeNamespace}.{functionName}");
-				return new GetFileLevelTelemetryResponse();
+				return new CodeLevelMetricsTelemetry();
 			}
 		}
 

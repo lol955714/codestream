@@ -2,12 +2,12 @@
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Packages;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
 using System.ComponentModel.Composition;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Packages;
 using Serilog.Events;
 
 namespace CodeStream.VisualStudio.Shared.Services {

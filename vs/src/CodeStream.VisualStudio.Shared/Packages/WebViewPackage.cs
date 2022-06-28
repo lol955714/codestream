@@ -1,7 +1,5 @@
 ﻿using CodeStream.VisualStudio.Core;
-using CodeStream.VisualStudio.Core.LanguageServer;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Services;
 using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio;
@@ -15,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeStream.VisualStudio.Shared.LanguageServer;
 using CodeStream.VisualStudio.Shared.UI.ToolWindows;
 using Task = System.Threading.Tasks.Task;
 using CodeStream.VisualStudio.Shared.Services;

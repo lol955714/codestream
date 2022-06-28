@@ -1,12 +1,12 @@
 ﻿using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Packages;
-using CodeStream.VisualStudio.Core.Services;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
+using CodeStream.VisualStudio.Shared.Packages;
+using CodeStream.VisualStudio.Shared.Services;
 
 #if X86
 	using CodeStream.VisualStudio.Vsix.x86;

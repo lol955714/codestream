@@ -1,13 +1,13 @@
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
 using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.ComponentModel.Composition;
 using System.Net;
 using System.Net.Http;
-using CodeStream.VisualStudio.Core.Exceptions;
+using CodeStream.VisualStudio.Shared.Exceptions;
+using CodeStream.VisualStudio.Shared.Models;
 
 namespace CodeStream.VisualStudio.Shared.Services {
 

@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Credentials;
-using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
+using CodeStream.VisualStudio.Shared.Extensions;
 using Newtonsoft.Json.Linq;
 using Serilog;
 

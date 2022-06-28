@@ -1,9 +1,9 @@
 ﻿using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Packages;
 using Microsoft.VisualStudio.Shell;
 using Serilog;
 using System;
+using CodeStream.VisualStudio.Shared.Packages;
 
 #if X86
 	using CodeStream.VisualStudio.Vsix.x86;

@@ -3,8 +3,6 @@ using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Logging.Instrumentation;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
-using CodeStream.VisualStudio.Core.UI;
 using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio;
@@ -24,6 +22,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CodeStream.VisualStudio.Shared.Extensions;
+using CodeStream.VisualStudio.Shared.Models;
 using IComponentModel = Microsoft.VisualStudio.ComponentModelHost.IComponentModel;
 using ILogger = Serilog.ILogger;
 
@@ -326,14 +326,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 
 			return null;
 		}
-
-		public bool QueryExtension(ExtensionKind extensionKind) {
-			return false;
-			//if (_extensions == null) return false;
-
-			//return _extensions.TryGetValue(extensionKind, out bool value) && value;
-		}
-
+		
 		public bool TryStartLiveShare() {
 			ThreadHelper.ThrowIfNotOnUIThread();
 

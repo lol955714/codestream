@@ -1,11 +1,11 @@
 ﻿using CodeStream.VisualStudio.Core.Logging;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using CodeStream.VisualStudio.Shared.Models;
 
 namespace CodeStream.VisualStudio.Shared.Services {
 

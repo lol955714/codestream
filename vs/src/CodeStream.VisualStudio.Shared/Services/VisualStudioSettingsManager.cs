@@ -4,14 +4,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Enums;
-using CodeStream.VisualStudio.Core.Exceptions;
 using CodeStream.VisualStudio.Core.Extensions;
-using CodeStream.VisualStudio.Core.Interfaces;
+using CodeStream.VisualStudio.Shared.Exceptions;
+using CodeStream.VisualStudio.Shared.Interfaces;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 
 
-namespace CodeStream.VisualStudio.Services {
+namespace CodeStream.VisualStudio.Shared.Services {
 	[Export(typeof(IVisualStudioSettingsManager))]
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class VisualStudioSettingsManager : IVisualStudioSettingsManager {

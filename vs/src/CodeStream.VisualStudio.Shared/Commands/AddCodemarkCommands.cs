@@ -5,7 +5,8 @@ using Serilog;
 using System;
 using System.Threading;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Models;
+using CodeStream.VisualStudio.Shared.Services;
 
 #if X86
 	using CodeStream.VisualStudio.Vsix.x86;

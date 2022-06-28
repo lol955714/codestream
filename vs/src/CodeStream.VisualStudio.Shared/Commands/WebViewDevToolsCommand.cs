@@ -1,6 +1,6 @@
 ﻿using System;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Services;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Serilog;

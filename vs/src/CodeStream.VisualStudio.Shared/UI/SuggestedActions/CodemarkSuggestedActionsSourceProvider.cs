@@ -2,7 +2,7 @@
 using System.ComponentModel.Composition;
 using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.UI.Extensions;
+using CodeStream.VisualStudio.Core.Extensions;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;

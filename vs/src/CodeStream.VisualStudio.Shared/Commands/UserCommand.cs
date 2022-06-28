@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.Shell;
 using System;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Models;
-using CodeStream.VisualStudio.Core.Services;
+using CodeStream.VisualStudio.Shared.Services;
 using Serilog;
 using Microsoft.VisualStudio.Shell.Interop;
 
