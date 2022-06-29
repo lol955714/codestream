@@ -36,97 +36,151 @@ namespace CodeStream.VisualStudio.Shared.Models {
 
 	[Serializable]
 	public class TeamlessContext {
+		[JsonProperty("selectedRegion", NullValueHandling = NullValueHandling.Ignore)]
 		public string SelectedRegion { get; set; }
+		[JsonProperty("forceRegion", NullValueHandling = NullValueHandling.Ignore)]
 		public string ForceRegion { get; set; }
 	}
 
 	[Serializable]
 	public class CurrentRepo {
+		[JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
 		public string Id { get; set; }
+		[JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
 		public string Path { get; set; }
 	}
 
 	[Serializable]
 	public class CurrentReviewOptions {
+		[JsonProperty("includeLatestCommit", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? IncludeLatestCommit { get; set; }
+		[JsonProperty("openFirstDiff", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? OpenFirstDiff { get; set; }
 	}
 
 	[Serializable]
 	public class CurrentCodeErrorData {
+		[JsonProperty("remote", NullValueHandling = NullValueHandling.Ignore)]
 		public string Remote { get; set; }
+		[JsonProperty("commit", NullValueHandling = NullValueHandling.Ignore)]
 		public string Commit { get; set; }
+		[JsonProperty("tag", NullValueHandling = NullValueHandling.Ignore)]
 		public string Tag { get; set; }
+		[JsonProperty("sessionStart", NullValueHandling = NullValueHandling.Ignore)]
 		public long? SessionStart { get; set; }
+		[JsonProperty("pendingRequiresConnection", NullValueHandling = NullValueHandling.Ignore)]
 		public bool PendingRequiresConnection { get; set; }
+		[JsonProperty("pendingErrorGroupGuid", NullValueHandling = NullValueHandling.Ignore)]
 		public string PendingErrorGroupGuid { get; set; }
+		[JsonProperty("pendingEntityId", NullValueHandling = NullValueHandling.Ignore)]
 		public string PendingEntityId { get; set; }
+		[JsonProperty("occurrenceId", NullValueHandling = NullValueHandling.Ignore)]
 		public string OccurrenceId { get; set; }
+		[JsonProperty("lineIndex", NullValueHandling = NullValueHandling.Ignore)]
 		public int? LineIndex { get; set; }
+		[JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
 		public long? Timestamp { get; set; }
+		[JsonProperty("openType", NullValueHandling = NullValueHandling.Ignore)]
 		public string OpenType { get; set; }
+		[JsonProperty("multipleRepos", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? MultipleRepos { get; set; }
+		[JsonProperty("claimWhenConnected", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? ClaimWhenConnected { get; set; }
 	}
 
 	[Serializable]
 	public class RemoteProvider {
+		[JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
 		public string Id { get; set; }
+		[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
 		public string Name { get; set; }
+		[JsonProperty("domain", NullValueHandling = NullValueHandling.Ignore)]
 		public string Domain { get; set; }
 	}
 
 	[Serializable]
 	public class PullRequestRemote {
+		[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
 		public string Name { get; set; }
+		[JsonProperty("provider", NullValueHandling = NullValueHandling.Ignore)]
 		public RemoteProvider Provider { get; set; }
+		[JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
 		public string Url { get; set; }
 	}
 
 	[Serializable]
 	public class CreatePullRequestOptions {
+		[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
 		public string Name { get; set; }
+		[JsonProperty("remote", NullValueHandling = NullValueHandling.Ignore)]
 		public PullRequestRemote Remote { get; set; }
+		[JsonProperty("repoPath", NullValueHandling = NullValueHandling.Ignore)]
 		public string RepoPath { get; set; }
 	}
 
 	[Serializable]
 	public class CurrentPullRequest {
+		[JsonProperty("providerId", NullValueHandling = NullValueHandling.Ignore)]
 		public string ProviderId { get; set; }
+		[JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
 		public string Id { get; set; }
+		[JsonProperty("commentId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CommentId { get; set; }
+		[JsonProperty("source", NullValueHandling = NullValueHandling.Ignore)]
 		public string Source { get; set; }
+		[JsonProperty("metadata", NullValueHandling = NullValueHandling.Ignore)]
 		public object Metadata { get; set; }
 	}
 
 	[Serializable]
 	public class WebviewContext {
+		[JsonProperty("currentTeamId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentTeamId { get; set; }
+		[JsonProperty("sessionStart", NullValueHandling = NullValueHandling.Ignore)]
 		public long? SessionStart { get; set; }
+		[JsonProperty("currentStreamId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentStreamId { get; set; }
+		[JsonProperty("threadId", NullValueHandling = NullValueHandling.Ignore)]
 		public string ThreadId { get; set; }
+		[JsonProperty("currentRepo", NullValueHandling = NullValueHandling.Ignore)]
 		public CurrentRepo CurrentRepo { get; set; }
+		[JsonProperty("currentCodemarkId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentCodemarkId { get; set; }
+		[JsonProperty("currentReviewId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentReviewId { get; set; }
+		[JsonProperty("currentReviewOptions", NullValueHandling = NullValueHandling.Ignore)]
 		public CurrentReviewOptions CurrentReviewOptions { get; set; }
+		[JsonProperty("currentCodeErrorId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentCodeErrorId { get; set; }
+		[JsonProperty("currentCodeErrorData", NullValueHandling = NullValueHandling.Ignore)]
 		public CurrentCodeErrorData CurrentCodeErrorData { get; set; }
+		[JsonProperty("createPullRequestReviewId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CreatePullRequestReviewId { get; set; }
+		[JsonProperty("createPullRequestOptions", NullValueHandling = NullValueHandling.Ignore)]
 		public CreatePullRequestOptions CreatePullRequestOptions { get; set; }
+		[JsonProperty("currentPullRequest", NullValueHandling = NullValueHandling.Ignore)]
 		public CurrentPullRequest CurrentPullRequest { get; set; }
+		[JsonProperty("profileUserId", NullValueHandling = NullValueHandling.Ignore)]
 		public string ProfileUserId { get; set; }
+		[JsonProperty("currentMarkId", NullValueHandling = NullValueHandling.Ignore)]
 		public string CurrentMarkerId { get; set; }
+		[JsonProperty("isRepositioning", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? IsRepositioning { get; set; }
+		[JsonProperty("hasFocus", NullValueHandling = NullValueHandling.Ignore)]
 		public bool HasFocus { get; set; }
 		// ReSharper disable once IdentifierTypo
+		[JsonProperty("isFirstPageview", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? IsFirstPageview { get; set; }
+		[JsonProperty("panelStack", NullValueHandling = NullValueHandling.Ignore)]
 		public List<string> PanelStack { get; set; }
+		[JsonProperty("forceRegion", NullValueHandling = NullValueHandling.Ignore)]
 		public string ForceRegion { get; set; }
 		/// <summary>
 		/// Special property used when user is not authenticated
 		/// </summary>
 		// ReSharper disable once IdentifierTypo
 		// ReSharper disable once InconsistentNaming
+		[JsonProperty("__teamless__", NullValueHandling = NullValueHandling.Ignore)]
 		public TeamlessContext __teamless__ { get; set; }
 	}
 
@@ -142,24 +196,37 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class UserSession {
+		[JsonProperty("userId", NullValueHandling = NullValueHandling.Ignore)]
 		public string UserId { get; set; }
 	}
 
 	public class Services {
+		[JsonProperty("vsls", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? Vsls { get; set; }
 	}
 
 	public class Capabilities {
+		[JsonProperty("channelMute", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? ChannelMute { get; set; }
+		[JsonProperty("codemarkApply", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? CodemarkApply { get; set; }
+		[JsonProperty("codemarkCompare", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? CodemarkCompare { get; set; }
+		[JsonProperty("codemarkOpenRevision", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? CodemarkOpenRevision { get; set; }
+		[JsonProperty("editorTrackVisibleRange", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? EditorTrackVisibleRange { get; set; }
+		[JsonProperty("postDelete", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? PostDelete { get; set; }
+		[JsonProperty("postEdit", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? PostEdit { get; set; }
+		[JsonProperty("providerCanSupportRealtimeChat", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? ProviderCanSupportRealtimeChat { get; set; }
+		[JsonProperty("providerSupportsRealtimeChat", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? ProviderSupportsRealtimeChat { get; set; }
+		[JsonProperty("providerSupportsRealtimeEvents", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? ProviderSupportsRealtimeEvents { get; set; }
+		[JsonProperty("services", NullValueHandling = NullValueHandling.Ignore)]
 		public Services Services { get; set; }
 	}
 
@@ -170,29 +237,45 @@ namespace CodeStream.VisualStudio.Shared.Models {
 #endif
 		}
 
+		[JsonProperty("debug", NullValueHandling = NullValueHandling.Ignore)]
 		public bool Debug { get; set; }
+		[JsonProperty("serverUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string ServerUrl { get; set; }
+		[JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
 		public string Email { get; set; }
+		[JsonProperty("showAvatars", NullValueHandling = NullValueHandling.Ignore)]
 		public bool ShowAvatars { get; set; }
+		[JsonProperty("autoHideMarkers", NullValueHandling = NullValueHandling.Ignore)]
 		public bool AutoHideMarkers { get; set; }
+		[JsonProperty("showMarkerGlyphs", NullValueHandling = NullValueHandling.Ignore)]
 		public bool ShowMarkerGlyphs { get; set; }
+		[JsonProperty("traceLevel", NullValueHandling = NullValueHandling.Ignore)]
 		public TraceLevel TraceLevel { get; set; }
+		[JsonProperty("showGoldenSignalsInEditor", NullValueHandling = NullValueHandling.Ignore)]
 		public bool ShowGoldenSignalsInEditor { get; set; }
 	}
 
 	public class BootstrapPartialRequest { }
 
 	public class BootstrapPartialResponseAnonymous {
+		[JsonProperty("capabilities", NullValueHandling = NullValueHandling.Ignore)]
 		public Capabilities Capabilities { get; set; }
+		[JsonProperty("configs", NullValueHandling = NullValueHandling.Ignore)]
 		public Configs Configs { get; set; }
+		[JsonProperty("version", NullValueHandling = NullValueHandling.Ignore)]
 		public string Version { get; set; }
+		[JsonProperty("context", NullValueHandling = NullValueHandling.Ignore)]
 		public WebviewContext Context { get; set; }
+		[JsonProperty("session", NullValueHandling = NullValueHandling.Ignore)]
 		public UserSession Session { get; set; }
+		[JsonProperty("ide", NullValueHandling = NullValueHandling.Ignore)]
 		public Ide Ide { get; set; }
+		[JsonProperty("stream", NullValueHandling = NullValueHandling.Ignore)]
 		public CodeStreamEnvironmentInfo EnvironmentInfo { get; set; }
 	}
 
 	public class BootstrapAuthenticatedResponse : BootstrapPartialResponseAnonymous {
+		[JsonProperty("editorContext", NullValueHandling = NullValueHandling.Ignore)]
 		public EditorContext EditorContext { get; set; }
 	}
 
@@ -208,9 +291,11 @@ namespace CodeStream.VisualStudio.Shared.Models {
 			Environment = environment;
 		}
 
-		[JsonProperty("serverUrl")]
+		[JsonProperty("serverUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string ServerUrl { get; }
+		[JsonProperty("disableStrictSsl", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? DisableStrictSSL { get; }
+		[JsonProperty("environment", NullValueHandling = NullValueHandling.Ignore)]
 		public string Environment { get; }
 	}
 
@@ -222,6 +307,7 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class AgentOpenUrlRequest {
+		[JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
 		public string Url { get; set; }
 	}
 
@@ -233,17 +319,25 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class GetReviewContentsRequest {
+		[JsonProperty("reviewId", NullValueHandling = NullValueHandling.Ignore)]
 		public string ReviewId { get; set; }
+		[JsonProperty("checkpoint", NullValueHandling = NullValueHandling.Ignore)]
 		public int? Checkpoint { get; set; }
+		[JsonProperty("repoId", NullValueHandling = NullValueHandling.Ignore)]
 		public string RepoId { get; set; }
+		[JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
 		public string Path { get; set; }
 	}
 
 	public class GetReviewContentsResponse {
+		[JsonProperty("left", NullValueHandling = NullValueHandling.Ignore)]
 		public string Left { get; set; }
+		[JsonProperty("right", NullValueHandling = NullValueHandling.Ignore)]
 		public string Right { get; set; }
+		[JsonProperty("fileNotIncludedInReview", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? FileNotIncludedInReview { get; set; }
-		public string error { get; set; }
+		[JsonProperty("error", NullValueHandling = NullValueHandling.Ignore)]
+		public string Error { get; set; }
 	}
 
 	public class GetReviewContentsRequestType : RequestType<GetReviewContentsRequest> {
@@ -253,10 +347,15 @@ namespace CodeStream.VisualStudio.Shared.Models {
 
 
 	public class GetReviewContentsLocalRequest {
+		[JsonProperty("repoId", NullValueHandling = NullValueHandling.Ignore)]
 		public string RepoId { get; set; }
+		[JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
 		public string Path { get; set; }
+		[JsonProperty("editingReviewId", NullValueHandling = NullValueHandling.Ignore)]
 		public string EditingReviewId { get; set; }
+		[JsonProperty("baseSha", NullValueHandling = NullValueHandling.Ignore)]
 		public string BaseSha { get; set; }
+		[JsonProperty("rightVersion", NullValueHandling = NullValueHandling.Ignore)]
 		public string RightVersion { get; set; }
 	}
 
@@ -266,21 +365,28 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class GetReviewContentsLocalResponse {
+		[JsonProperty("left", NullValueHandling = NullValueHandling.Ignore)]
 		public string Left { get; set; }
+		[JsonProperty("right", NullValueHandling = NullValueHandling.Ignore)]
 		public string Right { get; set; }
+		[JsonProperty("fileNotIncludedInReview", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? FileNotIncludedInReview { get; set; }
+		[JsonProperty("error", NullValueHandling = NullValueHandling.Ignore)]
 		public string Error { get; set; }
 	}
 
-	public class CSReview {
+	public class CsReview {
+		[JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
 		public string Title { get; set; }
 	}
 	public class GetReviewRequest {
+		[JsonProperty("reviewId", NullValueHandling = NullValueHandling.Ignore)]
 		public string ReviewId { get; set; }
 	}
 
 	public class GetReviewResponse {
-		public CSReview Review { get; set; }
+		[JsonProperty("review", NullValueHandling = NullValueHandling.Ignore)]
+		public CsReview Review { get; set; }
 	}
 
 	public class GetReviewRequestType : RequestType<GetReviewRequest> {

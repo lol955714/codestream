@@ -1,5 +1,6 @@
 ﻿
 using CodeStream.VisualStudio.Core.Models;
+using Newtonsoft.Json;
 
 namespace CodeStream.VisualStudio.Shared.Models {
 	public class EmptyRequestTypeParams { }
@@ -15,8 +16,11 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class LogoutRequest {
+		[JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
 		public LogoutReason1? Reason { get; set; }
+		[JsonProperty("newServerUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string NewServerUrl { get; set; }
+		[JsonProperty("newEnvironment", NullValueHandling = NullValueHandling.Ignore)]
 		public string NewEnvironment { get; set; }
 	}
 

@@ -166,8 +166,11 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class OtcLoginRequest {
+		[JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
 		public string Code { get; set; }
+		[JsonProperty("teamId", NullValueHandling = NullValueHandling.Ignore)]
 		public string TeamId { get; set; }
+		[JsonProperty("alias", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? Alias { get; set; }
 	}
 
@@ -215,17 +218,26 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class EnvironmentHost {
+		[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
 		public string Name { get; set; }
+		[JsonProperty("publicApiUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string PublicApiUrl { get; set; }
+		[JsonProperty("shortName", NullValueHandling = NullValueHandling.Ignore)]
 		public string ShortName { get; set; }
 	}
 
 	public class CodeStreamEnvironmentInfo {
+		[JsonProperty("environment", NullValueHandling = NullValueHandling.Ignore)]
 		public string Environment { get; set; } // local, prod, onprem, unknown
+		[JsonProperty("isOnPrem", NullValueHandling = NullValueHandling.Ignore)]
 		public bool IsOnPrem { get; set; }
+		[JsonProperty("isProductionCloud", NullValueHandling = NullValueHandling.Ignore)]
 		public bool IsProductionCloud { get; set; }
+		[JsonProperty("newRelicLandingServiceUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string NewRelicLandingServiceUrl { get; set; }
+		[JsonProperty("newRelicApiUrl", NullValueHandling = NullValueHandling.Ignore)]
 		public string NewRelicApiUrl { get; set; }
+		[JsonProperty("environmentHosts", NullValueHandling = NullValueHandling.Ignore)]
 		public List<EnvironmentHost> EnvironmentHosts { get; set; }
 	}
 
