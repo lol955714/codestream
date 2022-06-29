@@ -136,13 +136,7 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 				await StopAsync?.InvokeAsync(this, EventArgs.Empty);
 				OnStopped();
 				await StartAsync?.InvokeAsync(this, EventArgs.Empty);
-
-				var componentModel = ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
-				Assumes.Present(componentModel);
-
-				var agentService = componentModel.GetService<ICodeStreamAgentService>();
-				await agentService.ReinitializeAsync();
-
+				
 				Interlocked.Exchange(ref _state, 1);
 				Log.Debug($"SetState={_state}");
 			}
