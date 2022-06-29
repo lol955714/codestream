@@ -6,7 +6,6 @@ using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Extensions;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Models;
 using CodeStream.VisualStudio.Shared.Events;
 using CodeStream.VisualStudio.Shared.Models;
 using CodeStream.VisualStudio.Shared.Packages;
@@ -15,12 +14,10 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Serilog;
 
 namespace CodeStream.VisualStudio.Shared.UI.Margins {
-	// ReSharper disable once RedundantExtendsListEntry
 	public partial class DocumentMark : UserControl {
 		private static readonly ILogger Log = LogManager.ForContext<DocumentMark>();
 		private static int _defaultHeight = 19;
 		private readonly DocumentMarkViewModel _viewModel;
-		// private static int FadeInDefault = 200;
 
 		public DocumentMark(DocumentMarkViewModel viewModel) {
 			//Default height used for repositioning in the margin
@@ -29,25 +26,24 @@ namespace CodeStream.VisualStudio.Shared.UI.Margins {
 			InitializeComponent();
 			DataContext = this;
 
-			var color = _viewModel.Marker?.Color;
-			if (color.IsNullOrWhiteSpace() == true) {
-				color = "blue";
+			var markerColor = _viewModel.Marker?.Color;
+			if (markerColor.IsNullOrWhiteSpace()) {
+				markerColor = "blue";
 			}
 
-			if (_viewModel.Marker.Type == CodemarkType.Prcomment) {
-				color = "green";
+			if (_viewModel.Marker?.Type == CodemarkType.Prcomment) {
+				markerColor = "green";
 			}
-			// this.FadeIn(FadeInDefault);
+			
+			var markerType = _viewModel.Marker?.Type.ToString();
 
-			// WTF I cannot get this to be "prcomment" OR "pull-request", using "comment" instead... going insane here...
-			var type = _viewModel.Marker.Type == CodemarkType.Prcomment ? "comment" : _viewModel.Marker.Type.ToString();
+			var markerImage = $"marker-{markerType}-{markerColor}.png";
 
 			#if X86
-				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x86;component/resources/assets/marker-{type}-{color}.png";
+				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x86;component/resources/assets/{markerImage}";
 			#else
-				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x64;component/resources/assets/marker-{type}-{color}.png";
+				ImageUri = $"pack://application:,,,/CodeStream.VisualStudio.Vsix.x64;component/resources/assets/{markerImage}";
 			#endif
-
 		}
 
 		protected override void OnMouseEnter(MouseEventArgs e) {
@@ -66,13 +62,11 @@ namespace CodeStream.VisualStudio.Shared.UI.Margins {
 		public static readonly DependencyProperty ImageTooltipProperty =
 			DependencyProperty.Register("Tooltip", typeof(string), typeof(DocumentMark));
 
-		// ReSharper disable once MemberCanBePrivate.Global
 		public string ImageUri {
 			get => (string)GetValue(ImageUriProperty);
 			set => SetValue(ImageUriProperty, value);
 		}
 
-		// ReSharper disable once UnusedMember.Global
 		public string Tooltip {
 			get => (string)GetValue(ImageTooltipProperty);
 			set => SetValue(ImageTooltipProperty, value);
