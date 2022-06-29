@@ -447,7 +447,6 @@ namespace CodeStream.VisualStudio.Shared.Models {
 		public CsStream Stream { get; }
 	}
 
-	[JsonConverter(typeof(JsonConverter))]
 	public class TelemetryProperties : Dictionary<string, object> { }
 
 	public class TelemetryRequest {

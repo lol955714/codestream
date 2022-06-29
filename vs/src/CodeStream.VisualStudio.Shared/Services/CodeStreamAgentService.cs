@@ -83,6 +83,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 			try {
 				// the arguments might have sensitive data in it -- don't include arguments here
 				using (Log.CriticalOperation($"name=REQ,Method={name}")) {
+
 					return _rpc.InvokeWithParameterObjectAsync<T>(name, arguments, cancellationToken.Value);
 				}
 			}
