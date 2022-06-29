@@ -1753,7 +1753,13 @@ export class CodeStreamSession {
 	}
 
 	async onFileSearch(basePath: string, path: string) {
-		if (!path) return { files: [] };
+		// Avoid matching too many entries when path is likely invalid:
+		// - at least one character plus extension
+		// - at least one letter
+		if (!path || path.length < 3 || !/[a-zA-Z]/g.test(path)) {
+			Logger.log(`onFileSearch: Skipping search for ${path}`);
+			return { files: [] };
+		}
 
 		// Normalize path of errors originated from Windows
 		path = path.replace(/\\/g, "/");

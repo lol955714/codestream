@@ -35,6 +35,9 @@ dependencies {
     implementation "commons-io:commons-io:2.7"
     implementation "org.reflections:reflections:0.9.12"
 
+    testImplementation "io.mockk:mockk:1.12.4"
+    testImplementation "io.kotest:kotest-assertions-core:5.3.1"
+
 //    compileOnly(files("lib/app.jar"))
 }
 
@@ -79,7 +82,7 @@ intellij {
 
     // sandboxDir = "$System.env.HOME/ide-sandbox" // It is sometimes useful to not have IDE config inside source control
 
-    plugins = ['git4idea', 'org.jetbrains.plugins.go:212.5080.55', 'Pythonid:212.5080.64', 'org.jetbrains.plugins.ruby:212.5080.8']
+    plugins = ['java', 'git4idea', 'org.jetbrains.plugins.go:212.5080.55', 'Pythonid:212.5080.64', 'org.jetbrains.plugins.ruby:212.5080.8']
 }
 
 runIde {

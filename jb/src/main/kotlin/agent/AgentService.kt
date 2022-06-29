@@ -136,8 +136,10 @@ class AgentService(private val project: Project) : Disposable {
     }
 
     init {
-        GlobalScope.launch {
-            initAgent()
+        if (System.getProperty("TEST_MODE") != "true") {
+            GlobalScope.launch {
+                initAgent()
+            }
         }
     }
 
