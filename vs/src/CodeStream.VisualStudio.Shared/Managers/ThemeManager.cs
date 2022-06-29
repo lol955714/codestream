@@ -99,8 +99,8 @@ namespace CodeStream.VisualStudio.Shared.Managers {
 					new ThemeColorMetadata { Key = "text-focus-border-color", Color = VSColorTheme.GetThemedColor(EnvironmentColors.StartPageTextControlLinkSelectedColorKey), DarkModifier = c => c.Darken(0.1f).Opacity(60), LightModifier = c => c.Opacity(60) },
 
 					new ThemeColorMetadata { Key = "button-foreground-color", Color = backgroundIsDark ? textColor : VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowButtonDownColorKey), LightModifier = c => c.Darken(0.1f) },
-					new ThemeColorMetadata { Key = "button-background-color", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
-					new ThemeColorMetadata { Key = "button-background-color-hover", Color = VSColorTheme.GetThemedColor(backgroundIsDark ? EnvironmentColors.ToolWindowButtonDownColorKey : EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
+					new ThemeColorMetadata { Key = "button-background-color", Color = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBorderColorKey), LightModifier = c => c.Darken(0.3f) },
+					new ThemeColorMetadata { Key = "button-background-color-hover", Color = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBorderColorKey), DarkModifier = c => c.Lighten(0.1f), LightModifier = c => c.Darken(0.2f) },
 
 					new ThemeColorMetadata { Key = "line-numbers-foreground-color", Color = textColor, DarkModifier = c => c.Opacity(40), LightModifier = c => c.Opacity(40) },
 
