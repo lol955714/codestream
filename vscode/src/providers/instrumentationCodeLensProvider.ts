@@ -16,6 +16,20 @@ import { Strings } from "../system";
 import { Logger } from "../logger";
 import { InstrumentableSymbol, ISymbolLocator } from "./symbolLocator";
 
+const NO_RUBY_VSCODE_EXTENSION = "NO_RUBY_VSCODE_EXTENSION";
+const NO_PYTHON_VSCODE_EXTENSION = "NO_PYTHON_VSCODE_EXTENSION";
+const NO_SPANS = "NO_SPANS";
+const NOT_ASSOCIATED = "NOT_ASSOCIATED";
+const RUBY_PLUGIN_NO_LANGUAGE_SERVER = "RUBY_PLUGIN_NO_LANGUAGE_SERVER";
+const NO_CSHARP_VSCODE_EXTENSION = "NO_CSHARP_VSCODE_EXTENSION";
+
+export const extensionErrors: Set<string> = new Set([
+	NO_RUBY_VSCODE_EXTENSION,
+	NO_PYTHON_VSCODE_EXTENSION,
+	NO_CSHARP_VSCODE_EXTENSION,
+	RUBY_PLUGIN_NO_LANGUAGE_SERVER
+]);
+
 function allEmpty(arrays: (any[] | undefined)[]) {
 	for (const arr of arrays) {
 		if (!isEmpty(arr)) {
@@ -120,7 +134,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 
 	private rubyPluginConfigCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
 		return this.errorCodelens(
-			"RUBY_PLUGIN_NO_LANGUAGE_SERVER",
+			RUBY_PLUGIN_NO_LANGUAGE_SERVER,
 			"ruby",
 			"Click to configure golden signals from New Relic",
 			"To see code-level metrics you'll need to configure the extension for VS Code...",
@@ -129,16 +143,12 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 	}
 
 	private noSpanCodelens(languageId: string): vscode.CodeLens[] {
-		return this.errorCodelens(
-			"NO_SPANS",
-			languageId,
-			"No golden signal metrics found for this file"
-		);
+		return this.errorCodelens(NO_SPANS, languageId, "No golden signal metrics found for this file");
 	}
 
 	private missingRubyExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
 		return this.errorCodelens(
-			"NO_RUBY_VSCODE_EXTENSION",
+			NO_RUBY_VSCODE_EXTENSION,
 			"ruby",
 			"Click to configure golden signals from New Relic",
 			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
@@ -148,7 +158,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 
 	private missingPythonExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
 		return this.errorCodelens(
-			"NO_PYTHON_VSCODE_EXTENSION",
+			NO_PYTHON_VSCODE_EXTENSION,
 			"python",
 			"Click to configure golden signals from New Relic",
 			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
@@ -158,7 +168,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 
 	private missingCsharpExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
 		return this.errorCodelens(
-			"NO_CSHARP_VSCODE_EXTENSION",
+			NO_CSHARP_VSCODE_EXTENSION,
 			"csharp",
 			"Click to configure golden signals from New Relic",
 			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
@@ -283,7 +293,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 				Logger.warn("provideCodeLenses error", {
 					error: fileLevelTelemetryResponse.error
 				});
-				if (fileLevelTelemetryResponse.error.type === "NOT_ASSOCIATED") {
+				if (fileLevelTelemetryResponse.error.type === NOT_ASSOCIATED) {
 					const viewCommandArgs: ViewMethodLevelTelemetryErrorCommandArgs = {
 						error: fileLevelTelemetryResponse.error,
 						newRelicEntityGuid: fileLevelTelemetryResponse.newRelicEntityGuid,

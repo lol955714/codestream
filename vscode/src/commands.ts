@@ -7,6 +7,7 @@ import {
 	FileLevelTelemetryRequestOptions,
 	MetricTimesliceNameMapping
 } from "protocols/agent/agent.protocol.providers";
+import { extensionErrors } from "providers/instrumentationCodeLensProvider";
 import { SessionSignedOutReason, StreamThread } from "./api/session";
 import { TokenManager } from "./api/tokenManager";
 import { WorkspaceState } from "./common";
@@ -626,10 +627,11 @@ export class Commands implements Disposable {
 		showErrorMessage: "Unable to view code-level metrics"
 	})
 	async viewMethodLevelTelemetry(args: string) {
+		Logger.warn(`"*** viewMethodLevelTelemetry with args: ${args}`);
 		let parsedArgs;
 		try {
 			parsedArgs = JSON.parse(args) as ViewMethodLevelTelemetryCommandArgs;
-			if (parsedArgs.error?.type === "NO_RUBY_VSCODE_EXTENSION") {
+			if (parsedArgs.error?.type && extensionErrors.has(parsedArgs.error.type)) {
 				Container.agent.telemetry.track("MLT Language Extension Prompt", {
 					Language: parsedArgs.languageId
 				});
@@ -639,7 +641,9 @@ export class Commands implements Disposable {
 				return;
 			}
 
+			Logger.warn("*** Starting Container.webview.viewMethodLevelTelemetry");
 			await Container.webview.viewMethodLevelTelemetry(parsedArgs);
+			Logger.warn("*** Completed Container.webview.viewMethodLevelTelemetry");
 		} catch (ex) {
 			Logger.error(ex);
 		}
