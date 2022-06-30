@@ -354,7 +354,8 @@ export const getSupportedPullRequestHosts = createSelector(
 				_.id === "github*com" ||
 				_.id === "github/enterprise" ||
 				_.id === "gitlab*com" ||
-				_.id === "gitlab/enterprise"
+				_.id === "gitlab/enterprise" ||
+				_.id === "bitbucket*org"
 		);
 	}
 );
@@ -371,7 +372,8 @@ export const getConnectedSupportedPullRequestHosts = createSelector(
 					_.id === "github*com" ||
 					_.id === "github/enterprise" ||
 					_.id === "gitlab*com" ||
-					_.id === "gitlab/enterprise"
+					_.id === "gitlab/enterprise" ||
+					_.id === "bitbucket*org"
 			)
 			.map(_ => {
 				let obj: { accessTokenError?: boolean } = {};
