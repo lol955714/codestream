@@ -5,10 +5,10 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Microsoft.VisualStudio.LanguageServer.Client;
 
 namespace CodeStream.VisualStudio.Shared.LanguageServer {
-	public class MiddleLayerProvider {
+	public class MiddleLayerProvider : ILanguageClientMiddleLayer {
 		private ILogger Log;
 
 		public MiddleLayerProvider(ILogger log) {
