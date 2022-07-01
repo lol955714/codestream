@@ -1,6 +1,5 @@
 "use strict";
 
-import { Range } from "vscode-languageserver";
 import { Logger } from "../logger";
 import {
 	UserDidCopyRequest,
