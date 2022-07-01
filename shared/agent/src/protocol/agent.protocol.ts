@@ -24,6 +24,7 @@ export * from "./agent.protocol.teams";
 export * from "./agent.protocol.users";
 
 export * from "./agent.protocol.scm";
+export * from "./agent.protocol.clipboard";
 
 export * from "./agent.protocol.providers";
 export * from "./agent.protocol.asana";

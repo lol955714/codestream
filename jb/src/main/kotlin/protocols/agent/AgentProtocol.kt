@@ -725,3 +725,23 @@ class ReportMessageRequestError(
     val stack: Any
 )
 
+class UserDidCopyParams(
+    val range: Range,
+    val text: String,
+    val uri: String
+)
+
+class GetSlackThreadSnippetParams(
+    val providerTeamId: String,
+    val providerChannelId: String,
+    val ts: String
+)
+
+class GetSlackThreadSnippetResult(
+    val messages: List<GetSlackThreadSnippetResultMessage>
+)
+
+class GetSlackThreadSnippetResultMessage(
+    val text: String
+)
+

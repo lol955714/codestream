@@ -27,6 +27,7 @@ const messageToType: {
 		| MessageType.Teams
 		| MessageType.Users
 		| MessageType.Echo
+		| MessageType.SlackPosts
 		| undefined;
 } = {
 	codemark: MessageType.Codemarks,
@@ -50,7 +51,8 @@ const messageToType: {
 	teams: MessageType.Teams,
 	user: MessageType.Users,
 	users: MessageType.Users,
-	echo: MessageType.Echo
+	echo: MessageType.Echo,
+	slackPosts: MessageType.SlackPosts
 };
 
 export interface BroadcasterEventsInitializer {

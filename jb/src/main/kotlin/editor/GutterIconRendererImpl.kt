@@ -49,7 +49,11 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
             "\n\n"
         val rangeString = serializeRange(marker.range);
 
-        if (marker.codemark !== null) {
+        if (marker.summary.startsWith("#slack#")) {
+            val split = marker.summary.split("#slack#")
+            return "<a href=${split[1]}>${split[5]}</a>"
+
+        } else if (marker.codemark !== null) {
             if (marker.type == "issue") {
                 tooltip += "<img src='${getIconLink("issue")}'> &nbsp; "
                 tooltip += marker.summary
@@ -102,10 +106,15 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
     }
 
     override fun getIcon(): Icon {
+        if (marker.summary.startsWith("#slack")) {
+            return IconLoader.getIcon("/images/slack.svg")
+        }
+
         val type = marker.type.ifNullOrBlank { "comment" }
 
         val color = marker.codemark?.color() ?: green
         return IconLoader.getIcon("/images/marker-$type-${color.name}.svg")
+
     }
 
     override fun getAlignment() = Alignment.LEFT

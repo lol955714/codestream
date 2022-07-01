@@ -29,7 +29,8 @@ export enum CodemarkType {
 	Review = "review",
 	CodeError = "codeError",
 	Reaction = "reaction",
-	PRComment = "prcomment"
+	PRComment = "prcomment",
+	Slack = "slack"
 }
 
 export enum CodemarkStatus {

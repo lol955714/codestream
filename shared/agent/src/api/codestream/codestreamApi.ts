@@ -109,6 +109,8 @@ import {
 	GetRepoRequest,
 	GetReviewRequest,
 	GetReviewResponse,
+	GetSlackThreadSnippetRequest,
+	GetSlackThreadSnippetResponse,
 	GetStreamRequest,
 	GetTeamRequest,
 	GetUnreadsRequest,
@@ -2492,6 +2494,15 @@ export class CodeStreamApiProvider implements ApiProvider {
 		return this.post<LookupNewRelicOrganizationsRequest, LookupNewRelicOrganizationsResponse>(
 			`/lookup-nr-orgs`,
 			request,
+			this._token
+		);
+	}
+
+	getSlackThreadSnippet(
+		request: GetSlackThreadSnippetRequest
+	): Promise<GetSlackThreadSnippetResponse> {
+		return this.get<GetSlackThreadSnippetResponse>(
+			`/slack/posts?teamId=${this.teamId}&providerTeamId=${request.providerTeamId}&providerChannelId=${request.providerChannelId}&ts=${request.ts}`,
 			this._token
 		);
 	}

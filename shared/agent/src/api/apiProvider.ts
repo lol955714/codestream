@@ -106,6 +106,8 @@ import {
 	GetRepoResponse,
 	GetReviewRequest,
 	GetReviewResponse,
+	GetSlackThreadSnippetRequest,
+	GetSlackThreadSnippetResponse,
 	GetStreamRequest,
 	GetStreamResponse,
 	GetTeamRequest,
@@ -263,7 +265,8 @@ export enum MessageType {
 	Teams = "teams",
 	Unreads = "unreads",
 	Users = "users",
-	Echo = "echo"
+	Echo = "echo",
+	SlackPosts = "slackPosts"
 }
 
 export interface CompaniesRTMessage {
@@ -542,6 +545,10 @@ export interface ApiProvider {
 	lookupNewRelicOrganizations(
 		request: LookupNewRelicOrganizationsRequest
 	): Promise<LookupNewRelicOrganizationsResponse>;
+
+	getSlackThreadSnippet(
+		request: GetSlackThreadSnippetRequest
+	): Promise<GetSlackThreadSnippetResponse>;
 
 	verifyConnectivity(): Promise<VerifyConnectivityResponse>;
 	setServerUrl(url: string): void;

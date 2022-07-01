@@ -926,3 +926,12 @@ export interface CSThirdPartyProviderSetInfoRequestData {
 	data: { [key: string]: any };
 	pendingVerification?: boolean;
 }
+
+export interface CSGetSlackThreadSnippetRequest {
+	teamId: string;
+	providerTeamId: string;
+	providerChannelId: string;
+	ts: string;
+}
+
+export interface CSGetSlackThreadSnippetResponse {}

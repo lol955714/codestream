@@ -61,6 +61,7 @@
         <codeInsight.linkHandler prefix="#codemark/link/"
                                  handlerClass="com.codestream.editor.GutterCodemarkLinkTooltipLinkHandler"/>
 
+        <copyPastePreProcessor implementation="com.codestream.clipboard.CodeStreamCopyPastePreProcessor"/>
     </extensions>
 
     <project-components>

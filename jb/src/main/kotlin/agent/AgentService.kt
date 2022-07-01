@@ -30,6 +30,8 @@ import com.codestream.protocols.agent.GetPullRequestReviewIdParams
 import com.codestream.protocols.agent.GetReviewContentsParams
 import com.codestream.protocols.agent.GetReviewContentsResult
 import com.codestream.protocols.agent.GetReviewParams
+import com.codestream.protocols.agent.GetSlackThreadSnippetParams
+import com.codestream.protocols.agent.GetSlackThreadSnippetResult
 import com.codestream.protocols.agent.GetStreamParams
 import com.codestream.protocols.agent.GetUserParams
 import com.codestream.protocols.agent.GetUsersParams
@@ -54,6 +56,7 @@ import com.codestream.protocols.agent.SetServerUrlParams
 import com.codestream.protocols.agent.SetServerUrlResult
 import com.codestream.protocols.agent.Stream
 import com.codestream.protocols.agent.TelemetryParams
+import com.codestream.protocols.agent.UserDidCopyParams
 import com.codestream.protocols.agent.getPullRequestFilesChangedParams
 import com.codestream.protocols.agent.getPullRequestFilesParams
 import com.codestream.settings.ApplicationSettingsService
@@ -615,6 +618,13 @@ class AgentService(private val project: Project) : Disposable {
         return gson.fromJson(json!!)
     }
 
+    suspend fun userDidCopy(params: UserDidCopyParams) {
+        val json = remoteEndpoint
+            .request("codestream/clipboard/userDidCopy", params)
+            .await() as JsonObject?
+        return gson.fromJson(json!!)
+    }
+
     suspend fun reportMessage(t: Throwable) {
         val sw = StringWriter()
         val pw = PrintWriter(sw)
@@ -641,8 +651,16 @@ class AgentService(private val project: Project) : Disposable {
             .await()
     }
 
+    suspend fun getSlackThreadSnippet(params: GetSlackThreadSnippetParams): GetSlackThreadSnippetResult {
+        val json = remoteEndpoint
+            .request("codestream/slack/threadSnippet", params)
+            .await() as JsonObject?
+        return gson.fromJson(json!!)
+    }
+
     private val _restartObservers = mutableListOf<() -> Unit>()
     fun onRestart(observer: () -> Unit) {
         _restartObservers += observer
     }
+
 }

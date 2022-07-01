@@ -6,6 +6,7 @@ import { GitService } from "./git/gitService";
 import { GitServiceLite } from "./git/gitServiceLite";
 import { RepositoryLocator } from "./git/repositoryLocator";
 import { Logger } from "./logger";
+import { ClipboardManager } from "./managers/clipboardManager";
 import { CodeErrorsManager } from "./managers/codeErrorsManager";
 import { CodemarksManager } from "./managers/codemarksManager";
 import { CompaniesManager } from "./managers/companiesManager";
@@ -23,6 +24,7 @@ import { ReposManager } from "./managers/reposManager";
 import { ReviewsManager } from "./managers/reviewsManager";
 import { ScmManager } from "./managers/scmManager";
 import { ServerManager } from "./managers/serverManager";
+import { SlackManager } from "./managers/slackManager";
 import { StreamsManager } from "./managers/streamsManager";
 import { TeamsManager } from "./managers/teamsManager";
 import { TelemetryManager } from "./managers/telemetryManager";
@@ -141,6 +143,16 @@ export class SessionServiceContainer {
 		return this._pixie;
 	}
 
+	private readonly _clipboard: ClipboardManager;
+	get clipboard() {
+		return this._clipboard;
+	}
+
+	private readonly _slack: SlackManager;
+	get slack() {
+		return this._slack;
+	}
+
 	private readonly _repoIdentifier: RepoIdentificationManager;
 	get repoIdentifier() {
 		return this._repoIdentifier;
@@ -170,6 +182,8 @@ export class SessionServiceContainer {
 		this._nr = new NRManager(session);
 		this._repoIdentifier = new RepoIdentificationManager(session);
 		this._pixie = new PixieManager(session);
+		this._clipboard = new ClipboardManager(session);
+		this._slack = new SlackManager(session);
 	}
 }
 

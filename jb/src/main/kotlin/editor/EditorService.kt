@@ -18,6 +18,7 @@ import com.codestream.extensions.visibleRanges
 import com.codestream.git.getCSGitFile
 import com.codestream.protocols.agent.DocumentMarker
 import com.codestream.protocols.agent.DocumentMarkersParams
+import com.codestream.protocols.agent.GetSlackThreadSnippetParams
 import com.codestream.protocols.agent.Marker
 import com.codestream.protocols.agent.ReviewCoverageParams
 import com.codestream.protocols.agent.TextDocument
@@ -35,18 +36,24 @@ import com.codestream.settings.ApplicationSettingsService
 import com.codestream.settingsService
 import com.codestream.system.sanitizeURI
 import com.codestream.webViewService
+import com.intellij.codeInsight.hints.presentation.InlayTextMetricsStorage
+import com.intellij.codeInsight.hints.presentation.PresentationFactory
+import com.intellij.codeInsight.hints.presentation.PresentationRenderer
 import com.intellij.diff.DiffContentFactory
 import com.intellij.diff.DiffManager
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.util.DiffUserDataKeys
 import com.intellij.diff.util.DiffUserDataKeysEx
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorCustomElementRenderer
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
@@ -77,6 +84,7 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent
 import org.eclipse.lsp4j.TextDocumentItem
 import org.eclipse.lsp4j.TextDocumentSyncKind
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier
+import org.jetbrains.plugins.notebooks.jupyter.editor.preview.JupyterPreviewApiFacade.Companion.notebook
 import java.awt.Font
 import java.io.File
 import java.net.URI
@@ -379,6 +387,8 @@ class EditorService(val project: Project) {
             )
         }
 
+    val inlays = mutableListOf<Disposable>()
+
     private fun Editor.renderMarkers(markers: List<DocumentMarker>) = ApplicationManager.getApplication().invokeLater {
         if (isDisposed) return@invokeLater
 
@@ -388,11 +398,46 @@ class EditorService(val project: Project) {
             }
         }
 
+        inlays.forEach {
+            it.dispose()
+        }
+        inlays.clear()
+
         markerHighlighters[this] = markers.filter { marker ->
             marker.range.start.line >= 0
         }.map { marker ->
             val start = getOffset(marker.range.start)
             val end = getOffset(marker.range.end)
+
+
+            if (marker.summary.startsWith("#slack#")) {
+                val metricsStorage = InlayTextMetricsStorage(this as EditorImpl)
+
+
+
+                // val presentationFactory = PresentationFactory(this as EditorImpl)
+                // val textPresentation = presentationFactory.text("line1<br/>line2")
+                // presentationFactory.
+                // val insetPresentation = presentationFactory.inset(textPresentation, 0, 0, 0, 3)
+                // val renderer = PresentationRenderer(insetPresentation)
+                val parts = marker.summary.split("#slack#")
+                GlobalScope.launch {
+                    val snippetResult = project?.agentService?.getSlackThreadSnippet(GetSlackThreadSnippetParams(
+                        parts[2], parts[3], parts[4]
+                    )) ?: return@launch
+
+
+                    val snippetText = snippetResult.messages.map { removeCode(it.text).trim() }.filter { it.isNotBlank() }.joinToString("\n")
+                    val prezo = SlackSnippetPresentation(metricsStorage, false, snippetText)
+                    val renderer = PresentationRenderer(prezo)
+                    ApplicationManager.getApplication().invokeLater {
+                        val inlay = inlayModel.addAfterLineEndElement(start, false, renderer)
+                        inlays.add(inlay)
+                    }
+                }
+
+                // inlayModel.addInlineElement(start, true, 1, renderer)
+            }
 
             markupModel.addRangeHighlighter(
                 Math.min(start, end),
@@ -404,6 +449,7 @@ class EditorService(val project: Project) {
                 if (showGutterIcons && (marker.codemark != null || marker.externalContent != null)) {
                     it.gutterIconRenderer = GutterIconRendererImpl(this, marker)
                 }
+
                 it.isThinErrorStripeMark = true
                 it.errorStripeMarkColor = if (marker.type == "prcomment") gray else (marker.codemark?.color() ?: green)
                 it.errorStripeTooltip = marker.summary
@@ -442,6 +488,16 @@ class EditorService(val project: Project) {
             val notification = EditorNotifications.DidChangeActive(editorInfo)
             project.webViewService?.postNotification(notification)
         }
+
+    fun removeCode(text: String): String {
+        if (text.contains("```")) {
+            val parts = text.split("```")
+            val withoutCode = parts[0] + (parts[2] ?: "")
+            return withoutCode
+        } else {
+            return text
+        }
+    }
 
     suspend fun getEditorContext(): EditorContext? {
         val future = CompletableDeferred<EditorContext?>()

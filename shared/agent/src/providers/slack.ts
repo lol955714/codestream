@@ -210,4 +210,15 @@ export class SlackProvider extends ThirdPartyPostProviderBase<CSSlackProviderInf
 		});
 		return post;
 	}
+
+	async getPermalink(request: {
+		teamId: string;
+		channelId: string;
+		ts: string;
+	}): Promise<string | undefined> {
+		const slackClient = this.getClient(request.teamId);
+		if (!slackClient) return;
+
+		return slackClient.getPermalink(request.channelId, request.ts);
+	}
 }

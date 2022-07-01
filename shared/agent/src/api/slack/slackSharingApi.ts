@@ -1137,6 +1137,24 @@ export class SlackSharingApiProvider {
 		return { users: users };
 	}
 
+	async getPermalink(channelId: string, ts: string): Promise<string | undefined> {
+		const permalinkResponse = await this.slackApiCall("chat.getPermalink", {
+			channel: channelId,
+			message_ts: ts
+		});
+
+		const { ok, error, permalink } = permalinkResponse as WebAPICallResult & {
+			permalink: string;
+		};
+		if (!ok) {
+			const cc = Logger.getCorrelationContext();
+			Logger.warn(cc, `Unable to get permalink for ${channelId} ${ts}: ${error}`);
+			return;
+		} else {
+			return permalink;
+		}
+	}
+
 	@debug({
 		args: false,
 		prefix: (context, method, request) =>
