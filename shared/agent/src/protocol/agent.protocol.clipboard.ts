@@ -1,7 +1,6 @@
 "use strict";
 
-import { Range } from "vscode-languageserver";
-import { RequestType } from "vscode-languageserver-protocol";
+import { Range, RequestType } from "vscode-languageserver-protocol";
 
 export interface UserDidCopyRequest {
 	range: Range;
