@@ -320,7 +320,13 @@ export interface CSUpdatePostSharingDataResponse {
 }
 
 export interface CSProviderShareRequest {
-	postId: string;
+	postId?: string;
+	codemarkId?: string;
+	destination?: {
+		teamId: string;
+		channelId: string;
+		parentPostId: string;
+	};
 }
 
 export interface CSProviderShareResponse {

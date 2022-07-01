@@ -50,8 +50,9 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
         val rangeString = serializeRange(marker.range);
 
         if (marker.summary.startsWith("#slack#")) {
-            val split = marker.summary.split("#slack#")
-            return "<a href=${split[1]}>${split[5]}</a>"
+            return null
+            // val split = marker.summary.split("#slack#")
+            // return "<a href=${split[1]}>${split[5]}</a>"
 
         } else if (marker.codemark !== null) {
             if (marker.type == "issue") {
@@ -178,6 +179,15 @@ class GutterIconRendererImpl(val editor: Editor, val marker: DocumentMarker) : G
 class GutterIconAction(val editor: Editor, val marker: DocumentMarker) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = editor.project ?: return
+
+        if (marker.summary.startsWith("#slack#")) {
+            val split = marker.summary.split("#slack#")
+            val permalink = split[1]
+            // return "<a href=${split[1]}>${split[5]}</a>"
+            BrowserUtil.browse(permalink)
+            return
+        }
+
         marker.codemark?.let {
             project.codeStream?.show {
                 project.webViewService?.postNotification(

@@ -277,8 +277,14 @@ export const UpdatePostSharingDataRequestType = new RequestType<
 >("codestream/post/share-update");
 
 export interface SharePostViaServerRequest {
-	postId: string;
+	postId?: string;
 	providerId: string;
+	codemarkId?: string;
+	destination?: {
+		teamId: string;
+		channelId: string;
+		parentPostId: string;
+	};
 }
 
 export interface SharePostViaServerResponse {

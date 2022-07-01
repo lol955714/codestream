@@ -64,7 +64,23 @@ export class SlackManager {
 						type: CodemarkType.Comment
 					}
 				});
-				console.log(createPostResponse);
+				const createPermalinkResponse = await posts.createSharingCodemarkPost({
+					attributes: {
+						codeBlocks: [rangeInfo],
+						type: CodemarkType.Link
+					}
+				});
+				console.log(createPermalinkResponse);
+				const sharePostResponse = await this.session.api.sharePostViaServer({
+					providerId: "slack*com",
+					codemarkId: createPermalinkResponse?.codemark?.id,
+					destination: {
+						channelId,
+						teamId,
+						parentPostId: ts
+					}
+				});
+				console.log(sharePostResponse);
 
 				Logger.log("CHUPACABRA PROFIT");
 			}

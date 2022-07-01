@@ -19,6 +19,7 @@ import com.codestream.git.getCSGitFile
 import com.codestream.protocols.agent.DocumentMarker
 import com.codestream.protocols.agent.DocumentMarkersParams
 import com.codestream.protocols.agent.GetSlackThreadSnippetParams
+import com.codestream.protocols.agent.GetSlackThreadSnippetResult
 import com.codestream.protocols.agent.Marker
 import com.codestream.protocols.agent.ReviewCoverageParams
 import com.codestream.protocols.agent.TextDocument
@@ -73,6 +74,7 @@ import com.intellij.ui.JBColor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import org.eclipse.lsp4j.DidChangeTextDocumentParams
 import org.eclipse.lsp4j.DidCloseTextDocumentParams
@@ -88,6 +90,7 @@ import org.jetbrains.plugins.notebooks.jupyter.editor.preview.JupyterPreviewApiF
 import java.awt.Font
 import java.io.File
 import java.net.URI
+import java.util.concurrent.CompletableFuture
 
 val CODESTREAM_HIGHLIGHTER = KeyWithDefaultValue.create("CODESTREAM_HIGHLIGHTER", false)
 
@@ -421,19 +424,22 @@ class EditorService(val project: Project) {
                 // val insetPresentation = presentationFactory.inset(textPresentation, 0, 0, 0, 3)
                 // val renderer = PresentationRenderer(insetPresentation)
                 val parts = marker.summary.split("#slack#")
+                val futureSnippet = CompletableFuture<GetSlackThreadSnippetResult?>()
                 GlobalScope.launch {
                     val snippetResult = project?.agentService?.getSlackThreadSnippet(GetSlackThreadSnippetParams(
                         parts[2], parts[3], parts[4]
-                    )) ?: return@launch
+                    ))
+                    futureSnippet.complete(snippetResult)
+                }
 
-
-                    val snippetText = snippetResult.messages.map { removeCode(it.text).trim() }.filter { it.isNotBlank() }.joinToString("\n")
+                val snippetResult = futureSnippet.join()
+                snippetResult?.let {
+                    val snippetText = snippetResult.messages.map { removeCode(it.text).trim() }.filter { it.isNotBlank() && !it.contains("This content can't be displayed") }.joinToString("\n")
                     val prezo = SlackSnippetPresentation(metricsStorage, false, snippetText)
                     val renderer = PresentationRenderer(prezo)
-                    ApplicationManager.getApplication().invokeLater {
-                        val inlay = inlayModel.addAfterLineEndElement(start, false, renderer)
-                        inlays.add(inlay)
-                    }
+                    val inlay = inlayModel.addAfterLineEndElement(start, false, renderer)
+                    println("adding inlay ${snippetText}")
+                    inlays.add(inlay)
                 }
 
                 // inlayModel.addInlineElement(start, true, 1, renderer)

@@ -1346,7 +1346,9 @@ export class CodeStreamApiProvider implements ApiProvider {
 		const response = await this.post<CSProviderShareRequest, CSProviderShareResponse>(
 			`/provider-share/${provider.name}`,
 			{
-				postId: request.postId
+				postId: request.postId,
+				codemarkId: request.codemarkId,
+				destination: request.destination
 			},
 			this._token
 		);
