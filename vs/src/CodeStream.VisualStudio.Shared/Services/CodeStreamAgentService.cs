@@ -66,8 +66,12 @@ namespace CodeStream.VisualStudio.Shared.Services {
 			_rpc = rpc;
 
 			try {
-				//var initializationResult = await InitializeAsync();
-				//Log.Verbose(initializationResult?.ToString());
+
+#if X86
+				var initializationResult = await InitializeAsync();
+				Log.Verbose(initializationResult?.ToString());
+#endif
+
 				_sessionService.SetAgentConnected();
 			}
 			catch (Exception ex) {

@@ -1,7 +1,6 @@
-﻿using CodeStream.VisualStudio.Core;
+using CodeStream.VisualStudio.Core;
 using CodeStream.VisualStudio.Core.Events;
 using CodeStream.VisualStudio.Core.Logging;
-using CodeStream.VisualStudio.Core.Models;
 using Microsoft;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -12,12 +11,13 @@ using StreamJsonRpc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CodeStream.VisualStudio.Shared.Extensions;
 using CodeStream.VisualStudio.Shared.Models;
 using CodeStream.VisualStudio.Shared.Services;
+using Microsoft.VisualStudio.LanguageServer.Protocol;
 
 namespace CodeStream.VisualStudio.Shared.LanguageServer {
 	
@@ -99,7 +99,7 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 				return CustomMessageTargetBase;
 			}
 		}
-
+		
 		public async Task<Connection> ActivateAsync(CancellationToken token) {
 			await Task.Yield();
 			Connection connection = null;
@@ -136,7 +136,14 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 				await StopAsync?.InvokeAsync(this, EventArgs.Empty);
 				OnStopped();
 				await StartAsync?.InvokeAsync(this, EventArgs.Empty);
-				
+
+#if X86
+				var componentModel = ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
+				Assumes.Present(componentModel);
+				var agentService = componentModel.GetService<ICodeStreamAgentService>();
+				await agentService.ReinitializeAsync();
+#endif
+
 				Interlocked.Exchange(ref _state, 1);
 				Log.Debug($"SetState={_state}");
 			}
