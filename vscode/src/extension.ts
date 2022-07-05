@@ -8,6 +8,7 @@ import { ProtocolHandler } from "protocolHandler";
 import { ScmTreeDataProvider } from "views/scmTreeDataProvider";
 import { AbortController } from "node-abort-controller";
 import {
+	commands,
 	Disposable,
 	env,
 	ExtensionContext,
@@ -37,6 +38,16 @@ import { extensionQualifiedId } from "./constants";
 import { Container, TelemetryOptions } from "./container";
 import { Logger, TraceLevel } from "./logger";
 import { FileSystem, Strings, Versions } from "./system";
+import {
+	ChangeLogItem,
+	ChangeLogKind,
+	ContentProvider,
+	Header,
+	Image,
+	IssueKind,
+	SupportChannel,
+	WhatsNewManager
+} from "./providers/whatsNewProvider";
 
 const extension = extensions.getExtension(extensionQualifiedId)!;
 export const extensionVersion = extension.packageJSON.version;
@@ -51,6 +62,92 @@ interface BuildInfoMetadata {
 }
 
 export const IDE_NAME = "VS Code";
+
+export class BookmarksContentProvider implements ContentProvider {
+	provideSupportChannels(): SupportChannel[] {
+		// TODO
+		// return [];
+		return [
+			{
+				title: "CodeStream",
+				message: "What CTA goes here?",
+				link: "https://codestream.com"
+			}
+		];
+	}
+
+	provideHeader(logoUrl: string): Header {
+		return {
+			logo: { src: logoUrl, height: 100, width: 100 },
+			message:
+				"New Relic CodeStream is a free open-source extension for VS Code. CodeStream supercharges development workflows by putting collaboration tools in your IDE. It supports pull requests from GitHub, BitBucket and GitLab, issue management from Jira, Trello, Asana and 9 others, observability from New Relic One and Pixie, and provides code discussion that ties it all together, integrated with Slack, MS Teams, email, and in-editor notifications."
+		} as Header;
+	}
+
+	provideChangeLog(): ChangeLogItem[] {
+		const changeLog: ChangeLogItem[] = [
+			{
+				kind: ChangeLogKind.VERSION,
+				detail: { releaseNumber: "13.0.0", releaseDate: "June 2022" }
+			},
+			{
+				kind: ChangeLogKind.NEW,
+				detail: {
+					message:
+						"Adds a new user experience for the pull request integration, including a tree view for commenting on pull requests and reviewing existing comments"
+				}
+			},
+			{
+				kind: ChangeLogKind.CHANGED,
+				detail: {
+					message: "Files' view state now syncs with GitHub when reviewing pull requests"
+				}
+			},
+			{
+				kind: ChangeLogKind.CHANGED,
+				detail: {
+					message: "Include stock Node.js executable to run CodeStream agent"
+				}
+			},
+			{
+				kind: ChangeLogKind.CHANGED,
+				detail: {
+					message: "Updated copy on sign-in buttons to reflect code or password option"
+				}
+			},
+			{
+				kind: ChangeLogKind.FIXED,
+				detail: {
+					message: "Support for Apple Silicon (universal binary)",
+					id: 837,
+					kind: IssueKind.Issue
+				}
+			},
+			{
+				kind: ChangeLogKind.FIXED,
+				detail: {
+					message: "Fixes an `Error fetching cards from Jira` on extension startup"
+				}
+			},
+			{
+				kind: ChangeLogKind.FIXED,
+				detail: {
+					message:
+						"Fixes an issue where the notification setting for pull request assignments wouldn't appear when connected to GitHub or GitLab cloud"
+				}
+			},
+			{
+				kind: ChangeLogKind.FIXED,
+				detail: {
+					message:
+						"Fixes an issue where your own commit would trigger a desktop notification to review changes"
+				}
+			}
+		];
+
+		return changeLog;
+	}
+}
 
 export async function activate(context: ExtensionContext) {
 	const start = process.hrtime();
@@ -169,6 +266,23 @@ export async function activate(context: ExtensionContext) {
 		// show CS on initial install
 		await Container.webview.show();
 	}
+
+	// register the providers
+	const provider = new BookmarksContentProvider();
+	const viewer = new WhatsNewManager(context).registerContentProvider(
+		"codestream",
+		"codestream",
+		provider
+	);
+
+	// TODO tie into version checks....
+	// show the page (if necessary)
+	viewer.showPageInActivation();
+
+	// register the additional command (not really necessary, unless you want a command registered in your extension)
+	context.subscriptions.push(
+		commands.registerCommand("bookmarks.whatsNew", () => viewer.showPage())
+	);
 
 	context.globalState.update(GlobalState.Version, extensionVersion);
 
