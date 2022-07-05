@@ -853,6 +853,36 @@ export class ThirdPartyProviderRegistry {
 					query: `scope=created_by_me&per_page=5`,
 					hidden: false
 				}
+			],
+			"bitbucket*org": [
+				{
+					providerId: "bitbucket*org",
+					name: "Waiting on my Review",
+					// TODO
+					query: `state=opened&reviewer_username=@me&scope=all`,
+					hidden: false
+				},
+				{
+					providerId: "bitbucket*org",
+					name: "Assigned to Me",
+					// TODO
+					query: `state=opened&scope=assigned_to_me`,
+					hidden: false
+				},
+				{
+					providerId: "bitbucket*org",
+					name: "Created by Me",
+					// TODO
+					query: `state=opened&scope=created_by_me`,
+					hidden: false
+				},
+				{
+					providerId: "bitbucket*org",
+					name: "Recent",
+					// TODO
+					query: `scope=created_by_me&per_page=5`,
+					hidden: false
+				}
 			]
 		};
 		try {

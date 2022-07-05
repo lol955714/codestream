@@ -22,6 +22,8 @@ import {
 	FetchThirdPartyPullRequestCommitsResponse,
 	FetchThirdPartyPullRequestRequest,
 	FetchThirdPartyPullRequestResponse,
+	GetMyPullRequestsRequest,
+	GetMyPullRequestsResponse,
 	MoveThirdPartyCardRequest,
 	MoveThirdPartyCardResponse,
 	ProviderGetForkedReposResponse,
@@ -521,6 +523,16 @@ export class BitbucketProvider extends ThirdPartyIssueProviderBase<CSBitbucketPr
 	private _isMatchingRemotePredicate = (r: GitRemoteLike) => r.domain === "bitbucket.org";
 	getIsMatchingRemotePredicate() {
 		return this._isMatchingRemotePredicate;
+	}
+
+	async getMyPullRequests(
+		request: GetMyPullRequestsRequest
+	): Promise<GetMyPullRequestsResponse[][] | undefined> {
+		void (await this.ensureConnected());
+
+		// TODO all the things
+
+		return [];
 	}
 }
 
