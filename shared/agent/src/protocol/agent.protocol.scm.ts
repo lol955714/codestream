@@ -590,6 +590,20 @@ export const GetLatestCommitScmRequestType = new RequestType<
 	void
 >("codestream/scm/latestCommit");
 
+export interface GetBlameRequest {
+	uri: string;
+	startLine: number;
+	endLine: number;
+}
+
+export interface GetBlameResponse {
+	blame: string[];
+}
+
+export const GetBlameRequestType = new RequestType<GetBlameRequest, GetBlameResponse, void, void>(
+	"codestream/scm/blame"
+);
+
 export interface DiffBranchesRequest {
 	repoId: string;
 	baseRef: string;

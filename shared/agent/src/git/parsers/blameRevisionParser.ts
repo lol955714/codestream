@@ -1,9 +1,11 @@
 "use strict";
 import { Strings } from "../../system";
+import { isUncommitted } from "../common";
 
 export interface RevisionEntry {
 	sha: string;
 	date: Date;
+	authorName: string;
 }
 
 export class GitBlameRevisionParser {
@@ -16,6 +18,7 @@ export class GitBlameRevisionParser {
 		let line;
 		let sha: string | undefined;
 		let date: Date | undefined;
+		let authorName: string | undefined;
 		let process = false;
 
 		for (line of Strings.lines(data + "\n")) {
@@ -41,12 +44,19 @@ export class GitBlameRevisionParser {
 					date = new Date((line.substring(index).trim() as any) * 1000);
 					break;
 
+				case "author":
+					if (!isUncommitted(sha!)) {
+						authorName = line.substring(index).trim();
+					}
+					break;
+
 				case "filename":
 					process = true;
 					if (!references.has(sha)) {
 						references.set(sha, {
 							sha,
-							date
+							date,
+							authorName
 						} as RevisionEntry);
 					}
 					break;

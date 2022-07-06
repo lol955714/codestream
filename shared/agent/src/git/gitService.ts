@@ -40,7 +40,7 @@ import { Logger } from "../logger";
 import { CommitsChangedData, WorkspaceChangedData } from "../protocol/agent.protocol";
 import { FileStatus } from "../protocol/api.protocol.models";
 import { CodeStreamSession } from "../session";
-import { Iterables, log, Strings } from "../system";
+import { Dates, Iterables, log, Strings } from "../system";
 import { xfs } from "../xfs";
 import { git, GitErrors, GitWarnings } from "./git";
 import { GitServiceLite } from "./gitServiceLite";
@@ -53,6 +53,7 @@ import { GitPatchParser, ParsedDiffPatch } from "./parsers/patchParser";
 import { GitRemoteParser } from "./parsers/remoteParser";
 import { GitRepositories } from "./repositories";
 import { RepositoryLocator } from "./repositoryLocator";
+import toFormatter = Dates.toFormatter;
 
 export * from "./models/models";
 
@@ -259,17 +260,44 @@ export class GitService implements IGitService, Disposable {
 		return git({ cwd: repoPath, stdin: stdin }, ...params, "--", relativePath);
 	}
 
-	async getCommitShaByLine(uriOrPath: URI | string): Promise<string[]> {
+	async getCommitShaByLine(
+		uriOrPath: URI | string,
+		options: { startLine?: number; endLine?: number } = {}
+	): Promise<string[]> {
 		const [dir, filename] = Strings.splitPath(
 			typeof uriOrPath === "string" ? uriOrPath : uriOrPath.fsPath
 		);
 
-		const data = await git({ cwd: dir }, "blame", "-l", filename);
+		const params = ["blame", "-l"];
+		if (options.startLine != null && options.endLine != null) {
+			params.push(`-L ${options.startLine + 1},${options.endLine + 1}`);
+		}
+		params.push(filename);
+
+		const data = await git({ cwd: dir }, ...params);
 
 		return data
 			.trim()
 			.split("\n")
 			.map(line => line.substr(0, 40));
+	}
+
+	async getLineBlames(uri: URI, startLine: number, endLine: number): Promise<string[]> {
+		// const data = await this.getRawBlame(uriOrPath, { startLine, endLine });
+		const options = { startLine, endLine };
+		const shasPromise = this.getCommitShaByLine(uri, options);
+		const revisionEntriesPromise = this.getBlameRevisions(uri, options);
+
+		const [shas, revisionEntries] = await Promise.all([shasPromise, revisionEntriesPromise]);
+
+		return shas
+			.map(sha => revisionEntries.find(entry => entry.sha === sha))
+			.map(entry => this._formatEntry(entry));
+	}
+
+	private _formatEntry(entry: RevisionEntry | undefined): string {
+		if (!entry) return "You - Uncommitted changes";
+		return `${entry.authorName}, ${toFormatter(entry.date).fromNow()}`;
 	}
 
 	async getFileCurrentRevision(uri: URI): Promise<string | undefined>;

@@ -712,6 +712,16 @@ class CreateShareableCodemarkResult(
     val directives: JsonObject?
 )
 
+class GetBlameParams(
+    val uri: String,
+    val startLine: Int,
+    val endLine: Int
+)
+
+class GetBlameResult(
+    val blame: List<String>
+)
+
 class ReportMessageParams(
     val type: String,
     val error: ReportMessageRequestError?,

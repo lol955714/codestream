@@ -35,6 +35,9 @@ import {
 	FetchRemoteBranchRequest,
 	FetchRemoteBranchRequestType,
 	FetchRemoteBranchResponse,
+	GetBlameRequest,
+	GetBlameRequestType,
+	GetBlameResponse,
 	GetBranchesRequest,
 	GetBranchesRequestType,
 	GetBranchesResponse,
@@ -1417,6 +1420,16 @@ export class ScmManager {
 
 		const commit = await git.getCommit(repoPath, request.branch);
 		return { shortMessage: commit ? commit.shortMessage : "" };
+	}
+
+	@lspHandler(GetBlameRequestType)
+	async getBlame(request: GetBlameRequest): Promise<GetBlameResponse> {
+		const uri = URI.parse(request.uri);
+		const { git } = SessionContainer.instance();
+		const blame = await git.getLineBlames(uri, request.startLine, request.endLine);
+		return {
+			blame
+		};
 	}
 
 	@lspHandler(CommitAndPushRequestType)
