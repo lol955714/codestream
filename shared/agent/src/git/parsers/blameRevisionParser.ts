@@ -6,6 +6,8 @@ export interface RevisionEntry {
 	sha: string;
 	date: Date;
 	authorName: string;
+	authorEmail: string;
+	summary: string;
 }
 
 export class GitBlameRevisionParser {
@@ -19,6 +21,8 @@ export class GitBlameRevisionParser {
 		let sha: string | undefined;
 		let date: Date | undefined;
 		let authorName: string | undefined;
+		let authorEmail: string | undefined;
+		let summary: string | undefined;
 		let process = false;
 
 		for (line of Strings.lines(data + "\n")) {
@@ -50,13 +54,27 @@ export class GitBlameRevisionParser {
 					}
 					break;
 
+				case "author-mail":
+					if (!isUncommitted(sha!)) {
+						authorEmail = line.substring(index).trim();
+					}
+					break;
+
+				case "summary":
+					if (!isUncommitted(sha!)) {
+						summary = line.substring(index).trim();
+					}
+					break;
+
 				case "filename":
 					process = true;
 					if (!references.has(sha)) {
 						references.set(sha, {
 							sha,
 							date,
-							authorName
+							authorName,
+							authorEmail,
+							summary
 						} as RevisionEntry);
 					}
 					break;

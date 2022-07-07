@@ -42,6 +42,7 @@ import { FileStatus } from "../protocol/api.protocol.models";
 import { CodeStreamSession } from "../session";
 import { Dates, Iterables, log, Strings } from "../system";
 import { xfs } from "../xfs";
+import { isUncommitted } from "./common";
 import { git, GitErrors, GitWarnings } from "./git";
 import { GitServiceLite } from "./gitServiceLite";
 import { GitAuthor, GitCommit, GitNumStat, GitRemote, GitRepository } from "./models/models";
@@ -72,6 +73,16 @@ export interface TrackingBranch {
 
 export const EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 const FORMAT_SEPARATOR = "--0--";
+
+function formatRevisionEntry(entry: RevisionEntry | undefined): string {
+	if (!entry || isUncommitted(entry.sha)) return "You - Uncommitted changes";
+
+	const author = entry.authorName ? entry.authorName.split(" ").reverse()[0] : entry.authorEmail;
+	const date = toFormatter(entry.date).fromNow();
+	const summary = entry.summary;
+
+	return `${author}, ${date} - ${summary}`;
+}
 
 export interface IGitService extends Disposable {
 	getFileAuthors(uri: URI, options?: BlameOptions): Promise<GitAuthor[]>;
@@ -299,12 +310,7 @@ export class GitService implements IGitService, Disposable {
 
 		return shas
 			.map(sha => revisionEntries.find(entry => entry.sha === sha))
-			.map(entry => this._formatEntry(entry));
-	}
-
-	private _formatEntry(entry: RevisionEntry | undefined): string {
-		if (!entry) return "You - Uncommitted changes";
-		return `${entry.authorName}, ${toFormatter(entry.date).fromNow()}`;
+			.map(entry => formatRevisionEntry(entry));
 	}
 
 	async getFileCurrentRevision(uri: URI): Promise<string | undefined>;
