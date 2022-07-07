@@ -37,14 +37,17 @@ export abstract class ThirdPartyIssueProviderBase<
 	supportsIssues(): this is ThirdPartyIssueProvider & ThirdPartyProviderSupportsIssues {
 		return ThirdPartyIssueProvider.supportsIssues(this);
 	}
+
 	supportsViewingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsViewingPullRequests {
 		return ThirdPartyIssueProvider.supportsViewingPullRequests(this);
 	}
+
 	supportsCreatingPullRequests(): this is ThirdPartyIssueProvider &
 		ThirdPartyProviderSupportsCreatingPullRequests {
 		return ThirdPartyIssueProvider.supportsCreatingPullRequests(this);
 	}
+
 	protected createDescription(request: ProviderCreatePullRequestRequest): string | undefined {
 		if (
 			!request ||
@@ -150,7 +153,13 @@ export abstract class ThirdPartyIssueProviderBase<
 				ex.response.errors instanceof Array &&
 				ex.response.errors.find((e: any) => e.type === "FORBIDDEN"))
 		) {
-			return ReportSuppressedMessages.AccessTokenInvalid;
+			// https://issues.newrelic.com/browse/NR-23727 - FORBIDDEN can happen for tokens that don't have full permissions,
+			// rather than risk breaking how this works, we'll just capture this one possibility
+			if (ex.response.errors.find((e: any) => e.message.match(/must have push access/i))) {
+				return undefined;
+			} else {
+				return ReportSuppressedMessages.AccessTokenInvalid;
+			}
 		} else if (ex.message && ex.message.match(/must accept the Terms of Service/)) {
 			return ReportSuppressedMessages.GitLabTermsOfService;
 		} else {

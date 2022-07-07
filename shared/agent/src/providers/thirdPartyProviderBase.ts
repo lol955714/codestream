@@ -43,8 +43,11 @@ export abstract class ThirdPartyProviderBase<
 	async ensureInitialized() {}
 
 	abstract get displayName(): string;
+
 	abstract get name(): string;
+
 	abstract get headers(): { [key: string]: string };
+
 	get icon() {
 		return this.name;
 	}
@@ -159,17 +162,13 @@ export abstract class ThirdPartyProviderBase<
 	}
 
 	protected async onConnected(providerInfo?: TProviderInfo) {
-		// if CodeStream is connected through a proxy, then we should be too,
-		// but to make sure nothing breaks, only if the user has a preference for it
+		// if CodeStream is connected through a proxy, then we should be too
 		if (this.session.proxyAgent) {
-			const user = await SessionContainer.instance().users.getMe();
-			if (user.preferences?.useCodestreamProxyForIntegrations) {
-				Logger.log(
-					`${this.providerConfig.name} provider (id:"${this.providerConfig.id}") will use CodeStream's proxy agent`
-				);
-				this._httpsAgent = this.session.proxyAgent;
-				return;
-			}
+			Logger.log(
+				`${this.providerConfig.name} provider (id:"${this.providerConfig.id}") will use CodeStream's proxy agent`
+			);
+			this._httpsAgent = this.session.proxyAgent;
+			return;
 		}
 
 		// if we are connecting with https, and if strictSSL is disabled for CodeStream,
