@@ -6,6 +6,7 @@ import com.codestream.protocols.agent.GetBlameParams
 import com.intellij.codeInsight.hints.presentation.InlayTextMetricsStorage
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.codeInsight.hints.presentation.PresentationRenderer
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -16,6 +17,7 @@ import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.editor.event.SelectionListener
 import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
@@ -25,8 +27,10 @@ import java.util.concurrent.CompletableFuture
 class LineLevelBlameService(val project: Project) : SelectionListener {
 
     private val logger = Logger.getInstance(LineLevelBlameService::class.java)
+    private val gitToolboxInstalled = PluginManager.isPluginInstalled(PluginId.getId("zielu.gittoolbox"))
 
     fun add(editor: Editor) {
+        if (gitToolboxInstalled) return
         if (editor !is EditorImpl) return
         val uri = editor.document.uri ?: return
         val agent = project.agentService ?: return
