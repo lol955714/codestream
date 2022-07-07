@@ -35,7 +35,7 @@ import { memoize } from "lodash-es";
 import * as path from "path";
 import { Disposable, Event, Range } from "vscode-languageserver";
 import { URI } from "vscode-uri";
-import { SessionContainer } from "../container";
+import { Container, SessionContainer } from "../container";
 import { Logger } from "../logger";
 import { CommitsChangedData, WorkspaceChangedData } from "../protocol/agent.protocol";
 import { FileStatus } from "../protocol/api.protocol.models";
@@ -262,7 +262,7 @@ export class GitService implements IGitService, Disposable {
 
 	async getCommitShaByLine(
 		uriOrPath: URI | string,
-		options: { startLine?: number; endLine?: number } = {}
+		options: { startLine?: number; endLine?: number; contents?: string } = {}
 	): Promise<string[]> {
 		const [dir, filename] = Strings.splitPath(
 			typeof uriOrPath === "string" ? uriOrPath : uriOrPath.fsPath
@@ -272,9 +272,15 @@ export class GitService implements IGitService, Disposable {
 		if (options.startLine != null && options.endLine != null) {
 			params.push(`-L ${options.startLine + 1},${options.endLine + 1}`);
 		}
+		let stdin;
+		if (options.contents) {
+			params.push("--contents", "-");
+			// Pipe the blame contents to stdin
+			stdin = options.contents;
+		}
 		params.push(filename);
 
-		const data = await git({ cwd: dir }, ...params);
+		const data = await git({ cwd: dir, stdin }, ...params);
 
 		return data
 			.trim()
@@ -283,8 +289,9 @@ export class GitService implements IGitService, Disposable {
 	}
 
 	async getLineBlames(uri: URI, startLine: number, endLine: number): Promise<string[]> {
-		// const data = await this.getRawBlame(uriOrPath, { startLine, endLine });
-		const options = { startLine, endLine };
+		const doc = Container.instance().documents.get(uri.toString(true));
+		const contents = doc?.getText();
+		const options = { startLine, endLine, contents };
 		const shasPromise = this.getCommitShaByLine(uri, options);
 		const revisionEntriesPromise = this.getBlameRevisions(uri, options);
 
