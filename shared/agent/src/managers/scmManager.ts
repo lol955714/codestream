@@ -6,8 +6,10 @@ import { URI } from "vscode-uri";
 import { Ranges } from "../api/extensions";
 import { Container, SessionContainer } from "../container";
 import { GitRepositoryExtensions } from "../extensions";
+import { isUncommitted } from "../git/common";
 import { EMPTY_TREE_SHA, GitRemote, GitRepository } from "../git/gitService";
 import { GitNumStat } from "../git/models/numstat";
+import { RevisionEntry } from "../git/parsers/blameRevisionParser";
 import { Logger } from "../logger";
 import {
 	BlameAuthor,
@@ -35,6 +37,7 @@ import {
 	FetchRemoteBranchRequest,
 	FetchRemoteBranchRequestType,
 	FetchRemoteBranchResponse,
+	GetBlameCommitInfo,
 	GetBlameRequest,
 	GetBlameRequestType,
 	GetBlameResponse,
@@ -85,11 +88,12 @@ import {
 } from "../protocol/agent.protocol";
 import { CSMe, FileStatus } from "../protocol/api.protocol.models";
 import { CodeStreamSession } from "../session";
-import { FileSystem, Iterables, log, lsp, lspHandler, Strings } from "../system";
+import { Dates, FileSystem, Iterables, log, lsp, lspHandler, Strings } from "../system";
 import * as csUri from "../system/uri";
 import { xfs } from "../xfs";
 import { IgnoreFilesHelper } from "./ignoreFilesManager";
 import { ReviewsManager } from "./reviewsManager";
+import toFormatter = Dates.toFormatter;
 
 @lsp
 export class ScmManager {
@@ -1426,10 +1430,39 @@ export class ScmManager {
 	async getBlame(request: GetBlameRequest): Promise<GetBlameResponse> {
 		const uri = URI.parse(request.uri);
 		const { git } = SessionContainer.instance();
-		const blame = await git.getLineBlames(uri, request.startLine, request.endLine);
+		const { shas, revisionEntries } = await git.getLineBlames(
+			uri,
+			request.startLine,
+			request.endLine
+		);
+		const blame = shas
+			.map(sha => revisionEntries.find(entry => entry.sha === sha))
+			.map(entry => this._formatRevisionEntry(entry));
+
+		const commitInfo = new Map<string, GetBlameCommitInfo>();
+
+		for (const revisionEntry of revisionEntries) {
+			commitInfo.set(revisionEntry.sha, {
+				authorEmail: revisionEntry.authorEmail,
+				frs: [],
+				prs: []
+			});
+		}
+
 		return {
-			blame
+			blame,
+			commitInfo
 		};
+	}
+
+	private _formatRevisionEntry(entry: RevisionEntry | undefined): string {
+		if (!entry || isUncommitted(entry.sha)) return "You - Uncommitted changes";
+
+		const author = entry.authorName ? entry.authorName.split(" ").reverse()[0] : entry.authorEmail;
+		const date = toFormatter(entry.date).fromNow();
+		const summary = entry.summary;
+
+		return `${author}, ${date} - ${summary}`;
 	}
 
 	@lspHandler(CommitAndPushRequestType)

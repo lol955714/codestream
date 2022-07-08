@@ -598,6 +598,13 @@ export interface GetBlameRequest {
 
 export interface GetBlameResponse {
 	blame: string[];
+	commitInfo: Map<string, GetBlameCommitInfo>;
+}
+
+export interface GetBlameCommitInfo {
+	authorEmail: string;
+	prs: any[];
+	frs: any[];
 }
 
 export const GetBlameRequestType = new RequestType<GetBlameRequest, GetBlameResponse, void, void>(
