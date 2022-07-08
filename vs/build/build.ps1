@@ -112,7 +112,6 @@ function Build-Extension {
 	# validation only allows 17.0 and is defaulted to 17.0, so it can't be anything else anyway
 	$msbuild = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
 	$vstest = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
-	
 
 	$OutputDir = $(Join-Path $root "build/artifacts/$($platform)/$($Mode)")
 	Try-Create-Directory($OutputDir)

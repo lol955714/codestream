@@ -38,12 +38,12 @@ New-Module -ScriptBlock {
         }
     }
 
-    function Read-Version([System.string] $target) {
-       Read-CurrentVersionVsix $target
+    function Read-Version([string] $architecture) {
+       Read-CurrentVersionVsix $architecture
     }
 
-    function Write-Version([System.Version]$version, [System.String] $environment, [System.string] $target) {
-        Write-VersionVsixManifest $version $target
+    function Write-Version([System.Version]$version, [string] $environment, [string] $architecture) {
+        Write-VersionVsixManifest $version $architecture
         Write-SolutionInfo $version $environment
         Write-AssemblyInfo $version "CodeStream.VisualStudio.Vsix.x86"
 		Write-AssemblyInfo $version "CodeStream.VisualStudio.Vsix.x64"
