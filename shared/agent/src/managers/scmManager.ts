@@ -1456,7 +1456,7 @@ export class ScmManager {
 	}
 
 	private _formatRevisionEntry(entry: RevisionEntry | undefined): string {
-		if (!entry || isUncommitted(entry.sha)) return "You - Uncommitted changes";
+		if (!entry || isUncommitted(entry.sha)) return "You · Uncommitted changes";
 
 		const author = entry.authorName ? entry.authorName.split(" ").reverse()[0] : entry.authorEmail;
 		const date = toFormatter(entry.date).fromNow();
