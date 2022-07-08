@@ -1680,8 +1680,15 @@ export class GitLabProvider extends ThirdPartyIssueProviderBase<CSGitLabProvider
 		text: string;
 	}): Promise<Directives> {
 		const { projectFullPath, iid, id } = this.parseId(request.subjectId);
+
+		const providerVersion = await this.getVersion();
+		let noteableId = "NoteableID";
+		if (semver.lt(providerVersion.version, "13.6.4")) {
+			noteableId = "ID";
+		}
+
 		await this.mutate(
-			`mutation CreateNote($noteableId:ID!, $body:String!){
+			`mutation CreateNote($noteableId:${noteableId}!, $body:String!){
 				createNote(input: {noteableId:$noteableId, body:$body}){
 					clientMutationId
 		  	}

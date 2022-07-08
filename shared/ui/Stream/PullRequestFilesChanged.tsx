@@ -552,7 +552,24 @@ export const PullRequestFilesChanged = (props: Props) => {
 								<div style={{ marginLeft: "10px" }}>
 									{openRepos.map((_, index) => {
 										const repoName = _.path.substring(_.path.lastIndexOf("/") + 1);
-										return <div key={`${index}_${repoName}`}>{repoName}</div>;
+										const remotes = _?.remotes;
+										return (
+											<>
+												<div key={`${index}_${repoName}`}>{repoName}</div>
+												{remotes && (
+													<>
+														{remotes.map(_ => {
+															const remoteUrl = `https://${_.domain}/${_.path}`;
+															return (
+																<div style={{ marginLeft: "10px" }}>
+																	<Link href={remoteUrl}>{remoteUrl}</Link>
+																</div>
+															);
+														})}
+													</>
+												)}
+											</>
+										);
 									})}
 								</div>
 							</>

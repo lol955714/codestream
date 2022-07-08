@@ -1,14 +1,12 @@
 package com.codestream.commands
 
-import com.codestream.CodeStreamComponent
 import com.codestream.codeStream
 import com.codestream.extensions.projectPaths
 import com.codestream.gson
 import com.codestream.protocols.webview.HostNotifications
-import com.codestream.sessionService
 import com.codestream.webViewService
 import com.github.salomonbrys.kotson.fromJson
-import com.intellij.ide.RecentProjectsManager
+import com.intellij.ide.RecentProjectListActionProvider
 import com.intellij.ide.ReopenProjectAction
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
@@ -100,8 +98,8 @@ class CodeStreamCommand : JBProtocolCommand("codestream") {
 
     private fun findRecentProject(repoMapping: RepoMapping, filePath: String): Project? {
         logger.info("Checking recent projects")
-        val manager = RecentProjectsManager.getInstance()
-        val actions = manager.getRecentProjectsActions(false, false)
+        val manager = RecentProjectListActionProvider.getInstance()
+        val actions = manager.getActions(false, false)
         val recentPaths = actions.filterIsInstance<ReopenProjectAction>().map { it.projectPath }
         logger.info("Recent project paths: ${recentPaths.commaSeparated}")
 

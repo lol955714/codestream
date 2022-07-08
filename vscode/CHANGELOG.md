@@ -1,5 +1,20 @@
 # Change Log
 
+## [13.2.0] - 2022-7-6
+
+### Changed
+
+- When creating a feedback request you can now select any range of commits, and are no longer resitricted to selecting from the top down
+- Improved performance when clicking on pull request comments in the tree view of the Pull Requests section
+- Add list of relevant remotes to warning message when working with a pull request and CodeStream doesn't perceive you as having the repo open
+- When connecting to GitHub from within CodeStream (i.e., not during signup) you now have the option to connect with personal access token or leverage VS Code's connection
+- Updated guidance for code-level metrics to make sure Python users have an appropriate extension installed, and that Ruby users have an appropriate extension installed and the language server enabled
+
+### Fixed
+
+- Fixes an issue that was preventing base URLs with github.com when connecting to GitHub Enterprise
+- Fixes an issue with path matching that was causing CodeStream to use an inordinate amount of CPU
+
 ## [13.1.1] - 2022-6-9
 
 ### Fixed

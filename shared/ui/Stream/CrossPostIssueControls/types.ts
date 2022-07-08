@@ -127,7 +127,7 @@ export const PROVIDER_MAPPINGS: { [provider: string]: ProviderDisplay } = {
 			"https://docs.newrelic.com/docs/codestream/how-use-codestream/pull-requests#github",
 		supportsStartWork: true,
 		supportsPRManagement: true,
-		invalidHosts: ["github.com"],
+		//invalidHosts: ["github.com"],
 		directPAT: {
 			path: "settings/tokens/new",
 			descriptionParam: "description",

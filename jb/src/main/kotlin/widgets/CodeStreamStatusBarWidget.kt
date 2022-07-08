@@ -2,8 +2,6 @@ package com.codestream.widgets
 
 import com.codestream.codeStream
 import com.codestream.sessionService
-import com.codestream.settings.ApplicationSettingsService
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
@@ -12,8 +10,6 @@ import java.awt.Component
 import java.awt.event.MouseEvent
 
 class CodeStreamStatusBarWidget(val project: Project) : StatusBarWidget, StatusBarWidget.TextPresentation {
-
-    private val appSettings = ServiceManager.getService(ApplicationSettingsService::class.java)
     var myStatusBar: StatusBar? = null
 
     init {
@@ -30,18 +26,18 @@ class CodeStreamStatusBarWidget(val project: Project) : StatusBarWidget, StatusB
 
     override fun ID() = "CodeStream.StatusBar"
 
-    override fun getPresentation(type: StatusBarWidget.PlatformType) = this
+    override fun getPresentation() = this
 
     override fun install(statusBar: StatusBar) {
         myStatusBar = statusBar
         refresh()
     }
 
-    override fun dispose() = Unit
+    override fun dispose() {
+        myStatusBar?.dispose()
+    }
 
     override fun getTooltipText() = "Click to open CodeStream"
-
-    override fun getMaxPossibleText() = tooltipText
 
     override fun getClickConsumer() = Consumer<MouseEvent> {
         project.codeStream?.toggleVisible()

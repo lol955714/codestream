@@ -7,7 +7,7 @@ plugins {
 }
 
 group "com.codestream"
-version "13.1.2"
+version "13.2.1"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -33,7 +33,9 @@ dependencies {
     implementation "com.github.salomonbrys.kotson:kotson:2.5.0"
 
     implementation "commons-io:commons-io:2.7"
-    implementation "org.reflections:reflections:0.9.12"
+    implementation("org.reflections:reflections:0.10.2") {
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
 
     testImplementation "io.mockk:mockk:1.12.4"
     testImplementation "io.kotest:kotest-assertions-core:5.3.1"
@@ -82,7 +84,8 @@ intellij {
 
     // sandboxDir = "$System.env.HOME/ide-sandbox" // It is sometimes useful to not have IDE config inside source control
 
-    plugins = ['java', 'git4idea', 'org.jetbrains.plugins.go:212.5080.55', 'Pythonid:212.5080.64', 'org.jetbrains.plugins.ruby:212.5080.8']
+     plugins = ['java', 'git4idea', 'org.jetbrains.plugins.go:212.5080.55', 'Pythonid:212.5080.64', 'org.jetbrains.plugins.ruby:212.5080.8']
+     // plugins = ['java', 'git4idea', 'org.jetbrains.plugins.go:213.6461.48', 'Pythonid:213.7172.26', 'org.jetbrains.plugins.ruby:213.7172.6']
 }
 
 runIde {
@@ -181,6 +184,7 @@ copyDebugAgent.dependsOn buildDebugDeps
 
 task buildDebugDependencies {}
 buildDebugDependencies.dependsOn buildDebugDeps, copyDebugAgent, copyProtobuf
+
 
 
 

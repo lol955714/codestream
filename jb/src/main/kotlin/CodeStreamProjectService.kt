@@ -1,7 +1,5 @@
 package com.codestream
 
-// foo bar
-
 import com.codestream.agent.ModuleListenerImpl
 import com.codestream.editor.EditorFactoryListenerImpl
 import com.codestream.editor.FileEditorManagerListenerImpl
@@ -30,7 +28,7 @@ import com.intellij.openapi.wm.ex.ToolWindowManagerListener
 import com.intellij.util.ui.UIUtil
 import org.apache.commons.io.FileUtils
 import org.reflections.Reflections
-import org.reflections.scanners.ResourcesScanner
+import org.reflections.scanners.Scanners
 import java.awt.KeyboardFocusManager
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
@@ -40,9 +38,9 @@ import kotlin.properties.Delegates
 
 const val CODESTREAM_TOOL_WINDOW_ID = "CodeStream"
 
-class CodeStreamComponent(val project: Project) : Disposable {
+class CodeStreamProjectService(val project: Project) : Disposable {
 
-    private val logger = Logger.getInstance(CodeStreamComponent::class.java)
+    private val logger = Logger.getInstance(CodeStreamProjectService::class.java)
     private val toolWindow: ToolWindow?
         get() = ToolWindowManagerWorkaround.getInstance(project)?.getToolWindow(CODESTREAM_TOOL_WINDOW_ID)
 
@@ -78,8 +76,8 @@ class CodeStreamComponent(val project: Project) : Disposable {
             if (!protobufDir.exists()) {
                 Files.createDirectories(protobufDir.toPath())
             }
-            val reflections = Reflections("protobuf", ResourcesScanner())
-            val resourceList = reflections.getResources { true }
+            val reflections = Reflections("protobuf", Scanners.Resources)
+            val resourceList = reflections.getResources(".*")
             val csDir = userHomeDir.resolve(".codestream")
             resourceList.forEach {
                 val dest = csDir.resolve(it)

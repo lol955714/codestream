@@ -196,6 +196,9 @@ abstract class CLMEditorManager(
 
     private fun updateInlaysCore() {
         val (result, project, path, editor) = displayDeps() ?: return
+        if (project.isDisposed) {
+            return
+        }
         val presentationFactory = PresentationFactory(editor)
         val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) ?: return
         val since = result.sinceDateFormatted ?: "30 minutes ago"

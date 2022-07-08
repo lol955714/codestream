@@ -14,7 +14,6 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.ui.jcef.JBCefApp
@@ -188,12 +187,13 @@ class WebViewService(val project: Project) : Disposable {
     }
 
     private suspend fun createWebView(router: WebViewRouter): WebView {
-        val appSettings = ServiceManager.getService(ApplicationSettingsService::class.java)
+        val application = ApplicationManager.getApplication()
+        val appSettings = application.getService(ApplicationSettingsService::class.java)
         return try {
             if (!ENV_DISABLE_JCEF && appSettings.jcef && JBCefApp.isSupported()) {
                 logger.info("JCEF enabled")
                 val jbCefBrowserFuture = CompletableFuture<JBCefBrowser>()
-                ApplicationManager.getApplication().invokeLater {
+                application.invokeLater {
                     val jbCefBrowser = JBCefBrowser()
                     jbCefBrowserFuture.complete(jbCefBrowser)
                 }
@@ -202,7 +202,7 @@ class WebViewService(val project: Project) : Disposable {
                 }
             } else {
                 logger.info("JCEF disabled - falling back to JxBrowser")
-                val engine = ServiceManager.getService(JxBrowserEngineService::class.java)
+                val engine = application.getService(JxBrowserEngineService::class.java)
                 val browser = engine.newBrowser()
 
                 JxBrowserWebView(browser, router).also {
@@ -215,7 +215,7 @@ class WebViewService(val project: Project) : Disposable {
             }
         } catch (ex: Exception) {
             logger.warn("Error initializing JCEF - falling back to JxBrowser", ex)
-            val engine = ServiceManager.getService(JxBrowserEngineService::class.java)
+            val engine = application.getService(JxBrowserEngineService::class.java)
             JxBrowserWebView(engine.newBrowser(), router).also {
                 webviewTelemetry("JxBrowser - JCEF failed")
             }
