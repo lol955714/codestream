@@ -1,14 +1,16 @@
 Set-StrictMode -Version Latest
 
 New-Module -ScriptBlock {
-    $gitHubDirectory = Join-Path $rootDirectory src\CodeStream.VisualStudio
-
-    function Get-VsixManifestPath {
-        Join-Path $gitHubDirectory source.extension.vsixmanifest
+    function Get-VsixManifestPath(
+		[ValidateSet("x86", "x64")]
+		[String]
+		$target) 
+	{
+        Join-Path $rootDirectory src "CodeStream.VisualStudio.Vsix.$target" source.extension.vsixmanifest
     }
 
-    function Get-VsixManifestXml {
-        $xmlLines = Get-Content (Get-VsixManifestPath)
+    function Get-VsixManifestXml([String]$target) {
+        $xmlLines = Get-Content (Get-VsixManifestPath $target)
         # If we don't explicitly join the lines with CRLF, comments in the XML will
         # end up with LF line-endings, which will make Git spew a warning when we
         # try to commit the version bump.
@@ -17,18 +19,18 @@ New-Module -ScriptBlock {
         [xml] $xmlText
     }
 
-    function Read-CurrentVersionVsix {
-        [System.Version] (Get-VsixManifestXml).PackageManifest.Metadata.Identity.Version
+    function Read-CurrentVersionVsix([String]$target) {
+        [System.Version] (Get-VsixManifestXml $target).PackageManifest.Metadata.Identity.Version
     }
 
-    function Write-VersionVsixManifest([System.Version]$version) {
+    function Write-VersionVsixManifest([System.Version]$version, [String]$target) {
 
-        $document = Get-VsixManifestXml
+        $document = Get-VsixManifestXml $target
 
         $numberOfReplacements = 0
         $document.PackageManifest.Metadata.Identity.Version = "$($version.Major).$($version.Minor).$(($version.Build, 0 -ne $null)[0]).$(($version.Revision, 0 -ne $null)[0])"
 
-        $document.Save((Get-VsixManifestPath))
+        $document.Save((Get-VsixManifestPath $target))
     }
 
     Export-ModuleMember -Function Read-CurrentVersionVsix,Write-VersionVsixManifest
