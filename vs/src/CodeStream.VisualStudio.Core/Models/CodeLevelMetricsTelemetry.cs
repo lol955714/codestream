@@ -9,18 +9,18 @@ namespace CodeStream.VisualStudio.Core.Models {
 		public IList<ThroughputResponse> Throughput { get; }
 		[JsonProperty("errorRate", NullValueHandling = NullValueHandling.Ignore)]
 		public IList<ErrorRateResponse> ErrorRate { get; }
-		[JsonProperty("sinceDateFormatted", NullValueHandling = NullValueHandling.Ignore)]
-		public string SinceDateFormatted { get; }
 		[JsonProperty("repo", NullValueHandling = NullValueHandling.Ignore)]
 		public RepoInfo Repo { get; }
-		[JsonProperty("newRelicEntityGuid", NullValueHandling = NullValueHandling.Ignore)]
-		public string NewRelicEntityGuid { get; }
+		[JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
+		public CodeLevelMetricsProperties Properties { get; }
+		
 
 		public CodeLevelMetricsTelemetry() {
 			AverageDuration = new List<AverageDurationResponse>();
 			Throughput = new List<ThroughputResponse>();
 			ErrorRate = new List<ErrorRateResponse>();
 			Repo = new RepoInfo();
+			Properties = new CodeLevelMetricsProperties();
 		}
 
 		public CodeLevelMetricsTelemetry(
@@ -33,9 +33,11 @@ namespace CodeStream.VisualStudio.Core.Models {
 			AverageDuration = averageDuration;
 			Throughput = throughput;
 			ErrorRate = errorRate;
-			SinceDateFormatted = sinceDateFormatted;
 			Repo = repo;
-			NewRelicEntityGuid = newRelicEntityGuid;
+			Properties = new CodeLevelMetricsProperties {
+				NewRelicEntityGuid = newRelicEntityGuid,
+				SinceDateFormatted = sinceDateFormatted
+			};
 		}
 	}
 }

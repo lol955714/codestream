@@ -88,7 +88,7 @@ namespace CodeStream.VisualStudio.CodeLens {
 					Regex.Escape(Constants.CodeLevelMetrics.Tokens.Throughput), throughput is null ? "n/a" : $"{throughput.ToFixed(3)}rpm", RegexOptions.IgnoreCase);
 				formatted = Regex.Replace(formatted, Regex.Escape(Constants.CodeLevelMetrics.Tokens.AverageDuration), avgDuration is null ? "n/a" : $"{avgDuration.ToFixed(3)}ms", RegexOptions.IgnoreCase);
 				formatted = Regex.Replace(formatted, Regex.Escape(Constants.CodeLevelMetrics.Tokens.ErrorsPerMinute), errors is null ? "n/a" : $"{errors.ToFixed(3)}epm", RegexOptions.IgnoreCase);
-				formatted = Regex.Replace(formatted, Regex.Escape(Constants.CodeLevelMetrics.Tokens.Since), _metrics.SinceDateFormatted, RegexOptions.IgnoreCase);
+				formatted = Regex.Replace(formatted, Regex.Escape(Constants.CodeLevelMetrics.Tokens.Since), _metrics.Properties.SinceDateFormatted, RegexOptions.IgnoreCase);
 
 				return new CodeLensDataPointDescriptor {
 					Description = formatted,
@@ -136,14 +136,14 @@ namespace CodeStream.VisualStudio.CodeLens {
 				new Tuple<int, string, string>(throughputPosition, "Throughput", throughput is null ? "n/a" : $"{throughput.RequestsPerMinute.ToFixed(3)}rpm"),
 				new Tuple<int, string, string>(averageDurationPosition, "Avg. Duration", avgDuration is null ? "n/a" : $"{avgDuration.AverageDuration.ToFixed(3)}ms"),
 				new Tuple<int, string, string>(errorRatePosition, "Errors per Minute", errors is null ? "n/a" : $"{errors.ErrorsPerMinute.ToFixed(3)}epm"),
-				new Tuple<int, string, string>(sincePosition, "Since", _metrics.SinceDateFormatted)
+				new Tuple<int, string, string>(sincePosition, "Since", _metrics.Properties.SinceDateFormatted)
 			};
 
 			var descriptor = new CodeLensDetailsDescriptor();
 			var data = new CodeLevelMetricsData {
 				Repo = _metrics.Repo,
 				FunctionName = functionName,
-				NewRelicEntityGuid = _metrics.NewRelicEntityGuid,
+				NewRelicEntityGuid = _metrics.Properties.NewRelicEntityGuid,
 				MetricTimeSliceNameMapping = new MetricTimesliceNameMapping {
 					D = avgDuration?.MetricTimesliceName ?? "",
 					T = throughput?.MetricTimesliceName ?? "",
