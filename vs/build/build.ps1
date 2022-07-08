@@ -18,9 +18,9 @@ Param(
 	[System.String] $Verbosity = "quiet",
 
 	[Parameter(Mandatory = $false)]
-	[ValidateSet("16.0")]
+	[ValidateSet(17.0)]
 	[Alias("t")]
-	[double] $VSVersion = 16.0,
+	[double] $VSVersion = 17.0,
 
 	# TODO: Get this to work -- i.e. auto install into a vs experiemental instance
 	# [Parameter(Mandatory = $false)]
@@ -109,16 +109,10 @@ function Build-AgentAndWebview {
 function Build-Extension {
 	$timer = Start-Timer
 
-	# https://stackoverflow.com/questions/42874400/how-to-build-a-visual-studio-2017-vsix-using-msbuild
-	$msbuild = ""
-	$vstest = ""
-	if ($VSVersion -eq 16.0) {
-		$msbuild = "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
-	}
-	$vstest = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
-	if (!(Test-Path -Path $vstest)) {
-		$vstest = "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
-	}
+	# validation only allows 17.0 and is defaulted to 17.0, so it can't be anything else anyway
+	$msbuild = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
+	$vstest = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
+	
 
 	$OutputDir = $(Join-Path $root "build/artifacts/$($platform)/$($Mode)")
 	Try-Create-Directory($OutputDir)
