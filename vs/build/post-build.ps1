@@ -4,7 +4,7 @@ Write-Host '**** The script is running in directory' (Get-Location)
 
 $codestreamVsDir = $checkoutDir + '\vs'
 $buildDir = $checkoutDir + '\vs\build'
-$assetDir = $buildDir + '\artifacts\x86\Release'
+$assetDir = $buildDir + '\artifacts\Release'
 
 Write-Host '**** changing to buildDir' $buildDir
 cd $buildDir
@@ -36,7 +36,9 @@ $infoFileName = $assetDir + '\' + $assetsBaseName + '.info'
 Write-Host '********** Creating ' $infoFileName
 $assetInfo | ConvertTo-Json | Out-File $infoFileName
 
-$newAssetName = $assetsBaseName + '.vsix'
-Write-Host '********** Renaming vsix to ' $newAssetName
+$x86AssetName = $assetsBaseName + '-x86.vsix'
+$x64AssetName = $assetsBaseName + '-x64.vsix'
+Write-Host '********** Renaming vsix to ' $x86AssetName ' & ' $x64AssetName
 cd $assetDir
-mv codestream-vs.vsix $newAssetName
+mv codestream-vs.vsix $x86AssetName
+mv codestream-vs-22.vsix $x64AssetName

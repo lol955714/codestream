@@ -96,7 +96,7 @@ function Build-AgentAndWebview {
 		throw "Creating packaged artifacts failed, ensure the agent has been built"
 	}
 
-	Copy-Item -Path ..\shared\agent\dist\agent.exe -Destination src\CodeStream.VisualStudio\dist\agent.exe -Force
+	Copy-Item -Path ..\shared\agent\dist\agent.exe -Destination src\resources\dist\agent.exe -Force
 	if ($LastExitCode -ne 0) {
 		throw "Copying packaged artifacts failed"
 	}
@@ -113,38 +113,42 @@ function Build-Extension {
 	$msbuild = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
 	$vstest = "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
 
-	$OutputDir = $(Join-Path $root "build/artifacts/$($platform)/$($Mode)")
+	$OutputDir = $(Join-Path $root "build/artifacts/$($Mode)")
 	Try-Create-Directory($OutputDir)
 
 	Write-Log "Cleaning $($OutputDir)..."
 	Remove-Item $("$($OutputDir)/*") -Recurse -Force
 
 	Write-Log "Restoring packages..."
-	& ./build/nuget.exe restore src/CodeStream.VisualStudio.sln
+	& $msbuild src/CodeStream.VisualStudio.sln /t:Restore
 
-	Write-Log "Running MSBuild..."
-	& $msbuild src/CodeStream.VisualStudio.sln /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=$platform /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+	Write-Log "Running MSBuild (x86)..."
+	& $msbuild src/CodeStream.VisualStudio.Vsix.x86/CodeStream.VisualStudio.Vsix.x86.csproj /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x86 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+
+	Write-Log "Running MSBuild (x64)..."
+	& $msbuild src/CodeStream.VisualStudio.Vsix.x64/CodeStream.VisualStudio.Vsix.x64.csproj /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x64 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
 
 	if ($LastExitCode -ne 0) {
 		throw "MSBuild failed"
 	}
 
-	if (!$Quick) {
-		Write-Log "Running UnitTests..."
-		if (!(Test-Path -Path $vstest)) {
-			throw "UnitTest executable not found $($vstest)"
-		}
-		& $vstest "$($OutputDir)/CodeStream.VisualStudio.UnitTests.dll" /Platform:$platform
-
-		if ($LastExitCode -ne 0) {
-			throw "UnitTests failed"
-		}
-
-		Write-Log "UnitTests completed"
-	}
-	else {
-		Write-Log "UnitTests skipped"
-	}
+	# TODO - how should tests be run when targeting two different VS versions?
+	#if (!$Quick) {
+	#	Write-Log "Running UnitTests..."
+	#	if (!(Test-Path -Path $vstest)) {
+	#		throw "UnitTest executable not found $($vstest)"
+	#	}
+	#	& $vstest "$($OutputDir)/CodeStream.VisualStudio.UnitTests.dll" /Platform:$platform
+	#
+	#	if ($LastExitCode -ne 0) {
+	#		throw "UnitTests failed"
+	#	}
+	#
+	#	Write-Log "UnitTests completed"
+	#}
+	#else {
+	#	Write-Log "UnitTests skipped"
+	#}
 
 	Write-Log "Build-Extension completed in {$(Get-ElapsedTime($timer))}"
 	Write-Log "Artifacts: $($OutputDir) at $(Get-Date)"    
@@ -153,7 +157,6 @@ function Build-Extension {
 Print-Help
 
 $target = "Rebuild"
-$platform = "x86"
 
 if ($CI) {
 	$Quick = $false
