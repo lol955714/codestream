@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32602.291
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5BFDF0EC-9F77-4ED8-A7C9-BDED85BD3239}"
 EndProject
@@ -12,8 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		..\docs\dev.md = ..\docs\dev.md
 		..\package.json = ..\package.json
-		..\publishManifest.json = ..\publishManifest.json
-		..\README.md = ..\README.md
 		..\webpack.config.js = ..\webpack.config.js
 	EndProjectSection
 EndProject
@@ -26,11 +24,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeStream.VisualStudio.Vsix.x64", "CodeStream.VisualStudio.Vsix.x64\CodeStream.VisualStudio.Vsix.x64.csproj", "{A97D7813-7B1A-4369-98A3-80F5721C1831}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{85c56160-88ea-4bbf-acfd-62045e76adcd}*SharedItemsImports = 13
-		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{a97d7813-7b1a-4369-98a3-80f5721c1831}*SharedItemsImports = 4
-		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{eb360d87-8769-44a4-b837-8bc3279070c9}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -73,5 +66,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA2F01D3-69DD-4FEE-B239-775F5C1DFA2F}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{85c56160-88ea-4bbf-acfd-62045e76adcd}*SharedItemsImports = 13
+		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{a97d7813-7b1a-4369-98a3-80f5721c1831}*SharedItemsImports = 4
+		CodeStream.VisualStudio.Shared\CodeStream.VisualStudio.Shared.projitems*{eb360d87-8769-44a4-b837-8bc3279070c9}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

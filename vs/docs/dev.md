@@ -9,7 +9,7 @@ git clone https://github.com/TeamCodeStream/codestream.git
 Prerequisites
 
 - Windows 10
-- [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+- [Visual Studio 2019 or 2022](https://visualstudio.microsoft.com/downloads/)
    - Various workloads including:
       - Visual Studio extension development
       - .NET Framework 4.8
