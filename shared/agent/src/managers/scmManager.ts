@@ -1462,7 +1462,7 @@ export class ScmManager {
 		const date = toFormatter(entry.date).fromNow();
 		const summary = entry.summary;
 
-		return `${author}, ${date} - ${summary}`;
+		return `${author}, ${date} · ${summary}`;
 	}
 
 	@lspHandler(CommitAndPushRequestType)
