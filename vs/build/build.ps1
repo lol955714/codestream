@@ -123,10 +123,10 @@ function Build-Extension {
 	& $msbuild src/CodeStream.VisualStudio.sln /t:Restore
 
 	Write-Log "Running MSBuild (x86)..."
-	& $msbuild src/CodeStream.VisualStudio.sln /t:CodeStream.VisualStudio.Vsix.x86 /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x86 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+	& $msbuild src/CodeStream.VisualStudio.sln /t:"CodeStream.VisualStudio.Vsix.x86" /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x86 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
 
 	Write-Log "Running MSBuild (x64)..."
-	& $msbuild src/CodeStream.VisualStudio.sln /t:CodeStream.VisualStudio.Vsix.x64 /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x64 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+	& $msbuild src/CodeStream.VisualStudio.sln /t:"CodeStream.VisualStudio.Vsix.x64" /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x64 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
 
 	if ($LastExitCode -ne 0) {
 		throw "MSBuild failed"
