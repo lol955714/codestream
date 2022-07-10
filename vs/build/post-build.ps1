@@ -15,7 +15,7 @@ Import-Module -Name $buildDir\Modules\Vsix.ps1
 Import-Module -Name $buildDir\Modules\Versioning.ps1
 
 
-$codeVer = Read-Version
+$codeVer = Read-Version "x64"
 Write-Host '***** codeVer: ' $codeVer
 #$assetVer = $codeVer.ToString() + '+' + $buildNumber
 $assetVer = $codeVer.ToString()
