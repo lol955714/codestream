@@ -92,7 +92,7 @@ if (!$?) {
 }
 
 if ($NewVersion -eq $null) {
-    $currentVersion = Read-Version
+    $currentVersion = Read-Version "x86"
     $NewVersion = Generate-Version $currentVersion $BumpMajor $BumpMinor $BumpPatch $BumpBuild $BuildNumber       
 }
 
