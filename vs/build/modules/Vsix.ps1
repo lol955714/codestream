@@ -6,7 +6,7 @@ New-Module -ScriptBlock {
 		[string]
 		$architecture) 
 	{
-        Join-Path $rootDirectory "src/CodeStream.VisualStudio.Vsix.$architecture" source.extension.vsixmanifest
+        Join-Path $rootDirectory "src/CodeStream.VisualStudio.Vsix.$architecture/source.extension.vsixmanifest"
     }
 
     function Get-VsixManifestXml([string]$architecture) {
