@@ -42,8 +42,9 @@ New-Module -ScriptBlock {
        Read-CurrentVersionVsix $architecture
     }
 
-    function Write-Version([System.Version]$version, [string] $environment, [string] $architecture) {
-        Write-VersionVsixManifest $version $architecture
+    function Write-Version([System.Version]$version, [string] $environment) {
+        Write-VersionVsixManifest $version "x86"
+		Write-VersionVsixManifest $version "x64"
         Write-SolutionInfo $version $environment
         Write-AssemblyInfo $version "CodeStream.VisualStudio.Vsix.x86"
 		Write-AssemblyInfo $version "CodeStream.VisualStudio.Vsix.x64"
