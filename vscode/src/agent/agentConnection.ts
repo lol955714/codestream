@@ -91,6 +91,8 @@ import {
 	FetchUsersRequestType,
 	FileLevelTelemetryRequestOptions,
 	FunctionLocator,
+	GetBlameRequestType,
+	GetBlameResponse,
 	GetDocumentFromKeyBindingRequestType,
 	GetDocumentFromKeyBindingResponse,
 	GetDocumentFromMarkerRequestType,
@@ -695,6 +697,14 @@ export class CodeStreamAgentConnection implements Disposable {
 				repoId: repoId,
 				path: path,
 				sha: sha
+			});
+		}
+
+		getBlame(uri: string, startLine: number, endLine: number): Promise<GetBlameResponse> {
+			return this._connection.sendRequest(GetBlameRequestType, {
+				uri: uri,
+				startLine: startLine,
+				endLine: endLine
 			});
 		}
 	})(this);
