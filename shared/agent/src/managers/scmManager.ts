@@ -94,6 +94,7 @@ import { xfs } from "../xfs";
 import { IgnoreFilesHelper } from "./ignoreFilesManager";
 import { ReviewsManager } from "./reviewsManager";
 import toFormatter = Dates.toFormatter;
+import toGravatar = Strings.toGravatar;
 
 @lsp
 export class ScmManager {
@@ -1435,23 +1436,38 @@ export class ScmManager {
 			request.startLine,
 			request.endLine
 		);
-		const blame = shas
-			.map(sha => revisionEntries.find(entry => entry.sha === sha))
-			.map(entry => this._formatRevisionEntry(entry));
 
-		const commitInfo = new Map<string, GetBlameCommitInfo>();
-
+		const commitInfos = new Map<string, GetBlameCommitInfo>();
 		for (const revisionEntry of revisionEntries) {
-			commitInfo.set(revisionEntry.sha, {
+			commitInfos.set(revisionEntry.sha, {
+				sha: revisionEntry.sha,
+				formattedBlame: this._formatRevisionEntry(revisionEntry),
 				authorEmail: revisionEntry.authorEmail,
+				gravatarUrl: toGravatar(revisionEntry.authorEmail, 16),
+				summary: revisionEntry.summary,
 				frs: [],
 				prs: []
 			});
 		}
 
+		const uncommittedInfo: GetBlameCommitInfo = {
+			sha: "",
+			formattedBlame: "You · Uncommitted changes",
+			authorEmail: "",
+			gravatarUrl: "",
+			frs: [],
+			prs: [],
+			summary: "Uncommitted changes"
+		};
+		const blame = shas
+			.map(sha => commitInfos.get(sha))
+			.map(commitInfo => ({
+				...(commitInfo || uncommittedInfo),
+				diff: "- something\n+ something else"
+			}));
+
 		return {
-			blame,
-			commitInfo
+			blame
 		};
 	}
 

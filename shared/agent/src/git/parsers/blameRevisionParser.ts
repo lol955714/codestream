@@ -1,6 +1,6 @@
 "use strict";
 import { Strings } from "../../system";
-import { isUncommitted } from "../common";
+import { isUncommitted, removeAngleBracketsFromEmail } from "../common";
 
 export interface RevisionEntry {
 	sha: string;
@@ -56,7 +56,7 @@ export class GitBlameRevisionParser {
 
 				case "author-mail":
 					if (!isUncommitted(sha!)) {
-						authorEmail = line.substring(index).trim();
+						authorEmail = removeAngleBracketsFromEmail(line.substring(index).trim());
 					}
 					break;
 

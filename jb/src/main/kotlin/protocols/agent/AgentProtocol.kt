@@ -719,7 +719,17 @@ class GetBlameParams(
 )
 
 class GetBlameResult(
-    val blame: List<String>
+    val blame: List<GetBlameResultLineInfo>
+)
+
+class GetBlameResultLineInfo(
+    val sha: String,
+    val formattedBlame: String,
+    val authorEmail: String,
+    val gravatarUrl: String,
+    val prs: List<JsonElement>,
+    val frs: List<JsonElement>,
+    val summary: String
 )
 
 class ReportMessageParams(

@@ -3,6 +3,7 @@ package com.codestream.editor
 import com.codestream.agentService
 import com.codestream.extensions.uri
 import com.codestream.protocols.agent.GetBlameParams
+import com.codestream.protocols.agent.GetBlameResultLineInfo
 import com.intellij.codeInsight.hints.presentation.InlayTextMetricsStorage
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.codeInsight.hints.presentation.PresentationRenderer
@@ -36,7 +37,7 @@ class LineLevelBlameService(val project: Project) : SelectionListener {
         val agent = project.agentService ?: return
         val presentationFactory = PresentationFactory(editor)
         val textMetricsStorage = InlayTextMetricsStorage(editor)
-        val lineBlames = mutableMapOf<Int, String>()
+        val lineBlames = mutableMapOf<Int, GetBlameResultLineInfo>()
         var isLoadingBlame: CompletableFuture<Unit>? = null
         var inlay: Disposable? = null
         var lastLine: Int = -1
@@ -50,7 +51,7 @@ class LineLevelBlameService(val project: Project) : SelectionListener {
             }
         }
 
-        suspend fun getBlame(line: Int): String? {
+        suspend fun getBlame(line: Int): GetBlameResultLineInfo? {
             isLoadingBlame?.await()
             if (!lineBlames.containsKey(line)) {
                 isLoadingBlame = CompletableFuture<Unit>()
@@ -68,13 +69,13 @@ class LineLevelBlameService(val project: Project) : SelectionListener {
                     lineStart = lineStart.coerceAtLeast(0)
                     lineEnd = lineEnd.coerceAtMost(editor.document.lineCount - 1)
 
-                    val blame = agent.getBlame(GetBlameParams(
+                    val blameResult = agent.getBlame(GetBlameParams(
                         uri,
                         lineStart,
                         lineEnd
-                    )).blame
-                    blame.forEachIndexed { index, s ->
-                        lineBlames[index + lineStart] = s
+                    ))
+                    blameResult.blame.forEachIndexed { index, lineBlame ->
+                        lineBlames[index + lineStart] = lineBlame
                     }
                 } catch (ex: Exception) {
                     logger.warn(ex)
@@ -92,9 +93,13 @@ class LineLevelBlameService(val project: Project) : SelectionListener {
                     lastLine = e.newPosition.line
                     GlobalScope.launch {
                         val blame = getBlame(lastLine) ?: return@launch
-                        val textPresentation = presentationFactory.smallText(blame)
+                        val textPresentation = presentationFactory.smallText(blame.formattedBlame)
                         val insetPresentation = presentationFactory.inset(textPresentation, 0, 0, textMetricsStorage.getFontMetrics(true).offsetFromTop(), 0)
-                        val renderer = PresentationRenderer(insetPresentation)
+
+                       val html = "<img src='${blame.gravatarUrl}'/> ${blame.summary}"
+
+                        val withTooltipPresentation = presentationFactory.withTooltip(html, insetPresentation)
+                        val renderer = PresentationRenderer(withTooltipPresentation)
                         setInlay(e.newPosition.line, renderer)
                     }
                 }
