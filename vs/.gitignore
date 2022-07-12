@@ -342,4 +342,5 @@ ASALocalRun/
 **/teamdev.licenses
 src/protocols/
 stats.json
-src/resources/dist/
+src/**/agent/
+src/resources/webview/

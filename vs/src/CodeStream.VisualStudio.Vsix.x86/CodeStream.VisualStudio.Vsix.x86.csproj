@@ -251,6 +251,39 @@
     <Content Include="..\resources\assets\light\review.svg">
       <Link>resources\assets\light\review.svg</Link>
     </Content>
+    <Content Include="..\resources\webview\newrelic-browser.js">
+      <Link>webview\newrelic-browser.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\resources\webview\webview-data.js">
+      <Link>webview\webview-data.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\resources\webview\webview.css">
+      <Link>webview\webview.css</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\resources\webview\webview.html">
+      <Link>webview\webview.html</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\resources\webview\webview.js">
+      <Link>webview\webview.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="agent\agent.exe" Condition="'$(Configuration)' == 'Release'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="agent\agent.js" Condition="'$(Configuration)' == 'Debug'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Resource Include="..\resources\assets\marker-add-comment-aqua.png">
       <Link>resources\assets\marker-add-comment-aqua.png</Link>
     </Resource>
@@ -460,41 +493,6 @@
     <Content Include="..\resources\CommandsSprites.png">
       <Link>resources\CommandsSprites.png</Link>
     </Content>
-    <Content Include="..\resources\dist\agent.exe" Condition="'$(Configuration)'=='Release'">
-      <Link>dist\agent.exe</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\agent.js" Condition="'$(Configuration)'=='Debug'">
-      <Link>dist\agent.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\webview\newrelic-browser.js">
-      <Link>dist\webview\newrelic-browser.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\webview\webview-data.js">
-      <Link>dist\webview\webview-data.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\webview\webview.css">
-      <Link>dist\webview\webview.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\webview\webview.html">
-      <Link>dist\webview\webview.html</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="..\resources\dist\webview\webview.js">
-      <Link>dist\webview\webview.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="..\resources\Sprites.png">
       <Link>resources\Sprites.png</Link>
     </Content>
@@ -520,8 +518,7 @@
     <None Include="..\resources\CodeStream.VisualStudio.Settings.json">
       <Link>CodeStream.VisualStudio.Settings.json</Link>
     </None>
-    <Content Include="..\resources\dist\agent-pkg.js.map" Condition="'$(Configuration)'=='Debug'">
-      <Link>dist\agent-pkg.js.map</Link>
+    <Content Include="agent\agent.js.map" Condition="'$(Configuration)' == 'Debug'">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

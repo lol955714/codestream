@@ -652,7 +652,7 @@ namespace CodeStream.VisualStudio.Shared.Services {
 				//NR telemetry injection
 				var nrSettings = _httpClientService.GetNREnvironmentSettings();
 				if (nrSettings.HasValidSettings) {
-					var browserFile = Path.GetDirectoryName(assembly.Location) + @"/dist/webview/newrelic-browser.js";
+					var browserFile = Path.GetDirectoryName(assembly.Location) + @"/webview/newrelic-browser.js";
 					var newRelicTelemetryJs = System.IO.File.ReadAllText(browserFile);
 					newRelicTelemetryJs = newRelicTelemetryJs
 						.Replace("{{accountID}}", nrSettings.AccountId)

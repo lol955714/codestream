@@ -92,11 +92,13 @@ function Build-AgentAndWebview {
 		throw "Agent packaging failed"
 	}
 
-	if ((Test-Path -Path "../shared/agent/dist/agent.exe") -eq $False) {
+	if ((Test-Path -Path "../shared/agent/dist/agent-vs-2019.exe") -eq $False) {
 		throw "Creating packaged artifacts failed, ensure the agent has been built"
 	}
 
-	Copy-Item -Path ..\shared\agent\dist\agent.exe -Destination src\resources\dist\agent.exe -Force
+	Copy-Item -Path ..\shared\agent\dist\agent-vs-2019.exe -Destination src\CodeStream.VisualStudio.Vsix.x86\agent\agent.exe -Force
+	Copy-Item -Path ..\shared\agent\dist\agent-vs-2022.exe -Destination src\CodeStream.VisualStudio.Vsix.x64\agent\agent.exe -Force
+
 	if ($LastExitCode -ne 0) {
 		throw "Copying packaged artifacts failed"
 	}

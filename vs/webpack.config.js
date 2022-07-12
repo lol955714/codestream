@@ -132,7 +132,7 @@ module.exports = function(env, argv) {
 
 	const plugins = [
 		new CleanWebpackPlugin({
-			cleanOnceBeforeBuildPatterns: ["src/resources/dist/webview"],
+			cleanOnceBeforeBuildPatterns: ["src/resources/webview"],
 			verbose: true
 		}),
 		new webpack.DefinePlugin(
@@ -165,7 +165,7 @@ module.exports = function(env, argv) {
 			patterns: [
 				{ 
 					from: path.resolve(__dirname, "../shared/ui/newrelic-browser.js"), 
-					to: path.resolve(__dirname, "src/resources/dist/webview")
+					to: path.resolve(__dirname, "src/resources/webview")
 				}
 			]
 		}),
@@ -190,8 +190,8 @@ module.exports = function(env, argv) {
 		devtool: !env.production ? "eval-source-map" : undefined,
 		output: {
 			filename: "[name].js",
-			path: path.resolve(__dirname, "src/resources/dist/webview"),
-			publicPath: "file:///{root}/dist/webview/"
+			path: path.resolve(__dirname, "src/resources/webview"),
+			publicPath: "file:///{root}/webview/"
 		},
 		optimization: {
 			minimizer: [

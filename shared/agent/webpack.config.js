@@ -92,32 +92,24 @@ module.exports = function(env, argv) {
 					destination: "dist/"
 				},
 				{
+					// VSCode
 					source: "dist/agent.*",
-					// TODO: Use environment variable if exists
 					destination: path.resolve(__dirname, "../../vscode/dist/")
 				},
 				{
-					source: "dist/agent-pkg.js",
-					// TODO: Use environment variable if exists
-					destination: path.resolve(__dirname, "../../vs/src/resources/dist/agent.js")
+					// Visual Studio 2019
+					source: "dist/agent-vs-2019.js",
+					destination: path.resolve(__dirname, "../../vs/src/CodeStream.VisualStudio.Vsix.x86/agent/agent.js")
 				},
 				{
-					source: "dist/agent-pkg.js.map",
-					// TODO: Use environment variable if exists
-					destination: path.resolve(
-						__dirname,
-						"../../vs/src/resources/dist/agent-pkg.js.map"
-					)
+					// Visual Studio 2019
+					source: "dist/agent-vs-2019.js.map",
+					destination: path.resolve(__dirname, "../../vs/src/CodeStream.VisualStudio.Vsix.x86/agent/agent.js.map")
 				},
 				{
-					source: "dist/agent-pkg.js",
-					// TODO: Use environment variable if exists
-					destination: path.resolve(__dirname, "../../jb/src/main/resources/agent/agent-pkg.js")
-				},
-				{
-					source: "dist/agent-pkg.js.map",
-					// TODO: Use environment variable if exists
-					destination: path.resolve(__dirname, "../../jb/src/main/resources/agent/agent-pkg.js.map")
+					// Visual Studio 2022+
+					source: "dist/agent.*",
+					destination: path.resolve(__dirname, "../../vs/src/CodeStream.VisualStudio.Vsix.x64/agent/")
 				}
 			]
 		}
@@ -139,7 +131,7 @@ module.exports = function(env, argv) {
 	return {
 		entry: {
 			agent: "./src/main.ts",
-			"agent-pkg": "./src/main-vs.ts"
+			"agent-vs-2019": "./src/main-vs-2019.ts"
 		},
 		mode: env.production ? "production" : "development",
 		target: "node",
