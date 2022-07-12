@@ -16,6 +16,22 @@ import { Strings } from "../system";
 import { Logger } from "../logger";
 import { InstrumentableSymbol, ISymbolLocator } from "./symbolLocator";
 
+function allEmpty(arrays: (any[] | undefined)[]) {
+	for (const arr of arrays) {
+		if (!isEmpty(arr)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isEmpty(array: any[] | undefined) {
+	if (!array) {
+		return true;
+	}
+	return array.length === 0;
+}
+
 export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider {
 	private documentManager: any = {};
 	private resetCache: boolean = false;
@@ -57,32 +73,120 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		this._onDidChangeCodeLenses.fire();
 	}
 
-	private hasSupportedRubyExtension(): boolean {
-		return (
-			extensions.getExtension<Promise<any>>("castwide.solargraph")?.isActive ||
-			extensions.getExtension<Promise<any>>("rebornix.Ruby")?.isActive ||
-			false
+	private checkRubyPlugin(): vscode.CodeLens[] | undefined {
+		if (extensions.getExtension("rebornix.Ruby")?.isActive) {
+			const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("ruby"); // ruby.useLanguageServer
+			const useLanguageServer = config.get("useLanguageServer");
+			if (!useLanguageServer) {
+				return this.rubyPluginConfigCodelens();
+			} else {
+			}
+			return;
+		}
+
+		if (extensions.getExtension("castwide.solargraph")?.isActive) {
+			return;
+		} else {
+			return this.missingRubyExtensionCodelens();
+		}
+	}
+
+	private checkPythonPlugin(): vscode.CodeLens[] | undefined {
+		return extensions.getExtension("ms-python.vscode-pylance")?.isActive
+			? undefined
+			: this.missingPythonExtensionCodelens();
+	}
+
+	private checkCsharpPlugin(): vscode.CodeLens[] | undefined {
+		return extensions.getExtension("ms-dotnettools.csharp")?.isActive
+			? undefined
+			: this.missingCsharpExtensionCodelens();
+	}
+
+	private checkPlugin(languageId: string): vscode.CodeLens[] | undefined {
+		switch (languageId) {
+			case "ruby": {
+				return this.checkRubyPlugin();
+			}
+			case "python": {
+				return this.checkPythonPlugin();
+			}
+			case "csharp": {
+				return this.checkCsharpPlugin();
+			}
+		}
+		return undefined;
+	}
+
+	private rubyPluginConfigCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"RUBY_PLUGIN_NO_LANGUAGE_SERVER",
+			"ruby",
+			"Click to configure golden signals from New Relic",
+			"To see code-level metrics you'll need to configure the extension for VS Code...",
+			newRelicAccountId
+		);
+	}
+
+	private noSpanCodelens(languageId: string): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"NO_SPANS",
+			languageId,
+			"No golden signal metrics found for this file"
 		);
 	}
 
 	private missingRubyExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"NO_RUBY_VSCODE_EXTENSION",
+			"ruby",
+			"Click to configure golden signals from New Relic",
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
+			newRelicAccountId
+		);
+	}
+
+	private missingPythonExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"NO_PYTHON_VSCODE_EXTENSION",
+			"python",
+			"Click to configure golden signals from New Relic",
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
+			newRelicAccountId
+		);
+	}
+
+	private missingCsharpExtensionCodelens(newRelicAccountId?: number): vscode.CodeLens[] {
+		return this.errorCodelens(
+			"NO_CSHARP_VSCODE_EXTENSION",
+			"csharp",
+			"Click to configure golden signals from New Relic",
+			"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
+			newRelicAccountId
+		);
+	}
+
+	private errorCodelens(
+		errorCode: string,
+		languageId: string,
+		title: string,
+		tooltip?: string,
+		newRelicAccountId?: number
+	): vscode.CodeLens[] {
 		const viewCommandArgs: ViewMethodLevelTelemetryErrorCommandArgs = {
-			error: { type: "NO_RUBY_VSCODE_EXTENSION" },
+			error: { type: errorCode },
 			newRelicAccountId,
-			languageId: "ruby"
+			languageId
 		};
-		const missingRubyExtensionCodelens: vscode.CodeLens[] = [
+		const errorCodelens: vscode.CodeLens[] = [
 			new vscode.CodeLens(
 				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(1, 1)),
-				new InstrumentableSymbolCommand(
-					"Click to configure golden signals from New Relic",
-					"codestream.viewMethodLevelTelemetry",
-					"To see code-level metrics you'll need to install one of the following extensions for VS Code...",
-					[JSON.stringify(viewCommandArgs)]
-				)
+				new InstrumentableSymbolCommand(title, "codestream.viewMethodLevelTelemetry", tooltip, [
+					JSON.stringify(viewCommandArgs)
+				])
 			)
 		];
-		return missingRubyExtensionCodelens;
+		return errorCodelens;
 	}
 
 	public async provideCodeLenses(
@@ -92,8 +196,9 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 		let codeLenses: vscode.CodeLens[] = [];
 		let instrumentableSymbols: InstrumentableSymbol[] = [];
 
-		if (document.languageId === "ruby" && !this.hasSupportedRubyExtension()) {
-			return this.missingRubyExtensionCodelens();
+		const checkPluginResult = this.checkPlugin(document.languageId);
+		if (checkPluginResult) {
+			return checkPluginResult;
 		}
 
 		try {
@@ -147,7 +252,7 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 			if (document.languageId === "csharp") {
 				const thePackage = instrumentableSymbols.find(_ => _.parent?.kind === SymbolKind.Package);
 				if (thePackage) {
-					functionLocator = {namespace: thePackage?.parent?.name};
+					functionLocator = { namespace: thePackage?.parent?.name };
 				}
 			}
 
@@ -205,6 +310,16 @@ export class InstrumentationCodeLensProvider implements vscode.CodeLensProvider 
 			if (token.isCancellationRequested) {
 				Logger.log("provideCodeLenses isCancellationRequested2");
 				return [];
+			}
+
+			if (
+				allEmpty([
+					fileLevelTelemetryResponse.throughput,
+					fileLevelTelemetryResponse.averageDuration,
+					fileLevelTelemetryResponse.errorRate
+				])
+			) {
+				return this.noSpanCodelens(document.languageId);
 			}
 
 			const date = fileLevelTelemetryResponse.lastUpdateDate

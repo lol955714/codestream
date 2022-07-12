@@ -384,6 +384,7 @@ export interface CSRepository extends CSEntity {
 	name: string;
 	remotes: CSRemote[];
 	teamId: string;
+	repoFoundReason?: "remote" | "repoName" | "matchedOnProviderUrl" | "closestMatch";
 }
 
 export enum StreamType {

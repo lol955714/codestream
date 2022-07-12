@@ -8,11 +8,11 @@ New to VSCode/Codestream? Look for a novice debugging examples at the end of thi
 git clone https://github.com/TeamCodeStream/codestream.git
 ```
 
-Versions
+Prerequisites
 
-- [Git](https://git-scm.com/), 2.32.0
-- [NodeJS](https://nodejs.org/en/), 16.13.2
-- [npm](https://npmjs.com/), 8.1.2
+- [Git](https://git-scm.com/), >=2.32.0
+- [NodeJS](https://nodejs.org/en/), =16.13.2
+- [npm](https://npmjs.com/), >=8.13.1
 
 ### Before you begin...
 

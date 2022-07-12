@@ -3,6 +3,7 @@ package com.codestream.agent
 import com.codestream.AGENT_PATH
 import com.codestream.DEBUG
 import com.codestream.authenticationService
+import com.codestream.codeStream
 import com.codestream.extensions.baseUri
 import com.codestream.extensions.workspaceFolders
 import com.codestream.gson
@@ -136,8 +137,10 @@ class AgentService(private val project: Project) : Disposable {
     }
 
     init {
-        GlobalScope.launch {
-            initAgent()
+        if (System.getProperty("TEST_MODE") != "true") {
+            GlobalScope.launch {
+                initAgent()
+            }
         }
     }
 
@@ -150,6 +153,8 @@ class AgentService(private val project: Project) : Disposable {
     private suspend fun initAgent(newServerUrl: String? = null, autoSignIn: Boolean = true) {
         try {
             logger.info("Initializing CodeStream LSP agent")
+            // bootstrap CodeStreamProjectService
+            project.codeStream
             val process = createProcess()
             val client = CodeStreamLanguageClient(project)
             val launcher = LSPLauncher.Builder<CodeStreamLanguageServer>()

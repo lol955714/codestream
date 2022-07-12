@@ -6,11 +6,11 @@
 git clone https://github.com/TeamCodeStream/codestream.git
 ```
 
-Versions
+Prerequisites
 
-- [Git](https://git-scm.com/), 2.32.0
-- [NodeJS](https://nodejs.org/en/), 16.13.2
-- [npm](https://npmjs.com/), 8.1.2
+- [Git](https://git-scm.com/), >=2.32.0
+- [NodeJS](https://nodejs.org/en/), =16.13.2
+- [npm](https://npmjs.com/), >=8.13.1
 
 
 ### Before you begin...
@@ -21,7 +21,28 @@ The CodeStream clients all live in a single git mono-repo. Each IDE has their ow
 
 ## Build & Run
 
-- ensure you have your gradle/JVM set to a version 11 (temurin-11 for example)
+### JVM Setup
+
+On macos, due to a strange bug in [byte-buddy or JBR jvm](https://github.com/raphw/byte-buddy/issues/732), you need
+to copy the JBR jvm to a directory without spaces. If you do not, you will not be able to run tests.
+(symbolic link does no twork) For example:
+
+```shell
+cd ~
+mkdir jbr
+cp -r  /Applications/IntelliJ\ IDEA.app/Contents/jbr/Contents/Home/* jbr/
+export JAVA_HOME="$HOME/jbr"
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+The Jetbrains JVM is required to run tests and build the plugin. The project is preconfigured to use a
+JVM Runtime called jbr-11. You need to setup this JMV yourself by going to 
+`File -> Project Structure` and then click on `SDK` and in the dropdown choose `Add Sdk`. 
+Choose `Add JDK` and browse to `/Users/<your home dir>/jbr`
+(or where ever you have copied IntelliJ java runtime) and click OK. It should have defaulted to the name jbr-11. 
+
+After that:
+
 - run gradle task `buildDependencies` once (it will `run npm install`, etc for dependencies)
 - run gradle task `buildDebugDependencies`
 - ensure the `jb [runIde]` configuration is selected and run in debug mode (click the :bug: icon to start)

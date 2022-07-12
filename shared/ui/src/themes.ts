@@ -71,7 +71,17 @@ export interface CSTheme {
 }
 
 export function isDark(color: string): boolean {
-	return JSON.parse(readableColor(color, "false", "true"));
+	try {
+		const colorResult = readableColor(color, "false", "true", true);
+		return JSON.parse(colorResult);
+	} catch (x0) {
+		try {
+			// try again but without strict mode enabled
+			const colorResult = readableColor(color, "false", "true", false);
+			return JSON.parse(colorResult);
+		} catch (x1) {}
+		return false;
+	}
 }
 
 export function isDarkTheme(theme: CSTheme) {

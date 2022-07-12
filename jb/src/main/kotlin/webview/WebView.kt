@@ -1,10 +1,10 @@
 package com.codestream.webview
 
 import com.google.gson.JsonElement
-import java.awt.Component
+import javax.swing.JComponent
 
 interface WebView {
-    val component: Component
+    val component: JComponent?
     fun loadUrl(url: String)
     fun dispose()
     fun postMessage(message: JsonElement)

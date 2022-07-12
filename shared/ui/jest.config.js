@@ -31,5 +31,6 @@ module.exports = {
 		"<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
 	],
 	testResultsProcessor: "jest-teamcity-reporter",
+	transformIgnorePatterns: ["node_modules/(?!d3-color)"],
 	watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"]
 };

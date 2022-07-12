@@ -1,4 +1,4 @@
-<idea-plugin>
+<idea-plugin require-restart="true">
     <id>com.codestream.jetbrains-codestream</id>
     <name>New Relic CodeStream: GitHub, GitLab, PRs and Code Review</name>
     <vendor email="support@codestream.com" url="http://www.codestream.com">New Relic CodeStream</vendor>
@@ -8,19 +8,27 @@
     <change-notes>DO NOT EDIT: Generated from docs/change-notes.html</change-notes>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withGo.xml">org.jetbrains.plugins.go</depends>
-    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withPython.xml">com.intellij.modules.python</depends>
-    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withCSharp.xml">com.intellij.modules.rider</depends>
-    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withRuby.xml">org.jetbrains.plugins.ruby</depends>
+    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withGo.xml">org.jetbrains.plugins.go
+    </depends>
+    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withPython.xml">
+        com.intellij.modules.python
+    </depends>
+    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withCSharp.xml">
+        com.intellij.modules.rider
+    </depends>
+    <depends optional="true" config-file="com.codestream.jetbrains-codestream-withRuby.xml">org.jetbrains.plugins.ruby
+    </depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="CodeStream" icon="/images/codestream.svg" anchor="right" factoryClass="com.codestream.webview.CodeStreamToolWindowFactory"/>
+        <toolWindow id="CodeStream" icon="/images/codestream.svg" anchor="right"
+                    factoryClass="com.codestream.webview.CodeStreamToolWindowFactory"/>
 
-        <statusBarWidgetProvider implementation="com.codestream.widgets.CodeStreamStatusBarWidgetProvider"/>
+        <statusBarWidgetFactory implementation="com.codestream.widgets.CodeStreamStatusBarWidgetFactory"/>
 
         <applicationService serviceImplementation="com.codestream.settings.ApplicationSettingsService"/>
         <applicationService serviceImplementation="com.codestream.webview.JxBrowserEngineService"/>
 
+        <projectService serviceImplementation="com.codestream.CodeStreamProjectService"/>
         <projectService serviceImplementation="com.codestream.agent.AgentService"/>
         <projectService serviceImplementation="com.codestream.authentication.AuthenticationService"/>
         <projectService serviceImplementation="com.codestream.settings.SettingsService"/>
@@ -65,24 +73,27 @@
 
     <project-components>
         <component>
-            <implementation-class>com.codestream.CodeStreamComponent</implementation-class>
-        </component>
-        <component>
             <implementation-class>com.codestream.notification.NotificationComponent</implementation-class>
         </component>
     </project-components>
 
     <actions>
         <action id="CodeStream.SignOut" class="com.codestream.actions.SignOut" text="CodeStream: Sign out"/>
-        <action id="CodeStream.ReloadWebview" class="com.codestream.actions.ReloadWebview" text="CodeStream: Reload webview"/>
+        <action id="CodeStream.ReloadWebview" class="com.codestream.actions.ReloadWebview"
+                text="CodeStream: Reload webview"/>
         <action id="CodeStream.WebViewZoomIn" class="com.codestream.actions.WebViewZoomIn" text="CodeStream: Zoom in"/>
-        <action id="CodeStream.WebViewZoomOut" class="com.codestream.actions.WebViewZoomOut" text="CodeStream: Zoom out"/>
-        <action id="CodeStream.WebViewZoomReset" class="com.codestream.actions.WebViewZoomReset" text="CodeStream: Reset zoom"/>
+        <action id="CodeStream.WebViewZoomOut" class="com.codestream.actions.WebViewZoomOut"
+                text="CodeStream: Zoom out"/>
+        <action id="CodeStream.WebViewZoomReset" class="com.codestream.actions.WebViewZoomReset"
+                text="CodeStream: Reset zoom"/>
 
-        <action id="CodeStream.OpenDevTools" class="com.codestream.actions.OpenDevTools" text="CodeStream: Open webview dev tools"/>
-        <action id="CodeStream.TestUrlHandler" class="com.codestream.actions.TestUrlHandler" text="CodeStream: Test URL handler"/>
+        <action id="CodeStream.OpenDevTools" class="com.codestream.actions.OpenDevTools"
+                text="CodeStream: Open webview dev tools"/>
+        <action id="CodeStream.TestUrlHandler" class="com.codestream.actions.TestUrlHandler"
+                text="CodeStream: Test URL handler"/>
 
-        <group id="com.codestream.Actions" popup="true" text="CodeStream" icon="/images/codestream-color.svg" class="com.codestream.actions.CodeStreamActionGroup">
+        <group id="com.codestream.Actions" popup="true" text="CodeStream" icon="/images/codestream-color.svg"
+               class="com.codestream.actions.CodeStreamActionGroup">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="EditorPopupMenu2"/>
             <action id="CodeStream.AddComment" class="com.codestream.actions.AddComment" text="Add _Comment"
                     description="Add comment" icon="/images/marker-comment.svg">
@@ -109,8 +120,8 @@
                 <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="control SLASH" second-keystroke="L"
                                    replace-all="true"/>
             </action>
-<!--            <action id="ReviewCoverage" class="com.codestream.actions.ReviewCoverage" text="Review Coverage"-->
-<!--                    description="Show code review coverage"/>-->
+            <!--            <action id="ReviewCoverage" class="com.codestream.actions.ReviewCoverage" text="Review Coverage"-->
+            <!--                    description="Show code review coverage"/>-->
         </group>
 
         <action id="CodeStream.CreateReview" class="com.codestream.actions.CreateReview" text="_Request Feedback"
@@ -121,7 +132,8 @@
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="control SLASH" second-keystroke="R"
                                replace-all="true"/>
         </action>
-        <action id="CodeStream.NewPullRequest" class="com.codestream.actions.NewPullRequest" text="New _Pull/Merge Request"
+        <action id="CodeStream.NewPullRequest" class="com.codestream.actions.NewPullRequest"
+                text="New _Pull/Merge Request"
                 description="New Pull/Merge Request" icon="/images/pull-request.svg">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift SLASH" second-keystroke="P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="control SLASH" second-keystroke="P"
@@ -165,5 +177,5 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
-    <idea-version since-build="212.5080.55" />
+    <idea-version since-build="212.5080.55"/>
 </idea-plugin>

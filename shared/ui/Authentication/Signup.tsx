@@ -128,6 +128,7 @@ export const Signup = (props: Props) => {
 			isInVSCode: state.ide.name === "VSC",
 			supportsVSCodeGithubSignin: state.capabilities.vsCodeGithubSignin,
 			acceptedTOS: state.session.acceptedTOS,
+			machineId: state.session.machineId || "0",
 			webviewFocused: state.context.hasFocus,
 			pendingProtocolHandlerQuerySource: state.context.pendingProtocolHandlerQuery?.src,
 			environmentHosts,
@@ -153,6 +154,11 @@ export const Signup = (props: Props) => {
 	const [limitAuthentication, setLimitAuthentication] = useState(false);
 	const [authenticationProviders, setAuthenticationProviders] = useState({});
 	const [checkForWebmail, setCheckForWebmail] = useState(true);
+
+	// @TODO: Delete when done with A/B test
+	// Purpose of this value is to direct ~50% of users to a new UX, and ~50% to
+	// the old, and compare which one is a more effective signup flow and funnel
+	const [abTestValue, setAbTestValue] = useState<number | undefined>();
 
 	const wasInvited = props.inviteCode !== undefined;
 
@@ -213,8 +219,24 @@ export const Signup = (props: Props) => {
 
 	useDidMount(() => {
 		getUserInfo();
-		if (derivedState.webviewFocused)
-			HostApi.instance.track("Page Viewed", { "Page Name": "Create Account" });
+		// @TODO: Temp code, delete when which UX is determined to be best
+		// 0 = old version (Signup for a codestream account, for free)
+		// 1 = connect version
+		//
+		// machineId is alphanumeric, so we parse it to contain only numeric values.
+		// Then we need to trim down the value to a length of 10 digits max because
+		// remainder calculations have rounding errors on numbers that are too large.
+		const machineIdNumeric = derivedState.machineId.replace(/\D/g, "").substring(0, 10);
+		const _abTestValue = Number(machineIdNumeric) % 2;
+		setAbTestValue(_abTestValue);
+		if (derivedState.webviewFocused) {
+			if (_abTestValue === 0) {
+				HostApi.instance.track("Page Viewed", { "Page Name": "Create Account" });
+			}
+			if (_abTestValue === 1) {
+				HostApi.instance.track("Page Viewed", { "Page Name": "Create Account (Connect Version)" });
+			}
+		}
 		if (props.teamId) getTeamAuthInfo(props.teamId);
 	});
 
@@ -478,7 +500,8 @@ export const Signup = (props: Props) => {
 					<fieldset className="form-body" style={{ paddingTop: 0, paddingBottom: 0 }}>
 						<div id="controls">
 							<div className="border-bottom-box">
-								<h3>Create a CodeStream account, for free</h3>
+								{abTestValue === 0 && <h3>Create a CodeStream account, for free</h3>}
+								{abTestValue === 1 && <h3>Connect to get started</h3>}
 								<br />
 								{regionItems && !forceRegionName && (
 									<>
@@ -545,30 +568,42 @@ export const Signup = (props: Props) => {
 											</Button>
 										</SignupButtonContainer>
 									)}
-									{(!limitAuthentication || authenticationProviders["email"]) && !showEmailForm && (
-										<SignupButtonContainer>
-											<Button className="row-button no-top-margin" onClick={onClickEmailSignup}>
-												<Icon name="codestream" />
-												<div className="copy">Email</div>
-												<Icon name="chevron-right" />
-											</Button>
-										</SignupButtonContainer>
-									)}
+									{(!limitAuthentication || authenticationProviders["email"]) &&
+										!showEmailForm &&
+										abTestValue === 0 && (
+											<SignupButtonContainer>
+												<Button className="row-button no-top-margin" onClick={onClickEmailSignup}>
+													<Icon name="codestream" />
+													<div className="copy">Email</div>
+													<Icon name="chevron-right" />
+												</Button>
+											</SignupButtonContainer>
+										)}
 								</SignupButtonsContainer>
-								<OnPremWrapper id={`on-prem-wrapper`}>
-									Codestream supports on-prem code hosts as well. {` `}
-									<Tooltip
-										key="on-prem"
-										title={`CodeStream supports both cloud and on-prem versions of GitHub, 
-											GitLab and Bitbucket. However, only the cloud versions are available 
-											to use for CodeStream authentication. If you use an on-prem version of 
-											these services, sign up for CodeStream using a different method and then 
-											connect to your code host from the Integrations page in CodeStream.`}
-										placement="bottom"
-									>
-										<OnPremTooltipCopy>Learn More</OnPremTooltipCopy>
-									</Tooltip>
-								</OnPremWrapper>
+								{abTestValue === 0 && (
+									<OnPremWrapper id={`on-prem-wrapper`}>
+										Codestream supports on-prem code hosts as well. {` `}
+										<Tooltip
+											key="on-prem"
+											title={`CodeStream supports both cloud and on-prem versions of GitHub, 
+										GitLab and Bitbucket. However, only the cloud versions are available 
+										to use for CodeStream authentication. If you use an on-prem version of 
+										these services, sign up for CodeStream using a different method and then 
+										connect to your code host from the Integrations page in CodeStream.`}
+											placement="bottom"
+										>
+											<OnPremTooltipCopy>Learn More</OnPremTooltipCopy>
+										</Tooltip>
+									</OnPremWrapper>
+								)}
+
+								{(!limitAuthentication || authenticationProviders["email"]) &&
+									!showEmailForm &&
+									abTestValue === 1 && (
+										<OnPremWrapper id={`on-prem-wrapper`}>
+											Your service not listed? <Link onClick={onClickEmailSignup}>Skip This</Link>
+										</OnPremWrapper>
+									)}
 								{showOr && showEmailForm && (
 									<div className="separator-label">
 										<span className="or">

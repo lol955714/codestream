@@ -16,7 +16,7 @@ export function reduceSession(state = initialState, action: SessionActions) {
 		case SessionActionType.SetTOS:
 			return { ...state, acceptedTOS: action.payload };
 		case "RESET":
-			return { ...initialState, otc: uuid() };
+			return { ...initialState, machineId: state.machineId, otc: uuid() };
 		default:
 			return state;
 	}

@@ -8,7 +8,7 @@ import com.codestream.system.platform
 import com.google.gson.JsonElement
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.ui.jcef.JBCefBrowser
+import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
@@ -21,7 +21,7 @@ import org.cef.network.CefRequest
 
 private const val BASE_ZOOM_LEVEL = 1.0
 
-class JBCefWebView(val jbCefBrowser: JBCefBrowser, val router: WebViewRouter) : WebView {
+class JBCefWebView(val jbCefBrowser: JBCefBrowserBase, val router: WebViewRouter) : WebView {
 
     private val logger = Logger.getInstance(JBCefWebView::class.java)
     private var loadedUrl: String? = null
@@ -123,11 +123,15 @@ class JBCefWebView(val jbCefBrowser: JBCefBrowser, val router: WebViewRouter) : 
     }
 
     override fun postMessage(message: JsonElement) {
-        jbCefBrowser.cefBrowser.executeJavaScript("window.postMessage(${message.toString().escapeUnicode()},'*');", jbCefBrowser.cefBrowser.url, 0)
+        jbCefBrowser.cefBrowser.executeJavaScript(
+            "window.postMessage(${message.toString().escapeUnicode()},'*');",
+            jbCefBrowser.cefBrowser.url,
+            0
+        )
     }
 
     override fun focus() {
-        component.grabFocus()
+        component?.grabFocus()
     }
 
     override fun openDevTools() {
@@ -150,5 +154,4 @@ class JBCefWebView(val jbCefBrowser: JBCefBrowser, val router: WebViewRouter) : 
         zoomLevel = BASE_ZOOM_LEVEL
         jbCefBrowser.zoomLevel = zoomLevel
     }
-
 }

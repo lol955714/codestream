@@ -351,17 +351,13 @@ export abstract class ThirdPartyProviderBase<
 	}
 
 	protected async onConnected(providerInfo?: TProviderInfo) {
-		// if CodeStream is connected through a proxy, then we should be too,
-		// but to make sure nothing breaks, only if the user has a preference for it
+		// if CodeStream is connected through a proxy, then we should be too
 		if (this.session.proxyAgent) {
-			const user = await SessionContainer.instance().users.getMe();
-			if (user.preferences?.useCodestreamProxyForIntegrations) {
-				Logger.log(
-					`${this.providerConfig.name} provider (id:"${this.providerConfig.id}") will use CodeStream's proxy agent`
-				);
-				this._httpsAgent = this.session.proxyAgent;
-				return;
-			}
+			Logger.log(
+				`${this.providerConfig.name} provider (id:"${this.providerConfig.id}") will use CodeStream's proxy agent`
+			);
+			this._httpsAgent = this.session.proxyAgent;
+			return;
 		}
 
 		// if we are connecting with https, and if strictSSL is disabled for CodeStream,
@@ -869,7 +865,13 @@ export abstract class ThirdPartyIssueProviderBase<
 				ex.response.errors instanceof Array &&
 				ex.response.errors.find((e: any) => e.type === "FORBIDDEN"))
 		) {
-			return ReportSuppressedMessages.AccessTokenInvalid;
+			// https://issues.newrelic.com/browse/NR-23727 - FORBIDDEN can happen for tokens that don't have full permissions,
+			// rather than risk breaking how this works, we'll just capture this one possibility
+			if (ex.response.errors.find((e: any) => e.message.match(/must have push access/i))) {
+				return undefined;
+			} else {
+				return ReportSuppressedMessages.AccessTokenInvalid;
+			}
 		} else if (ex.message && ex.message.match(/must accept the Terms of Service/)) {
 			return ReportSuppressedMessages.GitLabTermsOfService;
 		} else {

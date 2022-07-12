@@ -35,6 +35,7 @@ Interesting in CodeStream development? Check the development guides for [VS Code
 A big thanks to the members of the community that have contributed to CodeStream:
 
 - Josh Coleman ([@JcolemanNR](https://github.com/JcolemanNR)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=JcolemanNR)
-- Takuya N ([@tnir](https://github.com/tnir)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=tnir) 
+- Takuya N ([@tnir](https://github.com/tnir)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=tnir)
+- Johan Emanuel Palacios Rivera ([@Johan-Palacios](https://github.com/Johan-Palacios)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=Johan-Palacios)
 - Karen Rodriguez ([@kleyla](https://github.com/kleyla)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=kleyla)
-- TalkySafe143([@TalkySafe143](https://github.com/TalkySafe143)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=TalkySafe143)
+- TalkySafe143 ([@TalkySafe143](https://github.com/TalkySafe143)) &mdash; [contributions](https://github.com/TeamCodeStream/codestream/commits?author=TalkySafe143)
