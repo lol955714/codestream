@@ -449,8 +449,47 @@ namespace CodeStream.VisualStudio.Shared.Models {
 	}
 
 	public class CsTeam {
+		public string CompanyId { get; set; }
 		public string Id { get; set; }
 		public string Name { get; set; }
+	}
+
+	public class CsCompany : CsEntity {
+		[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+		public string CompanyName { get; set; }
+
+		[JsonProperty("everyoneTeamId", NullValueHandling = NullValueHandling.Ignore)]
+		public string EveryoneTeamId { get; set; }
+
+		[JsonProperty("trialStartDate", NullValueHandling = NullValueHandling.Ignore)]
+		public long? TrialStartDate { get; set; }
+
+		[JsonProperty("trialEndDate", NullValueHandling = NullValueHandling.Ignore)]
+		public long? TrialEndDate { get; set; }
+
+		[JsonProperty("plan", NullValueHandling = NullValueHandling.Ignore)]
+		public string Plan { get; set; }
+
+		[JsonProperty("reportingGroup", NullValueHandling = NullValueHandling.Ignore)]
+		public string ReportingGroup { get; set; }
+
+		[JsonProperty("domainJoining", NullValueHandling = NullValueHandling.Ignore)]
+		public List<string> DomainJoining { get; set; }
+
+		[JsonProperty("nrOrgIds", NullValueHandling = NullValueHandling.Ignore)]
+		public List<long> NROrgIds { get; set; }
+
+		[JsonProperty("nrAccountIds", NullValueHandling = NullValueHandling.Ignore)]
+		public List<long> NRAccountIds { get; set; }
+
+		[JsonProperty("isNRConnected", NullValueHandling = NullValueHandling.Ignore)]
+		public bool IsNRConnected{ get; set; }
+
+		[JsonProperty("host", NullValueHandling = NullValueHandling.Ignore)]
+		public EnvironmentHost EnvironmentHost{ get; set; }
+
+		[JsonProperty("testGroups", NullValueHandling = NullValueHandling.Ignore)]
+		public KeyValuePair<string, string> TestGroups{ get; set; }
 	}
 
 	public class CsRemote {

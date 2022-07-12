@@ -197,16 +197,19 @@ namespace CodeStream.VisualStudio.Shared.Controllers {
 		}
 
 		private User CreateUser(JToken token) {
-			var user = token?["loginResponse"]?["user"].ToObject<CsUser>();
+			var user = token?["loginResponse"]?["user"]?.ToObject<CsUser>();
 			var teamId = GetTeamId(token);
 
-			var teams = (token?["loginResponse"]?["teams"].ToObject<List<CsTeam>>() ?? Enumerable.Empty<CsTeam>())
+			var availableTeams = (token?["loginResponse"]?["teams"]?.ToObject<List<CsTeam>>() ?? Enumerable.Empty<CsTeam>())
 				.ToList();
-			string teamName = teams.Where(_ => _.Id == teamId)
-				.Select(_ => _.Name)
-				.FirstOrDefault();
+			var currentTeam = availableTeams.FirstOrDefault(_ => _.Id == teamId);
 
-			return new User(user.Id, user.Username, user.Email, teamName, teams.Count);
+			var availableCompanies = (token?["loginResponse"]?["companies"]?.ToObject<List<CsCompany>>() ??
+			                 Enumerable.Empty<CsCompany>()).ToList();
+
+			var currentCompany = availableCompanies.FirstOrDefault(x => x.Id == currentTeam?.CompanyId);
+
+			return new User(user?.Id, user?.Username, user?.Email, currentTeam?.Name, availableTeams.Count, currentCompany?.CompanyName, availableCompanies.Count);
 		}
 
 		private string GetTeamId(JToken token) => token?["state"]["teamId"].Value<string>();

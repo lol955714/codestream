@@ -102,7 +102,7 @@ namespace CodeStream.VisualStudio.Shared.Commands {
 
 								Visible = true;
 								Enabled = true;
-								Text = user.HasSingleTeam() ? label : $"{label} - {user.TeamName}";
+								Text = user.HasSingleOrg ? label : $"{label} - {user.OrgName}";
 
 								var statusBar = (IVsStatusbar)Package.GetGlobalService(typeof(SVsStatusbar));
 								statusBar.IsFrozen(out var frozen);
