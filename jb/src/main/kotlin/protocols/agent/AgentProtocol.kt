@@ -728,7 +728,7 @@ class GetBlameResultLineInfo(
     val authorEmail: String,
     val gravatarUrl: String,
     val prs: List<JsonElement>,
-    val frs: List<JsonElement>,
+    val reviews: List<Review>,
     val summary: String
 )
 

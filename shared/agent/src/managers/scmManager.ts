@@ -1430,12 +1430,13 @@ export class ScmManager {
 	@lspHandler(GetBlameRequestType)
 	async getBlame(request: GetBlameRequest): Promise<GetBlameResponse> {
 		const uri = URI.parse(request.uri);
-		const { git } = SessionContainer.instance();
+		const { git, reviews } = SessionContainer.instance();
 		const { shas, revisionEntries } = await git.getLineBlames(
 			uri,
 			request.startLine,
 			request.endLine
 		);
+		const repo = await git.getRepositoryByFilePath(uri.fsPath);
 
 		const commitInfos = new Map<string, GetBlameCommitInfo>();
 		for (const revisionEntry of revisionEntries) {
@@ -1445,7 +1446,7 @@ export class ScmManager {
 				authorEmail: revisionEntry.authorEmail,
 				gravatarUrl: toGravatar(revisionEntry.authorEmail, 16),
 				summary: revisionEntry.summary,
-				frs: [],
+				reviews: repo?.id ? await reviews.getReviewsContainingSha(repo.id, revisionEntry.sha) : [],
 				prs: []
 			});
 		}
@@ -1455,7 +1456,7 @@ export class ScmManager {
 			formattedBlame: "You · Uncommitted changes",
 			authorEmail: "",
 			gravatarUrl: "",
-			frs: [],
+			reviews: [],
 			prs: [],
 			summary: "Uncommitted changes"
 		};

@@ -96,7 +96,9 @@ class LineLevelBlameService(val project: Project) : SelectionListener {
                         val textPresentation = presentationFactory.smallText(blame.formattedBlame)
                         val insetPresentation = presentationFactory.inset(textPresentation, 0, 0, textMetricsStorage.getFontMetrics(true).offsetFromTop(), 0)
 
-                       val html = "<img src='${blame.gravatarUrl}'/> ${blame.summary}"
+                       val html = "<img src='${blame.gravatarUrl}'/><span>${blame.summary}</span>\n" +
+                           "<div>Reviews</div>\n" +
+                           blame.reviews.map { "<div>${it.title}</div>" }.joinToString("\n")
 
                         val withTooltipPresentation = presentationFactory.withTooltip(html, insetPresentation)
                         val renderer = PresentationRenderer(withTooltipPresentation)

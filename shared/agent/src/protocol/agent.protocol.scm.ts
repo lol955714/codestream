@@ -1,7 +1,7 @@
 "use strict";
 import { Range, RequestType } from "vscode-languageserver-protocol";
 import { FetchThirdPartyPullRequestFilesResponse } from "./agent.protocol.providers";
-import { CSRepository, CSTeam, CSUser, ModifiedFile } from "./api.protocol";
+import { CSRepository, CSReview, CSTeam, CSUser, ModifiedFile } from "./api.protocol";
 
 export interface GetBranchesRequest {
 	uri: string;
@@ -607,7 +607,7 @@ export interface GetBlameCommitInfo {
 	gravatarUrl: string;
 	summary: string;
 	prs: any[];
-	frs: any[];
+	reviews: CSReview[];
 }
 
 export interface GetBlameLineInfo extends GetBlameCommitInfo {
