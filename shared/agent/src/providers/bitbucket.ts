@@ -560,7 +560,7 @@ export class BitbucketProvider extends ThirdPartyIssueProviderBase<CSBitbucketPr
 				// } else {
 				// 	Logger.log(`getMyPullRequests providerId="${providerId}" finalQuery="${finalQuery}"`);
 				// }
-				return this.get(`/${query}`); //https://api.bitbucket.org//2.0/
+				return this.get(`/pullrequests?${query}`); //https://api.bitbucket.org//2.0/
 			})
 		).catch(ex => {
 			Logger.error(ex, "getMyPullRequests");
@@ -575,7 +575,7 @@ export class BitbucketProvider extends ThirdPartyIssueProviderBase<CSBitbucketPr
 		const response: GetMyPullRequestsResponse[][] = [];
 		items.forEach((item, index) => {
 			debugger;
-			Logger.log(JSON.stringify(item))
+			Logger.log(JSON.stringify(item, null, 4));
 
 			// if (item && item.search && item.search.edges) {
 			// 	response[index] = item.search.edges
