@@ -727,9 +727,14 @@ class GetBlameResultLineInfo(
     val formattedBlame: String,
     val authorEmail: String,
     val gravatarUrl: String,
-    val prs: List<JsonElement>,
+    val prs: List<GetBlameResultPR>,
     val reviews: List<Review>,
     val summary: String
+)
+
+class GetBlameResultPR(
+    val url: String,
+    val title: String?
 )
 
 class ReportMessageParams(

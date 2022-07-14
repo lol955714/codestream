@@ -64,7 +64,8 @@ import {
 	ProviderVersion,
 	PullRequestComment,
 	ThirdPartyIssueProviderBase,
-	ThirdPartyProviderSupportsIssues
+	ThirdPartyProviderSupportsIssues,
+	ThirdPartyProviderSupportsPullRequests
 } from "./provider";
 
 interface GitLabProject {
@@ -91,7 +92,7 @@ interface GitLabBranch {
 
 @lspProvider("gitlab")
 export class GitLabProvider extends ThirdPartyIssueProviderBase<CSGitLabProviderInfo>
-	implements ThirdPartyProviderSupportsIssues {
+	implements ThirdPartyProviderSupportsIssues, ThirdPartyProviderSupportsPullRequests {
 	/** version used when a query to get the version fails */
 	private static defaultUnknownVersion = "0.0.0";
 	protected LOWEST_SUPPORTED_VERSION = {
@@ -451,6 +452,13 @@ export class GitLabProvider extends ThirdPartyIssueProviderBase<CSGitLabProvider
 			owner: owner.join("/"),
 			name: name!
 		};
+	}
+
+	async getPullRequestsContainigSha(
+		repoIdentifier: { owner: string; name: string }[],
+		sha: string
+	): Promise<any[]> {
+		return [];
 	}
 
 	@log()

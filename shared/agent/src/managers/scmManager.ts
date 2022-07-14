@@ -1430,16 +1430,32 @@ export class ScmManager {
 	@lspHandler(GetBlameRequestType)
 	async getBlame(request: GetBlameRequest): Promise<GetBlameResponse> {
 		const uri = URI.parse(request.uri);
-		const { git, reviews } = SessionContainer.instance();
+		const { git, reviews, users, providerRegistry } = SessionContainer.instance();
 		const { shas, revisionEntries } = await git.getLineBlames(
 			uri,
 			request.startLine,
 			request.endLine
 		);
 		const repo = await git.getRepositoryByFilePath(uri.fsPath);
+		const user = await users.getMe();
+		const connectedProviders = await providerRegistry.getConnectedPullRequestProviders(user);
+		const providerRepo = repo && (await repo.getPullRequestProvider(user, connectedProviders));
+		const weightedRemotes =
+			repo &&
+			providerRepo?.remotes &&
+			(await repo.getWeightedRemotesByStrategy(providerRepo.remotes, "prioritizeUpstream"));
+		const ownersAndNames =
+			providerRepo?.provider &&
+			weightedRemotes?.map(r => providerRepo.provider.getOwnerFromRemote(r.path));
 
 		const commitInfos = new Map<string, GetBlameCommitInfo>();
 		for (const revisionEntry of revisionEntries) {
+			const prs =
+				ownersAndNames &&
+				(await providerRepo?.provider?.getPullRequestsContainigSha(
+					ownersAndNames,
+					revisionEntry.sha
+				));
 			commitInfos.set(revisionEntry.sha, {
 				sha: revisionEntry.sha,
 				formattedBlame: this._formatRevisionEntry(revisionEntry),
@@ -1447,7 +1463,7 @@ export class ScmManager {
 				gravatarUrl: toGravatar(revisionEntry.authorEmail, 16),
 				summary: revisionEntry.summary,
 				reviews: repo?.id ? await reviews.getReviewsContainingSha(repo.id, revisionEntry.sha) : [],
-				prs: []
+				prs: prs || []
 			});
 		}
 
