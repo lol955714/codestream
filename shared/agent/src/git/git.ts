@@ -30,6 +30,7 @@ SOFTWARE.
  */
 import { Logger } from "../logger";
 import { Strings } from "../system";
+import { healthMonitor } from "../system/healthMonitor";
 import { findGitPath, GitLocation } from "./locator";
 import { CommandOptions, runCommand } from "./shell";
 
@@ -128,6 +129,10 @@ export async function git(
 			...args,
 			` killed=${ex?.killed} signal=${ex?.signal} code=${ex?.code} cwd='${options.cwd}'\n\n  `
 		);
+		if (ex?.signal === "SIGKILL") {
+			Logger.log("Reporting SIGKILL error to health monitor");
+			healthMonitor.reportError("GIT_SIGKILL");
+		}
 		throw ex;
 	} finally {
 		pendingCommands.delete(command);
