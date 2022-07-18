@@ -1,4 +1,5 @@
 "use strict";
+import { use } from "chai";
 import { GitRemoteLike } from "git/gitService";
 import * as qs from "querystring";
 import { URI } from "vscode-uri";
@@ -531,9 +532,14 @@ export class BitbucketProvider extends ThirdPartyIssueProviderBase<CSBitbucketPr
 		void (await this.ensureConnected());
 		//call to /user
 		//get the username
-		const username = this.get('/user')
+		const username = (await this.get('/user').then( response => {
+			console.log("Response body", response.body)
+			const user_info = response.body.username;
+			console.log("userName is ", user_info)
+			return user_info;
+		}))
 
-		const queriesSafe = request.queries.map(query => query.replace(/["']/g, '\\"').replace(/[@me]/g, 'username'));
+		const queriesSafe = request.queries.map(query => query.replace(/["']/g, '\\"').replace("username", username));
 		const items = await Promise.all(
 			queriesSafe.map(_query => {
 				let query = _query;
@@ -563,7 +569,7 @@ export class BitbucketProvider extends ThirdPartyIssueProviderBase<CSBitbucketPr
 				// } else {
 				// 	Logger.log(`getMyPullRequests providerId="${providerId}" finalQuery="${finalQuery}"`);
 				// }
-				return this.get(`/pullrequests?${query}`); //https://api.bitbucket.org//2.0/
+				return this.get(`/pullrequests/${query}`); //https://api.bitbucket.org//2.0/
 			})
 		).catch(ex => {
 			Logger.error(ex, "getMyPullRequests");

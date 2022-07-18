@@ -874,7 +874,7 @@ export class ThirdPartyProviderRegistry {
 					providerId: "bitbucket*org",
 					name: "Created by Me",
 					// TODO - how does @me work?
-					query: `@me?state=OPEN`,
+					query: `username?state=OPEN`,
 					hidden: false
 				},
 				// {
