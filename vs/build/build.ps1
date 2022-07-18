@@ -112,23 +112,23 @@ function Build-Extension {
 	$timer = Start-Timer
 
 	# validation only allows 17.0 and is defaulted to 17.0, so it can't be anything else anyway
-	$msbuild = "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
-	$vstest = "C:/Program Files *x86)/Microsoft Visual Studio/2019/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
+	$msbuild = "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe"		
+	$vstest = "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
 
-	$OutputDir = $(Join-Path $root "build/artifacts/$($Mode)")
-	Try-Create-Directory($OutputDir)
+	$baseOutputDir = $(Join-Path $root "build/artifacts")
+	Write-Log "Cleaning $($baseOutputDir)..."
+	Remove-Item $("$($baseOutputDir)/*") -Recurse -Force
 
-	Write-Log "Cleaning $($OutputDir)..."
-	Remove-Item $("$($OutputDir)/*") -Recurse -Force
-
-	Write-Log "Restoring packages..."
-	& $msbuild src/CodeStream.VisualStudio.sln /t:Restore
+	$x86OutputDir = $(Join-Path $baseOutputDir "$($Mode)/x86")
+	$x64OutputDir = $(Join-Path $baseOutputDir "$($Mode)/x64")
+	Try-Create-Directory($x86OutputDir)
+	Try-Create-Directory($x64OutputDir)
 
 	Write-Log "Running MSBuild (x86)..."
-	& $msbuild src/CodeStream.VisualStudio.sln /t:"CodeStream_VisualStudio_Vsix_x86" /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x86 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+	& $msbuild './src/CodeStream.VisualStudio.Vsix.x86/CodeStream.VisualStudio.Vsix.x86.csproj' /t:restore,$target /p:Configuration=$Mode /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /p:Platform='x86' /p:OutputPath=$x86OutputDir /p:DeployExtension=$DeployExtension
 
 	Write-Log "Running MSBuild (x64)..."
-	& $msbuild src/CodeStream.VisualStudio.sln /t:"CodeStream_VisualStudio_Vsix_x64" /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /target:$target /p:Configuration=$Mode /p:Platform=x64 /p:OutputPath=$OutputDir /p:VisualStudioVersion=$VSVersion /p:DeployExtension=$DeployExtension
+	& $msbuild './src/CodeStream.VisualStudio.Vsix.x64/CodeStream.VisualStudio.Vsix.x64.csproj' /t:restore,$target /p:Configuration=$Mode /p:AllowUnsafeBlocks=true /verbosity:$Verbosity /p:Platform='x64' /p:OutputPath=$x64OutputDir /p:DeployExtension=$DeployExtension
 
 	if ($LastExitCode -ne 0) {
 		throw "MSBuild failed"
@@ -153,7 +153,8 @@ function Build-Extension {
 	#}
 
 	Write-Log "Build-Extension completed in {$(Get-ElapsedTime($timer))}"
-	Write-Log "Artifacts: $($OutputDir) at $(Get-Date)"    
+	Write-Log "x86 Artifacts: $($x86OutputDir) at $(Get-Date)"    
+	Write-Log "x64 Artifacts: $($x64OutputDir) at $(Get-Date)"    
 }
 
 Print-Help

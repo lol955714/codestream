@@ -1,6 +1,5 @@
 param(
 [string] $ConfigurationName,
-[string] $SolutionDir,
 [string] $ProjectDir
 )
 Write-Host ""
@@ -9,9 +8,8 @@ Write-Host ""
 Write-Host ""
 
 Write-Host "ProjectDir=$($ProjectDir)"
-Write-Host "SolutionDir=$($SolutionDir)"
 
-$Joined = Join-Path "$($SolutionDir)" "..\licenses\$($ConfigurationName)"
+$Joined = Join-Path "$($ProjectDir)" "..\..\licenses\$($ConfigurationName)"
 Write-Host "joined" $Joined
 Write-Host "resolved" (($Joined | Resolve-Path).Path)
 $LicenseFile = (($Joined | Resolve-Path).Path) + "\teamdev.licenses"
