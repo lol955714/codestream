@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using CodeStream.VisualStudio.Shared.Events;
+using CodeStream.VisualStudio.Shared.Extensions;
 using CodeStream.VisualStudio.Shared.Managers;
 using CodeStream.VisualStudio.Shared.Models;
 using Microsoft;

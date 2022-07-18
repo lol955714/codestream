@@ -77,6 +77,17 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 				FailureMessage = initializationState.StatusMessage
 			});
 		}
+#else
+		public Task OnServerInitializeFailedAsync(Exception ex) {
+			if (_hasStartedOnce) {
+				Log.Warning(ex, nameof(OnServerInitializeFailedAsync));
+			}
+			else {
+				Log.Fatal(ex, nameof(OnServerInitializeFailedAsync));
+			}
+
+			return Task.FromResult(0);
+		}
 #endif
 
 		public string Name => Application.Name;
@@ -224,17 +235,6 @@ namespace CodeStream.VisualStudio.Shared.LanguageServer {
 
 		private void Rpc_Disconnected(object sender, JsonRpcDisconnectedEventArgs e) {
 			base.OnRpcDisconnected(e);
-		}
-
-		public Task OnServerInitializeFailedAsync(Exception ex) {
-			if (_hasStartedOnce) {
-				Log.Warning(ex, nameof(OnServerInitializeFailedAsync));
-			}
-			else {
-				Log.Fatal(ex, nameof(OnServerInitializeFailedAsync));
-			}
-
-			return Task.FromResult(0);
 		}
 
 		private readonly object locker = new object();

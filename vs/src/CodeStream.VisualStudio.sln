@@ -59,7 +59,6 @@ Global
 		{A97D7813-7B1A-4369-98A3-80F5721C1831}.Release|x64.ActiveCfg = Release|x64
 		{A97D7813-7B1A-4369-98A3-80F5721C1831}.Release|x64.Build.0 = Release|x64
 		{A97D7813-7B1A-4369-98A3-80F5721C1831}.Release|x86.ActiveCfg = Release|x86
-		{A97D7813-7B1A-4369-98A3-80F5721C1831}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
