@@ -1,9 +1,15 @@
 "use strict";
 import fs from "fs";
 import { GraphQLClient } from "graphql-request";
-import { Dictionary } from "lodash";
-import { flatten as _flatten, groupBy as _groupBy, memoize, uniq as _uniq } from "lodash-es";
+import {
+	Dictionary,
+	flatten as _flatten,
+	groupBy as _groupBy,
+	memoize,
+	uniq as _uniq
+} from "lodash";
 import { join, relative, sep } from "path";
+import Cache from "timed-cache";
 import { ResponseError } from "vscode-jsonrpc/lib/messages";
 import { URI } from "vscode-uri";
 
@@ -90,9 +96,7 @@ import {
 	SpanRequest
 } from "./newrelic/newrelic.types";
 import { generateClmSpanDataExistsQuery, generateSpanQuery } from "./newrelic/spanQuery";
-import { ThirdPartyIssueProviderBase } from "./provider";
-
-const Cache = require("timed-cache");
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 const supportedLanguages = ["python", "ruby", "csharp"] as const;
 export type LanguageId = typeof supportedLanguages[number];
@@ -109,7 +113,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	private _accountIds: number[] | undefined = undefined;
 	private _memoizedBuildRepoRemoteVariants: any;
 	private _codeStreamUser: CSMe | undefined = undefined;
-	private _mltTimedCache: any;
+	private _mltTimedCache: Cache;
 	private _applicationEntitiesCache: { [key: string]: GetObservabilityEntitiesResponse } = {};
 
 	constructor(session: CodeStreamSession, config: ThirdPartyProviderConfig) {
@@ -833,7 +837,8 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 						uniqueEntities?.map(_ => _.guid)
 					);
 					hasCodeLevelMetricSpanData =
-						respositoryEntitySpanDataExistsResponse?.find(_ => _ && _["entity.guid"] != null) != null;
+						respositoryEntitySpanDataExistsResponse?.find(_ => _ && _["entity.guid"] != null) !=
+						null;
 				}
 				response.repos.push({
 					repoId: repo.id!,
@@ -850,7 +855,8 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 								entityGuid: entity.guid,
 								entityName: entity.name,
 								tags: entity.tags,
-								domain: entity.domain
+								domain: entity.domain,
+								alertSeverity: entity?.alertSeverity
 							} as EntityAccount;
 						})
 						.filter(Boolean)
@@ -1986,7 +1992,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 			return undefined;
 		}
 
-		const remotes = await repoForFile.getWeightedRemotesByStrategy(undefined, "prioritizeUpstream");
+		const remotes = await repoForFile.getWeightedRemotesByStrategy("prioritizeUpstream", undefined);
 		const remote = remotes.map(_ => _.rawUrl)[0];
 
 		let relativeFilePath = relative(repoForFile.path, request.filePath);
@@ -2257,56 +2263,59 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 	private async getGoldenMetricsQueries(
 		entityGuid: string,
-		metricTimesliceNameMapping: MetricTimesliceNameMapping
+		metricTimesliceNameMapping?: MetricTimesliceNameMapping
 	): Promise<GoldenMetricsQueryResult> {
-		// NOTE: these queries can be queried! we're hard-coding below because
-		// we want golden metrics on a method-level rather than an entity level
-
-		// return this.query(
-		// 	`query getGoldenMetricsQueries($entityGuid:EntityGuid!) {
-		// actor {
-		// 	entity(guid: $entityGuid) {
-		// 		goldenMetrics {
-		// 		  metrics {
-		// 			query
-		// 			title
-		// 		  }
-		// 		}
-		// 	  }
-		// 	}
-		// }`,
-		// 	{ entityGuid: entityGuid }
-		// );
-		return {
-			actor: {
-				entity: {
-					goldenMetrics: {
-						metrics: [
-							// duration
-							{
-								query: `SELECT average(newrelic.timeslice.value) * 1000 AS 'Response time (ms)' FROM Metric WHERE entity.guid IN ('${entityGuid}') AND metricTimesliceName='${metricTimesliceNameMapping["d"]}' TIMESERIES`,
-								title: "Response time (ms)"
-							},
-							// throughput
-							{
-								query: `SELECT count(newrelic.timeslice.value) AS 'Throughput' FROM Metric WHERE entity.guid IN ('${entityGuid}') AND metricTimesliceName='${metricTimesliceNameMapping["t"]}' TIMESERIES`,
-								title: "Throughput"
-							},
-							// error
-							{
-								query: `SELECT rate(count(apm.service.transaction.error.count), 1 minute) AS \`errorsPerMinute\` FROM Metric WHERE \`entity.guid\` = '${entityGuid}' AND metricTimesliceName='${metricTimesliceNameMapping["e"]}' FACET metricTimesliceName TIMESERIES`,
-								title: "Error rate"
-							}
-						]
+		if (metricTimesliceNameMapping) {
+			return {
+				actor: {
+					entity: {
+						goldenMetrics: {
+							metrics: [
+								// duration
+								{
+									query: `SELECT average(newrelic.timeslice.value) * 1000 AS 'Response time (ms)' FROM Metric WHERE entity.guid IN ('${entityGuid}') AND metricTimesliceName='${metricTimesliceNameMapping["d"]}' TIMESERIES`,
+									title: "Response time (ms)"
+								},
+								// throughput
+								{
+									query: `SELECT count(newrelic.timeslice.value) AS 'Throughput' FROM Metric WHERE entity.guid IN ('${entityGuid}') AND metricTimesliceName='${metricTimesliceNameMapping["t"]}' TIMESERIES`,
+									title: "Throughput"
+								},
+								// error
+								{
+									query: `SELECT rate(count(apm.service.transaction.error.count), 1 minute) AS \`errorsPerMinute\` FROM Metric WHERE \`entity.guid\` = '${entityGuid}' AND metricTimesliceName='${metricTimesliceNameMapping["e"]}' FACET metricTimesliceName TIMESERIES`,
+									title: "Error rate"
+								}
+							]
+						}
 					}
 				}
-			}
-		};
+			};
+		} else {
+			return this.query(
+				`query getGoldenMetricsQueries($entityGuid:EntityGuid!) {
+					actor {
+						entity(guid: $entityGuid) {
+							goldenMetrics {
+								metrics {
+									query
+									title
+									name
+								}
+							}
+						}
+					}
+				}`,
+				{ entityGuid: entityGuid }
+			);
+		}
 	}
 
-	private async getGoldenMetrics(
+	// @lspHandler(GetObservabilityEntitiesRequestType)
+	// @log()
+	async getGoldenMetrics(
 		entityGuid: string,
-		metricTimesliceNames: MetricTimesliceNameMapping
+		metricTimesliceNames?: MetricTimesliceNameMapping
 	): Promise<GoldenMetricsResult[] | undefined> {
 		const queries = await this.getGoldenMetricsQueries(entityGuid, metricTimesliceNames);
 
@@ -2318,11 +2327,23 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 			const results = await Promise.all(
 				queries.actor.entity.goldenMetrics.metrics.map(_ => {
+					let _query = _.query;
+
+					// if no metricTimesliceNames, then we don't need TIMESERIES in query
+					if (!metricTimesliceNames) {
+						_query = _query.replace(/TIMESERIES/, "");
+					}
+
 					const q = `query getMetric($accountId: Int!) {
 						actor {
 						  account(id: $accountId) {
-							nrql(query: "${_.query}") {
+							nrql(query: "${_query}") {
 							  results
+							  metadata {
+								timeWindow {
+								  end
+								}
+							  }
 							}
 						  }
 						}
@@ -2360,7 +2381,8 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 								: null,
 							endDate: date
 						};
-					})
+					}),
+					timeWindow: results[i].actor?.account?.nrql?.metadata?.timeWindow?.end
 				};
 			});
 			Logger.log("getGoldenMetrics has response?", {
@@ -3020,6 +3042,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 							id
 						}
 						domain
+						alertSeverity
 						name
 						guid
 						type

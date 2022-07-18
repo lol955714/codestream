@@ -4,7 +4,7 @@ import glob from "glob-promise";
 import { Agent as HttpAgent } from "http";
 import { Agent as HttpsAgent } from "https";
 import HttpsProxyAgent from "https-proxy-agent";
-import { isEqual, omit, uniq } from "lodash-es";
+import { isEqual, omit, uniq } from "lodash";
 import * as path from "path";
 import * as url from "url";
 import {

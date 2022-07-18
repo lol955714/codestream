@@ -1,7 +1,12 @@
 import { ActionType } from "../common";
 import * as actions from "./actions";
 import { clearCurrentPullRequest, setCurrentPullRequest } from "../context/actions";
-import { ProviderPullRequestActionsTypes, ProviderPullRequestsState } from "./types";
+import {
+	CurrentRepoResponse,
+	ProviderPullRequestActionsTypes,
+	ProviderPullRequestsState,
+	RepoPullRequest
+} from "./types";
 import { createSelector } from "reselect";
 import { CodeStreamState } from "..";
 import { CSRepository } from "@codestream/protocols/api";
@@ -808,6 +813,7 @@ export function reduceProviderPullRequests(
 			return state;
 	}
 }
+
 const getRepos = (state: CodeStreamState) => Object.values(state.repos);
 export const getProviderPullRequests = (state: CodeStreamState) => state.providerPullRequests;
 export const getMyPullRequests = (state: CodeStreamState) =>
@@ -949,33 +955,10 @@ export const getProviderPullRequestRepoObject = createSelector(
 
 export const getProviderPullRequestRepoObjectCore = (
 	repos: CSRepository[],
-	currentPr: {
-		conversations: {
-			// github
-			repository?: {
-				repoName: string;
-				url: string;
-			};
-			// gitlab
-			project?: {
-				name: string;
-				repoName: string;
-				mergeRequest: {
-					webUrl: string;
-				};
-			};
-		};
-	},
+	currentPr: RepoPullRequest,
 	providerId?: string
 ) => {
-	const result: {
-		error?: string;
-		currentRepo?: CSRepository;
-		repos?: CSRepository[];
-		repoName?: string;
-		repoUrl?: string;
-		reason?: "remote" | "repoName" | "matchedOnProviderUrl" | "closestMatch";
-	} = {};
+	const result: CurrentRepoResponse = {};
 
 	try {
 		if (!currentPr || !currentPr.conversations) {
@@ -1012,7 +995,8 @@ export const getProviderPullRequestRepoObjectCore = (
 					r?.normalizedUrl &&
 					r?.normalizedUrl.length > 2 &&
 					r?.normalizedUrl.match(/([a-zA-Z0-9]+)/) &&
-					repoUrl?.indexOf(r?.normalizedUrl?.toLowerCase()) > -1
+					(repoUrl?.includes(r?.normalizedUrl?.toLowerCase() + "/") ||
+						repoUrl?.endsWith(r?.normalizedUrl?.toLowerCase()))
 			)
 		);
 
@@ -1023,7 +1007,7 @@ export const getProviderPullRequestRepoObjectCore = (
 			let matchingRepos2 = repos.filter(_ => _.name && _.name.toLowerCase() === repoName);
 			if (matchingRepos2.length != 1) {
 				matchingRepos2 = repos.filter(_ =>
-					_.remotes.some(r => repoUrl?.indexOf(r?.normalizedUrl?.toLowerCase()) > -1)
+					_.remotes.some(r => repoUrl?.includes(r?.normalizedUrl?.toLowerCase()))
 				);
 				if (matchingRepos2.length === 1) {
 					result.currentRepo = matchingRepos2[0];

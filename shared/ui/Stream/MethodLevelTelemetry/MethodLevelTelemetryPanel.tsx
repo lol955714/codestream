@@ -204,6 +204,19 @@ export const MethodLevelTelemetryPanel = () => {
 		);
 	}
 
+	const renderEntityDropdownSubtext = item => {
+		let subtext;
+		if (item.accountName && item.accountName.length > 25) {
+			subtext = item.accountName.substr(0, 25) + "...";
+		} else {
+			subtext = item.accountName;
+		}
+		if (item.domain) {
+			subtext += ` ${item.domain}`;
+		}
+		return subtext;
+	};
+
 	switch (derivedState.currentMethodLevelTelemetry?.error?.type) {
 		case "NO_RUBY_VSCODE_EXTENSION":
 			return <MissingRubyExtension />;
@@ -263,6 +276,7 @@ export const MethodLevelTelemetryPanel = () => {
 													telemetryResponse.newRelicEntityAccounts!.map((item, i) => {
 														return {
 															label: item.entityName,
+															subtextWide: renderEntityDropdownSubtext(item),
 															searchLabel: item.entityName,
 															key: item.entityGuid + "-" + i,
 															checked: item.entityGuid === telemetryResponse.newRelicEntityGuid!,

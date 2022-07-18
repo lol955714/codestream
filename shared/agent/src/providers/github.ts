@@ -1,5 +1,4 @@
 "use strict";
-import { GitRemoteLike } from "git/gitService";
 import { GraphQLClient } from "graphql-request";
 import { Headers, Response } from "node-fetch";
 import { performance } from "perf_hooks";
@@ -9,13 +8,12 @@ import { CodeStreamSession } from "session";
 import { URI } from "vscode-uri";
 import { InternalError, ReportSuppressedMessages } from "../agentError";
 import { Container, SessionContainer } from "../container";
+import { GitRemoteLike } from "../git/models/remote";
 import { toRepoName } from "../git/utils";
-import { Logger, TraceLevel } from "../logger";
+import { Logger } from "../logger";
 import {
 	CreateThirdPartyCardRequest,
 	DidChangePullRequestCommentsNotificationType,
-	FetchAssignableUsersAutocompleteRequest,
-	FetchAssignableUsersResponse,
 	FetchReposResponse,
 	FetchThirdPartyBoardsRequest,
 	FetchThirdPartyBoardsResponse,
@@ -47,6 +45,7 @@ import {
 } from "../protocol/agent.protocol";
 import { CSGitHubProviderInfo, CSRepository } from "../protocol/api.protocol";
 import { Dates, Functions, log, lspProvider } from "../system";
+import { TraceLevel } from "../types";
 import { Directive, Directives } from "./directives";
 import {
 	ApiResponse,
@@ -55,12 +54,12 @@ import {
 	ProviderCreatePullRequestRequest,
 	ProviderCreatePullRequestResponse,
 	ProviderGetRepoInfoResponse,
-	ProviderVersion,
 	PullRequestComment,
-	ThirdPartyIssueProviderBase,
 	ThirdPartyProviderSupportsIssues,
 	ThirdPartyProviderSupportsPullRequests
 } from "./provider";
+import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
+import { ProviderVersion } from "./types";
 
 interface GitHubRepo {
 	id: string;
