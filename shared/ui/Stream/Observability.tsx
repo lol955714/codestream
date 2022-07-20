@@ -2,7 +2,8 @@ import {
 	forEach as _forEach,
 	isEmpty as _isEmpty,
 	isNil as _isNil,
-	keyBy as _keyBy
+	keyBy as _keyBy,
+	head as _head
 } from "lodash-es";
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -119,9 +120,8 @@ const NoEntitiesCopy = styled.div`
 
 const EntityHealth = styled.div<{ backgroundColor: string }>`
 	background-color: ${props => (props.backgroundColor ? props.backgroundColor : "white")};
-	width: 15px;
-	height: 15px;
-	border-radius: 2px;
+	width: 10px;
+	height: 10px;
 	margin-right: 4px;
 `;
 
@@ -220,6 +220,7 @@ export const Observability = React.memo((props: Props) => {
 	}>({});
 	const [loadingAssigments, setLoadingAssigments] = useState<boolean>(false);
 	const [hasEntities, setHasEntities] = useState<boolean>(false);
+	const [repoForEntityAssociator, setRepoForEntityAssociator] = useState<any>({});
 	const [loadingEntities, setLoadingEntities] = useState<boolean>(false);
 	const [observabilityAssignments, setObservabilityAssignments] = useState<
 		ObservabilityErrorCore[]
@@ -232,6 +233,7 @@ export const Observability = React.memo((props: Props) => {
 	const [expandedEntity, setExpandedEntity] = useState<string | null>(null);
 	const [currentEntityAccountIndex, setCurrentEntityAccountIndex] = useState<string | null>(null);
 	const [currentRepoId, setCurrentRepoId] = useState<string>("");
+	const [loadingGoldenMetrics, setLoadingGoldenMetrics] = useState<boolean>(false);
 	const [currentEntityAccounts, setCurrentEntityAccounts] = useState<EntityAccount[] | undefined>(
 		[]
 	);
@@ -439,6 +441,7 @@ export const Observability = React.memo((props: Props) => {
 
 	const fetchObservabilityRepos = (entityGuid: string, repoId) => {
 		loading(repoId, true);
+		setLoadingEntities(true);
 
 		return HostApi.instance
 			.send(GetObservabilityReposRequestType, {
@@ -450,7 +453,7 @@ export const Observability = React.memo((props: Props) => {
 					existingObservabilityRepos.push(response.repos[0]);
 					setObservabilityRepos(existingObservabilityRepos!);
 				}
-
+				setLoadingEntities(false);
 				loading(repoId, false);
 			})
 			.catch(ex => {
@@ -460,6 +463,7 @@ export const Observability = React.memo((props: Props) => {
 						Query: "GetObservabilityRepos"
 					});
 					setNoAccess(true);
+					setLoadingEntities(false);
 				}
 			});
 	};
@@ -490,16 +494,16 @@ export const Observability = React.memo((props: Props) => {
 
 	const fetchGoldenMetrics = async (entityGuid?: string | null) => {
 		if (entityGuid) {
+			setLoadingGoldenMetrics(true);
 			const response = await HostApi.instance.send(GetMethodLevelTelemetryRequestType, {
 				newRelicEntityGuid: entityGuid,
-				metricTimesliceNameMapping: derivedState.currentMethodLevelTelemetry
-					.metricTimesliceNameMapping!,
 				repoId: currentRepoId
 			});
 			if (response?.goldenMetrics) {
 				setGoldenMetrics(response.goldenMetrics);
 				setNewRelicUrl(response.newRelicUrl);
 			}
+			setLoadingGoldenMetrics(false);
 		}
 	};
 
@@ -641,6 +645,24 @@ export const Observability = React.memo((props: Props) => {
 		}
 	}, [loadingErrors, loadingAssigments]);
 
+	useEffect(() => {
+		if (!_isEmpty(currentRepoId) && !_isEmpty(observabilityRepos)) {
+			const currentRepo = _head(observabilityRepos.filter(_ => _.repoId === currentRepoId));
+
+			if (
+				currentRepo &&
+				!currentRepo.hasRepoAssociation &&
+				!observabilityErrors?.find(
+					oe => oe?.repoId === currentRepo?.repoId && oe?.errors.length > 0
+				)
+			) {
+				setRepoForEntityAssociator(currentRepo);
+			} else {
+				setRepoForEntityAssociator({});
+			}
+		}
+	}, [currentRepoId, observabilityRepos]);
+
 	const handleSetUpMonitoring = (event: React.SyntheticEvent) => {
 		event.preventDefault();
 		dispatch(openPanel(WebviewPanels.OnboardNewRelic));
@@ -696,7 +718,13 @@ export const Observability = React.memo((props: Props) => {
 							) : (
 								<>
 									<PaneNode>
-										{loadingEntities && <ErrorRow isLoading={true} title="Loading..."></ErrorRow>}
+										{loadingEntities && (
+											<ErrorRow
+												isLoading={true}
+												title="Loading..."
+												customPadding={"0 10px 0 20px"}
+											></ErrorRow>
+										)}
 										{!loadingEntities && !hasEntities && (
 											<NoEntitiesWrapper>
 												<NoEntitiesCopy>
@@ -771,7 +799,10 @@ export const Observability = React.memo((props: Props) => {
 																					<EntityHealth backgroundColor={alertSeverityColor} />
 																					<div>
 																						<span>{ea.entityName}</span>
-																						<span className="subtle">
+																						<span
+																							className="subtle"
+																							style={{ fontSize: "11px", verticalAlign: "bottom" }}
+																						>
 																							{ea.accountName && ea.accountName.length > 25
 																								? ea.accountName.substr(0, 25) + "..."
 																								: ea.accountName}
@@ -824,6 +855,7 @@ export const Observability = React.memo((props: Props) => {
 																							<>
 																								<ObservabilityGoldenMetricDropdown
 																									goldenMetrics={goldenMetrics}
+																									loadingGoldenMetrics={loadingGoldenMetrics}
 																								/>
 
 																								{observabilityErrors?.find(
@@ -844,29 +876,9 @@ export const Observability = React.memo((props: Props) => {
 																								) : _observabilityRepo.hasRepoAssociation ? (
 																									<ErrorRow title="No errors to display" />
 																								) : (
-																									<EntityAssociator
-																										label="Associate this repo with an entity on New Relic in order to see errors"
-																										onSuccess={async e => {
-																											HostApi.instance.track(
-																												"NR Entity Association",
-																												{
-																													"Repo ID": _observabilityRepo.repoId
-																												}
-																											);
-
-																											await fetchObservabilityRepos(
-																												e.entityGuid,
-																												_observabilityRepo.repoId
-																											);
-																											fetchObservabilityErrors(
-																												e.entityGuid,
-																												_observabilityRepo.repoId
-																											);
-																											fetchGoldenMetrics(e.entityGuid);
-																										}}
-																										remote={_observabilityRepo.repoRemote}
-																										remoteName={_observabilityRepo.repoName}
-																									/>
+																									<>
+																										{/* @TODO rework this conditional, this part will never be triggered */}
+																									</>
 																								)}
 																							</>
 																						)}
@@ -880,6 +892,34 @@ export const Observability = React.memo((props: Props) => {
 														})}
 												</>
 											)}
+										{!loadingEntities && hasEntities && (
+											<>
+												{!_isEmpty(repoForEntityAssociator) && (
+													<>
+														<EntityAssociator
+															label="Associate this repo with an entity on New Relic in order to see errors"
+															onSuccess={async e => {
+																HostApi.instance.track("NR Entity Association", {
+																	"Repo ID": repoForEntityAssociator.repoId
+																});
+
+																await fetchObservabilityRepos(
+																	e.entityGuid,
+																	repoForEntityAssociator.repoId
+																);
+																fetchObservabilityErrors(
+																	e.entityGuid,
+																	repoForEntityAssociator.repoId
+																);
+																fetchGoldenMetrics(e.entityGuid);
+															}}
+															remote={repoForEntityAssociator.repoRemote}
+															remoteName={repoForEntityAssociator.repoName}
+														/>
+													</>
+												)}
+											</>
+										)}
 									</PaneNode>
 								</>
 							)}

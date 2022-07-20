@@ -66,7 +66,7 @@ export const ObservabilityErrorDropdown = React.memo((props: Props) => {
 					{(filteredErrors && filteredErrors.length == 0) ||
 					(filteredErrors && _isEmpty(filteredErrors[0])) ? (
 						<>
-							<ErrorRow title={"No errors to display"}></ErrorRow>
+							<ErrorRow customPadding={"0 10px 0 50px"} title={"No errors to display"}></ErrorRow>
 						</>
 					) : (
 						<>

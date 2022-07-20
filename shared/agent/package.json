@@ -36,13 +36,13 @@
 		"update:emoji": "pushd emoji && node ./shortcodeToEmoji.js && popd",
 		"watch": "webpack --watch --env development=true",
 		"test:ci": "npm run test-unit",
-		"test-acceptance": "jest test/acceptance/*.spec.ts",
+		"test-acceptance": "jest --testPathPattern=\"test\\/acceptance\\/.*\\.spec\\.ts$\"",
 		"test-acceptance-ci": "npm run test-acceptance",
-		"test-apiserver": "jest test/api_server/**/*.spec.ts",
-		"test-integration": "jest test/integration/**/*.spec.ts",
+		"test-apiserver": "jest --testPathPattern=\"test\\/api_server\\/.*\\.spec\\.ts$\"",
+		"test-integration": "jest --testPathPattern=\"test\\/integration\\/.*\\.spec\\.ts$\"",
 		"test-integration-ci": "npm run test-integration",
-		"test-unit": "npx jest test/unit/**/*.spec.ts",
-		"test-unit-watch": "jest test/unit/**/*.spec.ts --watch",
+		"test-unit": "npx jest --testPathPattern=\"test\\/unit\\/.*\\.spec\\.ts$\"",
+		"test-unit-watch": "jest --testPathPattern=\"test\\/unit\\/.*\\.spec\\.ts$\" --watch",
 		"test-unit-with-coverage": "npm run test-unit -- --coverage"
 	},
 	"dependencies": {

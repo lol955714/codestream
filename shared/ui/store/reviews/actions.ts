@@ -156,7 +156,9 @@ export const createReview = (attributes: NewReviewAttributes) => async (
 			return result;
 		}
 	} catch (error) {
-		logError("Error creating a review", error);
+		logError(error, {
+			detail: "Error creating a review"
+		});
 		throw { reason: "create", ...error } as CreateReviewError;
 	}
 };

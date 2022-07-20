@@ -1630,6 +1630,7 @@ export class CodeStreamSession {
 	registerApiCapabilities(apiCapabilities: CSApiCapabilities, team?: CSTeam): void {
 		const teamSettings = (team && team.settings) || {};
 		const teamFeatures = teamSettings.features || {};
+		Logger.log(`registerApiCapabilities for teamId ${team?.id}`, teamFeatures);
 		this._apiCapabilities = {};
 		if (this.versionInfo.ide.name == null || this.versionInfo.ide.name === "") {
 			Logger.warn("IDE name not set - IDE-specific capabilities can't be identified");
@@ -1643,6 +1644,7 @@ export class CodeStreamSession {
 				this._apiCapabilities[key] = capability;
 			}
 		}
+		Logger.log("_apiCapabilities", this._apiCapabilities);
 	}
 
 	async setCompanyTestGroups() {

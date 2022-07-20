@@ -62,7 +62,7 @@ export const ObservabilityAssignmentsDropdown = React.memo((props: Props) => {
 				<>
 					{filteredAssignments && filteredAssignments.length == 0 ? (
 						<>
-							<ErrorRow title={"No errors to display"}></ErrorRow>
+							<ErrorRow customPadding={"0 10px 0 50px"} title={"No errors to display"}></ErrorRow>
 						</>
 					) : (
 						<>

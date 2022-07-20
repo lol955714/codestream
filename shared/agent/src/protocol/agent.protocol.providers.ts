@@ -1119,7 +1119,7 @@ export interface GetMethodLevelTelemetryRequest {
 	/** entity id of the NewRelic entity */
 	newRelicEntityGuid: string;
 	/** contains the specific formatting of a metricTimesliceName for a golden metric type */
-	metricTimesliceNameMapping: MetricTimesliceNameMapping;
+	metricTimesliceNameMapping?: MetricTimesliceNameMapping;
 }
 
 export type MetricTimesliceNameMapping = {

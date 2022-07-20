@@ -95,7 +95,11 @@ import {
 	Span,
 	SpanRequest
 } from "./newrelic/newrelic.types";
-import { generateClmSpanDataExistsQuery, generateSpanQuery } from "./newrelic/spanQuery";
+import {
+	generateClmSpanDataExistsQuery,
+	generateSpanQuery,
+	spanQueryTypes
+} from "./newrelic/spanQuery";
 import { ThirdPartyIssueProviderBase } from "./thirdPartyIssueProviderBase";
 
 const supportedLanguages = ["python", "ruby", "csharp"] as const;
@@ -1608,40 +1612,34 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 
 	async getSpans(request: SpanRequest): Promise<Span[] | undefined> {
 		if (!request.codeFilePath) return undefined;
-		const query = generateSpanQuery(
-			request.newRelicEntityGuid,
-			request.resolutionMethod,
-			request.codeFilePath,
-			request.locator
-		);
 		try {
-			const response = await this.query(query, {
-				accountId: request.newRelicAccountId!
-			});
+			for (const queryType of spanQueryTypes) {
+				const query = generateSpanQuery(
+					request.newRelicEntityGuid,
+					request.resolutionMethod,
+					queryType,
+					request.codeFilePath,
+					request.locator
+				);
 
-			if (response?.actor?.account?.equals?.results?.length) {
-				return response.actor.account.equals.results;
-			}
+				const response = await this.query(query, {
+					accountId: request.newRelicAccountId!
+				});
 
-			if (response?.actor?.account?.like?.results?.length) {
-				Logger.warn("getSpans using like", {
-					query: query,
-					accountId: request.newRelicAccountId
-				});
-				return response.actor.account.like.results;
-			}
-			if (response?.actor?.account?.fuzzy?.results?.length) {
-				Logger.warn("getSpans using fuzzy", {
-					query: query,
-					accountId: request.newRelicAccountId
-				});
-				return response.actor.account.fuzzy.results;
+				if (response?.actor?.account?.nrql?.results?.length) {
+					Logger.warn(
+						`Resolved ${response?.actor?.account?.nrql?.results?.length} spans with ${queryType} query`
+					);
+					return response.actor.account.nrql.results;
+				}
 			}
 		} catch (ex) {
 			Logger.error(ex, "getSpans", { request });
 		}
 		Logger.warn("getSpans none", {
-			query: query,
+			locator: request.locator,
+			resolutionMethod: request.resolutionMethod,
+			codeFilePath: request.codeFilePath,
 			accountId: request.newRelicAccountId
 		});
 		return undefined;
@@ -1839,7 +1837,7 @@ export class NewRelicProvider extends ThirdPartyIssueProviderBase<CSNewRelicProv
 	}
 
 	timesliceNameMap(languageId: LanguageId, timesliceName: string): string {
-		if (languageId === "python" || languageId == "csharp") {
+		if (languageId === "python" || languageId === "csharp") {
 			return timesliceName
 				.replace("Errors/WebTransaction/", "")
 				.replace("WebTransaction/", "")

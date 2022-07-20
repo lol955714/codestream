@@ -7,6 +7,7 @@ import Tooltip from "./Tooltip";
 
 interface Props {
 	goldenMetrics: any;
+	loadingGoldenMetrics: boolean;
 }
 
 const StyledMetric = styled.div`
@@ -30,7 +31,7 @@ export const ObservabilityGoldenMetricDropdown = React.memo((props: Props) => {
 	const goldenMetricTitleMapping = {
 		responseTimeMs: {
 			title: "Response Time Ms",
-			units: "ms",
+			units: " ",
 			tooltip: "This shows the average time this service spends processing web requests."
 		},
 		throughput: {
@@ -71,15 +72,43 @@ export const ObservabilityGoldenMetricDropdown = React.memo((props: Props) => {
 				{expanded && <Icon name="chevron-down-thin" />}
 				{!expanded && <Icon name="chevron-right-thin" />}
 				<span style={{ margin: "0 5px 0 2px" }}>Golden Metrics</span>{" "}
-				{updatedAt && <Icon name="clock" className="clickable" title={updatedAt} delay={1} />}
+				{updatedAt && (
+					<Icon
+						style={{ transform: "scale(0.8)" }}
+						name="clock"
+						className="clickable"
+						title={updatedAt}
+						delay={1}
+					/>
+				)}
 			</Row>
-			{expanded && (
+			{expanded && props.loadingGoldenMetrics && (
+				<Row
+					style={{
+						padding: "0 10px 0 42px"
+					}}
+					className={"pr-row"}
+				>
+					<Icon
+						style={{
+							marginRight: "5px"
+						}}
+						className="spin"
+						name="sync"
+					/>{" "}
+					Loading...
+				</Row>
+			)}
+			{expanded && !props.loadingGoldenMetrics && (
 				<>
 					{goldenMetrics.map(gm => {
 						const goldenMetricUnit = goldenMetricTitleMapping[gm?.name]?.units;
 						const goldenMetricTooltip = goldenMetricTitleMapping[gm?.name]?.tooltip;
-						let goldenMetricValueTrue = gm?.result[0][goldenMetricTitleMapping[gm?.name]?.title];
-						let goldenMetricValue = gm?.result[0][goldenMetricTitleMapping[gm?.name]?.title];
+						let goldenMetricValueTrue =
+							gm?.result && gm.result.length > 0
+								? gm?.result[0][goldenMetricTitleMapping[gm?.name]?.title]
+								: "";
+						let goldenMetricValue = goldenMetricValueTrue;
 
 						// Set value to non null result if golden metric does not appear in mapping array
 						if (!goldenMetricValueTrue && !goldenMetricValue && gm?.result[0]) {
@@ -96,7 +125,7 @@ export const ObservabilityGoldenMetricDropdown = React.memo((props: Props) => {
 						if (goldenMetricValue && goldenMetricValue % 1 !== 0) {
 							let logValue = -Math.floor(Math.log10(goldenMetricValue)) + 1;
 							let roundToValue = logValue > 2 ? logValue : 2;
-							goldenMetricValue = goldenMetricValue.toFixed(roundToValue);
+							goldenMetricValue = Number(goldenMetricValue)?.toFixed(roundToValue);
 							noCommas = true;
 						}
 						// add commas to numbers
@@ -117,6 +146,7 @@ export const ObservabilityGoldenMetricDropdown = React.memo((props: Props) => {
 									<span style={{ marginRight: "5px" }}>{gm.title}</span>
 									{goldenMetricTooltip && (
 										<Icon
+											style={{ transform: "scale(0.9)" }}
 											name="info"
 											className="clickable"
 											title={goldenMetricTooltip}
@@ -129,9 +159,9 @@ export const ObservabilityGoldenMetricDropdown = React.memo((props: Props) => {
 								<div className="icons">
 									<Tooltip placement="topRight" title={goldenMetricValueTrue} delay={1}>
 										<StyledMetric>
-											{goldenMetricValue && goldenMetricUnit ? (
+											{goldenMetricValue ? (
 												<>
-													{goldenMetricValue} {goldenMetricUnit}
+													{goldenMetricValue} {goldenMetricUnit && <>{goldenMetricUnit}</>}
 												</>
 											) : (
 												<>No Data</>

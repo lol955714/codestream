@@ -627,7 +627,7 @@ class ReviewForm extends React.Component<Props, State> {
 				let limitedLength: number | undefined = undefined;
 
 				const startCommitIndex = this.getRowIndex(statusInfo.scm.startCommit);
-				if (startCommitIndex != undefined && startCommitIndex >= 1) {
+				if (startCommitIndex != undefined && startCommitIndex >= 0) {
 					const excludeCommit: { [sha: string]: boolean } = {};
 					statusInfo.scm.commits?.forEach((commit, index) => {
 						excludeCommit[commit.sha] = index >= startCommitIndex;

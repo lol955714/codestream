@@ -31,14 +31,13 @@ export const ObservabilityErrorWrapper = React.memo((props: Props) => {
 			</Row>
 			{expanded && (
 				<>
+					<ObservabilityAssignmentsDropdown
+						observabilityAssignments={props.observabilityAssignments}
+						entityGuid={props.entityGuid}
+					/>
 					<ObservabilityErrorDropdown
 						observabilityErrors={props.observabilityErrors}
 						observabilityRepo={props.observabilityRepo}
-						entityGuid={props.entityGuid}
-					/>
-
-					<ObservabilityAssignmentsDropdown
-						observabilityAssignments={props.observabilityAssignments}
 						entityGuid={props.entityGuid}
 					/>
 				</>

@@ -10,6 +10,7 @@ import { getFileScmError, mapFileScmErrorForTelemetry } from "../store/editorCon
 import { fetchDocumentMarkers } from "../store/documentMarkers/actions";
 import { GetFileScmInfoRequestType, GetReposScmRequestType } from "@codestream/protocols/agent";
 import { HostApi } from "../webview-api";
+import Icon from "./Icon";
 
 interface Props {
 	currentRepoCallback: Function;
@@ -107,5 +108,10 @@ export const ObservabilityCurrentRepo = React.memo((props: Props) => {
 		}
 	};
 
-	return <CurrentRepoContainer>{currentRepoName}</CurrentRepoContainer>;
+	return (
+		<CurrentRepoContainer>
+			<Icon style={{ transform: "scale(0.7)", display: "inline-block" }} name="repo" />{" "}
+			{currentRepoName}
+		</CurrentRepoContainer>
+	);
 });
