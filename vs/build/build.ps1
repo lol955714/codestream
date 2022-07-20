@@ -79,7 +79,7 @@ function Build-AgentAndWebview {
 
 	Write-Log "Bundling agent & webview..."
 
-	& npm run $(if ($CI) { "bundle:ci" } else { "bundle" })
+	& npm run bundle
 	if ($LastExitCode -ne 0) {
 		throw "Bundling webview failed"
 	}
