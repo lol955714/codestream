@@ -92,4 +92,4 @@ export interface FunctionInfo {
 	functionName?: string;
 }
 
-export type ResolutionMethod = "filePath" | "locator";
+export type ResolutionMethod = "filePath" | "locator" | "spanName";

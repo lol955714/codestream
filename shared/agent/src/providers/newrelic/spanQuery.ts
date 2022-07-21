@@ -43,6 +43,21 @@ function functionLocatorQuery(
 	  }`;
 }
 
+// Java/org.springframework.samples.petclinic.clm.ClmController/autoOnly
+function spanLocatorQuery(newRelicEntityGuid: string, spanName: string): string {
+	const query = `SELECT name,\`transaction.name\`,code.lineno,code.namespace,code.function,traceId,transactionId from Span WHERE \`entity.guid\` = '${newRelicEntityGuid}' AND name like '${spanName}%' SINCE 30 minutes AGO LIMIT 250`;
+
+	return `query GetSpans($accountId:Int!) {
+			actor {
+				account(id: $accountId) {
+					nrql(query: "${query}") {
+						results
+					}
+				}
+			}
+	  }`;
+}
+
 export function generateSpanQuery(
 	newRelicEntityGuid: string,
 	resolutionMethod: ResolutionMethod,
@@ -61,6 +76,10 @@ export function generateSpanQuery(
 
 	if (resolutionMethod === "locator") {
 		return functionLocatorQuery(newRelicEntityGuid, locator!, spanQueryType);
+	}
+
+	if (resolutionMethod === "spanName") {
+		return spanLocatorQuery(newRelicEntityGuid, locator!.namespace!);
 	}
 
 	codeFilePath = codeFilePath?.replace(/\\/g, "/");
